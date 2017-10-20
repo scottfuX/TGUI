@@ -1,7 +1,15 @@
-#ifndef __LISTCLASS_H_
-#define __LISTCLASS_H_
+#ifndef __LISTCLASS_HPP_
+#define __LISTCLASS_HPP_
 
+#ifdef __cplusplus
+extern "C"  {
+#endif
+	
 #include "TGUIConfig/tgui_drv_conf.h"
+	
+#ifdef __cplusplus
+}
+#endif
 
 template <class Type> class CircularList;  
 template <class Type> class ListNode  
@@ -13,7 +21,7 @@ private:
     friend class CircularList<Type>;//因为构造newhead的时候需要调用ListNode的私有构造函数  
     ListNode():m_pnext(NULL){};  
 		ListNode( Type* item,ListNode<Type> *next){m_data = item ,m_pnext = next;}
-    //ListNode(const Type *item,ListNode<Type> *next=NULL):m_data(item),m_pnext(next){};  
+    ListNode(const Type *item,ListNode<Type> *next=NULL):m_data(item),m_pnext(next){};  
     ~ListNode(){m_pnext=NULL;}  
 public:  
     Type* Getdata()//留一个接口，使用户能够访问ListNode的数据  
@@ -53,7 +61,7 @@ template <class Type> void CircularList<Type>::MakeEmpty()
         {
 					pdel=head->m_pnext;  
 					head->m_pnext=pdel->m_pnext;  
-					delete (pdel->m_data);//-----------------------------删除---------------有疑问
+					delete (pdel->m_data);//删除内部对象
 					delete pdel;
 				} 
 		length = 0;
@@ -66,8 +74,12 @@ template <class Type> int CircularList<Type>::getLength()
   
 template <class Type> Type* CircularList<Type>::Next()  
 {  
-    ListNode<Type>* pmove= currPtr->m_pnext;
+    ListNode<Type>* pmove = currPtr->m_pnext;
 		currPtr	 = pmove;
+		if(pmove == head){
+			pmove = currPtr->m_pnext;
+			currPtr	 = pmove;
+		}
     return pmove->m_data;  
 }  
  
@@ -96,9 +108,11 @@ template <class Type> bool CircularList<Type>::Remove(Type* item)
         if(pdel->m_data == item)  
         {  
             pmove->m_pnext=pdel->m_pnext;    
-            delete pdel;  
+						delete pdel->m_data;//删除实对象（item）
+            delete pdel;  			//删除链表对象
             pdel=pmove->m_pnext;//主要要重新给pdel赋值，因为前面delete了
-						length --;					
+						length --;	
+										
             return true;  
 					
         }  
@@ -121,4 +135,4 @@ template <class Type> Type* CircularList<Type>::Get(int n)
     return pmove->m_data;  
 }  
 
-#endif //!__LISTCLASS_H_
+#endif //!__LISTCLASS_HPP_

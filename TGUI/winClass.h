@@ -1,11 +1,23 @@
 #ifndef _WINCLASS_H_
 #define _WINCLASS_H_ 
 
+#ifdef __cplusplus
+extern "C"  {
+#endif
+	
 #include "TGUIConfig/tgui_drv_conf.h"
-#include "ListClass.h"
+	
+
+	
+#ifdef __cplusplus
+}
+#endif
+	
+#include "ListClass.hpp"
+extern uint8 TouchUp;
 
 
-
+#define  WS_DESKTOP 			0
 #define	 WS_DEFAULT 			1
 #define	 WS_VISIBLE 			2
 #define	 WS_DISABLED 			4
@@ -17,45 +29,55 @@
 #define	 WS_MINIMIZEBOX 	256//标题栏上带最小化按钮
 #define	 WS_MAXIMIZEBOX 	512//标题栏上带最大化按钮
 
-/*//ex -----未实现
-	bool WS_EX_NONE;//无扩展风格
-	bool WS_EX_TOPMOST;//建立始终处于顶层的主窗口
-	bool WS_EX_TOOLWINDOW;//建立 Tooltip 主窗口
-	bool WS_EX_TRANSPARENT;//透明窗口风格
-	bool WS_EX_USEPARENTFONT;//使用父窗口字体作为默认字体
-	bool WS_EX_USEPARENTCURSOR;//使用父窗口光标作为默认光标
-	bool WS_EX_NOCLOSEBOX;//主窗口标题栏上不带关闭按钮;
-	bool WS_EX_CTRLASMAINWIN;//建立可显示在主窗口之外的控件
-};
-*/
-class rootWin;
-extern rootWin* currentWin; //指向当前界面
+
+
+
 
 typedef enum {
 	GUI_OK = 0,		/* 0: Successful */
 	GUI_ERROR,		/* 1: R/W Error */
 	GUI_NOMEM,		/* 2: No Memery */
-	GUI_NOFIND
+	GUI_NOFIND,
+	GUI_QEMPTY,
+	GUI_QFULL
 }retStatus;
 
 /**-----------Message-------------**/
-//class Message{};
 typedef enum {
-	MSG_CLOSE = 0,	
+	MSG_EMPTY = 0,
+	MSG_CLOSE = 1,	
 	MSG_DESTROY,	
 	MSG_WINMOV,		
 	MSG_FONTCHANGE,
 	MSG_ERASURE,
 	MSG_REPAINT
+}MsgType;
+typedef struct{
+	MsgType type;
+	uint32  data;
 }Message;
-/**---------dataMessage-----------**/
 
-//dataMessage
 
+
+
+//预定义类。。。。
+class rootWin;
+class mainWin;
+class controlWin;
+//class button;
+//class gridView;
+//class scrollView;
+//class icon;
+//class trackBar;
+//class progressBar;
+//class listBar;
+//class textBar;
+
+extern rootWin* currentWin;
 /**----------rootWin-------------**/
 class rootWin
 {
-protected:
+	private:
     
     uint8* winTitle;
     uint16 winXpos;
@@ -63,23 +85,19 @@ protected:
     uint16 winWidth;
     uint16 winHigh;
 
-		void *winIcon;
-		uint32 backColor;
-		uint32 statBarColor;
-
+	void *winIcon;
+	uint32 backColor;
+	uint32 statBarColor;
 		//待定
     void *winProc;
     void *winMenu;
 		//List listWin;
-    
-public:
-	
+	public:
     rootWin();
     rootWin(uint8* winTitle,uint16 winXpos,uint16 winYpos,\
 		uint16 winWidth,uint16 winHigh);
 		~rootWin();
 		
-	
     void setWinTitle(uint8* winTitle){this->winTitle = winTitle;}
     void setWinXpos(uint16 winXpos){this->winXpos = winXpos;}   
     void setWinYpos(uint16 winYpos){this->winYpos = winYpos;}
@@ -95,14 +113,62 @@ public:
     uint16 getWinHigh(){return winHigh;}
 		uint32 getBackColor(){return backColor;}
 		uint32 getStatBarColor(){return statBarColor;}
-		
 		//rootWin createWin();
-    void updateWin();
-    void showWin();
-    bool isWinEnable();
+//    void updateWin();
+  //  void showWin();
+   // bool isWinEnable();
 };
 
 
+/**----------mainWin-------------**/
+class mainWin:rootWin
+{
+private:
+	uint16 winStyle;
+	uint16 Xpos;//传进来的指针
+	uint16 Ypos;
+	CircularList<controlWin>* list;
+	xQueueHandle queue;
+public:
+	
+	mainWin();
+	mainWin(uint8* winTitle,uint16 winStyle,uint16 winXpos,uint16 winYpos,uint16 winWidth,uint16 winHigh);
+	~mainWin();
+	friend class button;
+
+	void setWinStyle(uint16 winStyle){this->winStyle = winStyle;}
+	void setWinTitle(uint8* winTitle){rootWin::setWinTitle(winTitle);}
+	void setWinXpos(uint16 winXpos){rootWin::setWinXpos(winXpos);}   
+	void setWinYpos(uint16 winYpos){rootWin::setWinYpos(winYpos);}
+	void setWinWidth(uint16 winWidth){rootWin::setWinWidth(winWidth);}
+	void setWinHigh(uint16 winHigh){rootWin::setWinHigh(winHigh);}
+	void setBackColor(uint32 backColor){rootWin::setBackColor(backColor);}
+	void setStatBarColor(uint32 statBarColor){rootWin::setStatBarColor(statBarColor);}
+	
+	uint16 getWinStyle(){return winStyle;}	
+	uint8* getWinTitle(){return rootWin::getWinTitle();}
+	uint16 getWinXpos(){return rootWin::getWinXpos();}
+	uint16 getWinYpos(){return rootWin::getWinYpos();}
+	uint16 getWinWidth(){return rootWin::getWinWidth();}
+	uint16 getWinHigh(){return rootWin::getWinHigh();}
+	uint32 getBackColor(){return rootWin::getBackColor();}
+	uint32 getStatBarColor(){return rootWin::getStatBarColor();}
+	
+	bool isInArea(uint16 Xpos,uint16 Ypos);
+	//retStatus creatList();
+	retStatus findExecControl(uint16 Xpos,uint16 Ypos);
+	retStatus addControl(controlWin* cw);
+	retStatus delControl(controlWin* cw);
+	retStatus getMessage(Message* buffer);
+	void layoutWin();
+	void execWin();
+	
+	void closeWin();//在缩小到后端 
+	void moveWin(uint32 data);//移动窗口
+	void changeFont(uint32 data);//改变字体
+	void erasureWin();//清空数据
+	void repaintWin();//重新绘画
+};
 
 /**--------controlWin-----------**/
 class controlWin:rootWin
@@ -113,7 +179,7 @@ private:
 public:
 	controlWin();
 	controlWin(uint8* winTitle,uint16 winXpos,uint16 winYpos,uint16 winWidth,uint16 winHigh);
-	~controlWin();
+	virtual ~controlWin();
 
 	void setWinTitle(uint8* winTitle){rootWin::setWinTitle(winTitle);}
 	void setWinXpos(uint16 winXpos){rootWin::setWinXpos(winXpos);}   
@@ -124,7 +190,7 @@ public:
 	void setStatBarColor(uint32 statBarColor){rootWin::setStatBarColor(statBarColor);}
 			
 	uint8* getWinTitle(){return rootWin::getWinTitle();}
-	uint16 getWinXpos(){return rootWin::getWinXpos();}
+    uint16 getWinXpos(){return rootWin::getWinXpos();}
 	uint16 getWinYpos(){return rootWin::getWinYpos();}
 	uint16 getWinWidth(){return rootWin::getWinWidth();}
 	uint16 getWinHigh(){return rootWin::getWinHigh();}
@@ -132,29 +198,51 @@ public:
 	uint32 getStatBarColor(){return rootWin::getStatBarColor();}
 
 
-	virtual bool isInArea(uint16 Xpos,uint16 Ypos) = 0;
-	virtual retStatus sendMessage(Message msg) = 0;
-	virtual void layoutControl() = 0;
-	virtual void createControl() = 0;
-	virtual retStatus execControl() = 0;
+	virtual bool isInArea(uint16 Xpos,uint16 Ypos)=0;
+	virtual retStatus sendMessage(Message msg,xQueueHandle* que)=0;
+	virtual void layoutControl(mainWin* mw)=0;
+	virtual retStatus execControl(mainWin* mw) =0;//??
+	virtual void triggerControl(mainWin* mw) = 0;//触发按键
+	virtual void releaseControl(mainWin* mw) = 0;//释放按键
 	
 
 };
 
 //按键
-class button :public controlWin
+class button:public controlWin
 {
 public:
 	button();
 	button(uint8* winTitle,uint16 winXpos,uint16 winYpos,uint16 winWidth,uint16 winHigh);
-	virtual bool isInArea(uint16 Xpos,uint16 Ypos);
-	virtual retStatus sendMessage(Message msg);
-	virtual void layoutControl();
-	virtual void createControl();
-	virtual retStatus execControl();
+	virtual ~button();
+
+	void setWinTitle(uint8* winTitle){controlWin::setWinTitle(winTitle);}
+	void setWinXpos(uint16 winXpos){controlWin::setWinXpos(winXpos);}   
+	void setWinYpos(uint16 winYpos){controlWin::setWinYpos(winYpos);}
+	void setWinWidth(uint16 winWidth){controlWin::setWinWidth(winWidth);}
+	void setWinHigh(uint16 winHigh){controlWin::setWinHigh(winHigh);}
+	void setBackColor(uint32 backColor){controlWin::setBackColor(backColor);}
+	void setStatBarColor(uint32 statBarColor){controlWin::setStatBarColor(statBarColor);}
+	
+	uint8* getWinTitle(){return controlWin::getWinTitle();}
+	uint16 getWinXpos(){return controlWin::getWinXpos();}
+	uint16 getWinYpos(){return controlWin::getWinYpos();}
+	uint16 getWinWidth(){return controlWin::getWinWidth();}
+	uint16 getWinHigh(){return controlWin::getWinHigh();}
+	uint32 getBackColor(){return controlWin::getBackColor();}
+	uint32 getStatBarColor(){return controlWin::getStatBarColor();}
+	
+	virtual bool isInArea(uint16 iXpos,uint16 iYpos);
+	virtual retStatus sendMessage(Message msg,xQueueHandle* que);
+	virtual void layoutControl(mainWin* mw);
+	//virtual void createControl(mainWin* mw);
+	virtual retStatus execControl(mainWin* mw);
+	virtual void triggerControl(mainWin* mw);//触发按键
+	virtual void releaseControl(mainWin* mw);//释放按键
 };
+
 //网格
-class gridView :public controlWin
+class gridView:public controlWin
 {
 	
 };
@@ -187,55 +275,6 @@ class listBar:public controlWin
 class textBar:public controlWin
 {
 	
-};
-
-/**----------mainWin-------------**/
-class mainWin:rootWin
-{
-private:
-	uint16 winStyle;
-	uint16 Xpos;//传进来的指针
-	uint16 Ypos;
-	CircularList<controlWin>* list;
-	xQueueHandle queue;
-public:
-	
-	mainWin();
-	mainWin(uint8* winTitle,uint16 winStyle,uint16 winXpos,uint16 winYpos,uint16 winWidth,uint16 winHigh);
-	~mainWin();
-	
-	void setWinStyle(uint16 winStyle){this->winStyle = winStyle;}
-	void setWinTitle(uint8* winTitle){rootWin::setWinTitle(winTitle);}
-	void setWinXpos(uint16 winXpos){rootWin::setWinXpos(winXpos);}   
-	void setWinYpos(uint16 winYpos){rootWin::setWinYpos(winYpos);}
-	void setWinWidth(uint16 winWidth){rootWin::setWinWidth(winWidth);}
-	void setWinHigh(uint16 winHigh){rootWin::setWinHigh(winHigh);}
-	void setBackColor(uint32 backColor){rootWin::setBackColor(backColor);}
-	void setStatBarColor(uint32 statBarColor){rootWin::setStatBarColor(statBarColor);}
-	
-	uint16 getWinStyle(){return winStyle;}	
-	uint8* getWinTitle(){return rootWin::getWinTitle();}
-	uint16 getWinXpos(){return rootWin::getWinXpos();}
-	uint16 getWinYpos(){return rootWin::getWinYpos();}
-	uint16 getWinWidth(){return rootWin::getWinWidth();}
-	uint16 getWinHigh(){return rootWin::getWinHigh();}
-	uint32 getBackColor(){return rootWin::getBackColor();}
-	uint32 getStatBarColor(){return rootWin::getStatBarColor();}
-	
-	bool isInArea(uint16 Xpos,uint16 Ypos);
-	//retStatus creatList();
-	retStatus findExecControl(uint16 Xpos,uint16 Ypos);
-	retStatus addControl(controlWin* cw);
-	retStatus delControl(controlWin* cw);
-	retStatus getMessage(Message* buffer);
-	void layoutWin();
-	void execWin();
-	
-	void closeWin();//在缩小到后端 
-	void moveWin(uint16 x,uint16 y,uint16 w,uint16 h);//移动窗口
-	void changeFont();//改变字体
-	void erasureWin();//清空数据
-	void repaintWin();//重新绘画
 };
 
 

@@ -11,5 +11,6 @@ controlWin::controlWin(uint8* winTitle,uint16 winXpos,uint16 winYpos,uint16 winW
 
 }
 
-controlWin::~controlWin(){}
-	
+controlWin::~controlWin(){
+}
+
