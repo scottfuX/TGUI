@@ -2,8 +2,7 @@
 
 rootWin::rootWin()
 {
-	uint8 defaultTitle[]= "default Title";//内存回收的问题
-	this->winTitle = defaultTitle;
+	this->winTitle = &(this->id);
 	this->winXpos = 0;
 	this->winYpos = 0;
 	this->winWidth = GUI_WIDTH;
@@ -12,8 +11,8 @@ rootWin::rootWin()
 	this->statBarColor = STAT_COLOR;
 }
 
-rootWin::rootWin(uint8* winTitle,uint16 winXpos,uint16 winYpos,\
-	uint16 winWidth,uint16 winHigh)
+rootWin::rootWin(uint8_t* winTitle,uint16_t winXpos,uint16_t winYpos,\
+	uint16_t winWidth,uint16_t winHigh)
 {
 	this->winTitle = winTitle;
 	this->winXpos = winXpos;

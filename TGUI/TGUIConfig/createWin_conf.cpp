@@ -1,59 +1,84 @@
 #include "TGUIConfig/createWin_conf.h"
 
 //全局变量 --- 指出当前的窗口
-rootWin* currentWin;
+uint8_t currentWin = 251;
+
+//最多app数量
+xTaskHandle app[APP_MAX_NUM] ;
+xTaskHandle pxCTask;
+
+deskWin* desktop;
+mainWin* mw0;
+mainWin* mw1;
+
+static void desk(void *pvParameters);
+static void win0(void *pvParameters);
+static void win1(void *pvParameters);
+void GUI_Run()
+{
+	if(xTaskCreate( desk, "desktop", configMINIMAL_STACK_SIZE, NULL, 2, NULL )!=pdTRUE)
+	{return;}
+	if(xTaskCreate( win0, "win0", configMINIMAL_STACK_SIZE, NULL, 1, &pxCTask )==pdTRUE)
+	{
+		app[0] = pxCTask;
+	}
+	if(xTaskCreate( win1, "win1", configMINIMAL_STACK_SIZE, NULL, 1, &pxCTask )==pdTRUE)
+	{
+		app[1] = pxCTask;
+	}
+	
+	vTaskStartScheduler();		// 启动调度器，任务开始执行	
+}
 
 void createDesktop()
 {
-	//创建窗口对象
-	mainWin* mwt = new mainWin();
-	mwt->setWinStyle(WS_DESKTOP) ;
-	mwt->layoutWin();
-	
-	//APP
-	uint8 tital[] = "new window";
-	controlWin* bt1 = new button(tital,0,mwt->getWinHigh()/5,mwt->getWinHigh()/5,mwt->getWinHigh()/5);
-	bt1->setBackColor(BLACK);
-	if(mwt->addControl(bt1)!=GUI_OK)
-	{printf("bt1 error!");}
-	//重绘
-	mwt->layoutWin();
-	
+	desktop = new deskWin();
+	mw0 = new mainWin(/*这里可以添加相应的执行函数*/);
+	mw1 = new mainWin(/*这里可以添加相应的执行函数*/);
+	desktop->addAPP(mw0,0);
+	desktop->addAPP(mw1,1);
+
+	desktop->execDesk();
+	delete desktop;
+	vTaskDelete(NULL);//删除自己
+}
+static void desk(void *pvParameters)
+{
+	createDesktop();
+	while(1){};
+}
+
+
+void createWin0()
+{
+	mw0->setWinID(0);	
 	//循环win
-	mwt->execWin();
+	mw0->execWin();
 	
-	delete mwt;
-	vTaskDelete(NULL);//删除自己	
+	delete mw0;
+	vTaskDelete(NULL);//删除自己
+}
+
+static void win0(void *pvParameters)
+{
+	createWin0();
+	while(1){};
 }
 
 void createWin1()
 {
-	//创建窗口对象
-	mainWin* mwt = new mainWin();
-	
-	//根据风格 添加控件
-	if(mwt->getWinStyle() == WS_DEFAULT)
-	{
-		//设定默认的控件
-		uint8 tital1[] = "b1";
-		uint8 tital2[] = "b2";
-		controlWin* bt1 = new button(tital1,0,0,mwt->getWinHigh()/15,mwt->getWinHigh()/15);
-		controlWin* bt2 = new button(tital2,(mwt->getWinWidth()-(mwt->getWinHigh()/15)),0,mwt->getWinHigh()/15,mwt->getWinHigh()/15);
-		bt1->setBackColor(DESTROYCOLOR);
-		bt2->setBackColor(CLOSECOLOR);
-		//添加到控件列表
-		if(mwt->addControl(bt1)!=GUI_OK)
-		{printf("bt1 error!");}
-		if(mwt->addControl(bt2)!=GUI_OK)
-		{printf("bt2 error!");}
-	}
-	//重绘
-	mwt->layoutWin();
-	
+	mw1->setWinID(1);	
 	//循环win
-	mwt->execWin();
+	mw1->execWin();
 	
-	delete mwt;
+	delete mw1;
 	vTaskDelete(NULL);//删除自己
 }
+
+static void win1(void *pvParameters)
+{
+	createWin1();
+	while(1){};
+}
+
 

@@ -1,24 +1,26 @@
 #include "winClass.h"
 
-button::button()
+button::button(Message* controlMsg):controlWin(controlMsg)
 {
 	//其中的 x,y都是相对位置
-	uint8 defaultTitle[]= "default Button";//内存回收的问题
+	uint8_t defaultTitle[]= "default Button";//内存回收的问题
 	setWinTitle(defaultTitle);
 	setWinXpos(0);
 	setWinYpos(0);
 	setWinWidth(GUI_WIDTH/15);
 	setWinHigh(GUI_HIGH/15);
 }
-button:: button(uint8* winTitle,uint16 winXpos,uint16 winYpos,uint16 winWidth,uint16 winHigh)\
-:controlWin(winTitle,winXpos,winYpos,winWidth,winHigh)
-{}
+button:: button(uint8_t* winTitle,uint16_t winXpos,uint16_t winYpos,uint16_t winWidth,uint16_t winHigh,Message* controlMsg)\
+:controlWin(winTitle,winXpos,winYpos,winWidth,winHigh,controlMsg)
+{
+	
+}
 button::~button()
 {
 	printf("button exit");
 }
 
-bool button::isInArea(uint16 bXpos,uint16 bYpos)
+bool button::isInArea(uint16_t bXpos,uint16_t bYpos)
 {
 	if(bXpos >= getWinXpos() && bXpos <=(getWinXpos()+ getWinWidth()) && \
 		bYpos >= getWinYpos() && bYpos <=(getWinYpos()+ getWinHigh()))
@@ -39,8 +41,15 @@ retStatus button::sendMessage(Message msg,xQueueHandle* que)
 
 void button::layoutControl(mainWin* mw)
 {
+	//如果由控件图标，就用图标
+	/*if(icon){
+	}else{
 		LCD_SetTextColor(getBackColor());
 		LCD_DrawFullRect(getWinXpos()+mw->getWinXpos(),getWinYpos()+mw->getWinYpos(),getWinWidth(),getWinHigh());
+	}*/
+	//先这么用
+	LCD_SetTextColor(getBackColor());
+	LCD_DrawFullRect(getWinXpos()+mw->getWinXpos(),getWinYpos()+mw->getWinYpos(),getWinWidth(),getWinHigh());
 }
 void button::triggerControl(mainWin* mw)
 {
@@ -58,18 +67,24 @@ void button::releaseControl(mainWin* mw)
 retStatus button::execControl(mainWin* mw)
 {
 		retStatus stat;
+		Message* msg ;
 		//默认选中即被触发 按钮出现反应
 		triggerControl(mw);
-		
-		//发送message 或者打开dialog box 或打开新窗口//测试发送关闭信息
-		Message* msg = new Message();
-		msg->type = MSG_CLOSE;
-		msg->data = 0;
+	
+		if(getControlMsg()->type == MSG_CLOSE||getControlMsg()->type == MSG_DESTROY)
+		{//若是关闭或注销，直接发送即可 由窗口处理
+			msg = this->getControlMsg();
+		}else if(getControlMsg()->type == MSG_APP)
+		{
+			msg = this->getControlMsg();
+		}
 		//发送队列会拷贝数据过去 
-		stat = sendMessage(*msg,&(mw->queue));	
+		stat = sendMessage(*msg,mw->getQueue());	
 		if(stat != GUI_OK)
 		{return stat;}
-		
-		delete msg;//删除信息体
+		if(getControlMsg()->type == MSG_CLOSE||getControlMsg()->type == MSG_DESTROY)
+		{
+			delete msg;//如果是缩小，或者关闭的话 删除信息体 因为下一次还是会从新创建的
+		}
 		return GUI_OK;
 }

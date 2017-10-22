@@ -2,17 +2,35 @@
 
 mainWin::mainWin():rootWin()
 {
+	//创建id
+	setWinID(255);
 	winStyle = WS_DEFAULT;
 	//创建列表
 	list = new CircularList<controlWin>();
 	//创建消息队列
 	queue = xQueueCreate( MSG_QUENUM, sizeof( Message));
 }
+
+//传入执行函数
+mainWin::mainWin(void (*tempFunc)()):rootWin()
+{
+	//创建id
+	setWinID(255);
+	winStyle = WS_DEFAULT;
+	this->userFunc = tempFunc;
+	//创建列表
+	list = new CircularList<controlWin>();
+	//创建消息队列
+	queue = xQueueCreate( MSG_QUENUM, sizeof( Message));
+}
 	
-mainWin::mainWin(uint8* winTitle,uint16 winStyle,uint16 winXpos,uint16 winYpos,uint16 winWidth,uint16 winHigh)\
+mainWin::mainWin(uint8_t* winTitle,uint16_t winStyle,uint16_t winXpos,uint16_t winYpos,uint16_t winWidth,uint16_t winHigh,void (*tempFunc)())\
 :rootWin(winTitle,winXpos,winYpos,winWidth,winHigh)
 {
+	//创建id
+	setWinID(255);
 	this->winStyle = winStyle;
+	this->userFunc = tempFunc;
 	//创建列表
 	list = new CircularList<controlWin>();
 	//创建消息队列
@@ -28,7 +46,7 @@ mainWin::~mainWin()
 	printf("mainWin exit");
 }
 
-bool mainWin::isInArea(uint16 wXpos,uint16 wYpos)
+bool mainWin::isInArea(uint16_t wXpos,uint16_t wYpos)
 {
 	if(wXpos >= getWinXpos() && wXpos <=(getWinXpos()+ getWinWidth()) && \
 		wYpos >= getWinYpos() && wYpos <=(getWinYpos()+ getWinHigh()))
@@ -39,15 +57,14 @@ bool mainWin::isInArea(uint16 wXpos,uint16 wYpos)
 }
 
 //寻找并执行
-retStatus mainWin::findExecControl(uint16 wXpos,uint16 wYpos)
+retStatus mainWin::findExecControl(uint16_t wXpos,uint16_t wYpos)
 {
-	uint8 cnum = (uint8)list->getLength();
+	uint8_t cnum = (uint8_t)list->getLength();
 	controlWin* cwTemp = NULL ;
 	while(cnum > 0)
 	{
 		cnum--;
-		cwTemp = list->Next();
-		printf("\nfinding  ");	
+		cwTemp = list->Next();	
 		bool bl = cwTemp->isInArea(wXpos,wYpos);
 		if(bl)
 		{
@@ -62,6 +79,8 @@ retStatus mainWin::findExecControl(uint16 wXpos,uint16 wYpos)
 				return GUI_OK;
 			}	
 			
+		}else{
+			GUISetPoint(65535,65535);//释放按键
 		}
 	}
 	return GUI_NOFIND;
@@ -78,7 +97,6 @@ retStatus mainWin::delControl(controlWin* cw)
 {
 	if(!list->Remove(cw))
 	{return GUI_ERROR;}
-	
 	return GUI_OK;
 }
 
@@ -92,45 +110,70 @@ retStatus mainWin::getMessage(Message* buffer)
 
 void mainWin::layoutWin()
 {
-	uint8 cnum = (uint8)list->getLength();
-	controlWin* ctemp = NULL;
 	
 	LCD_SetTextColor(getBackColor());
 	LCD_DrawFullRect(getWinXpos(),getWinYpos(),getWinWidth(),getWinHigh());
 	LCD_SetTextColor(getStatBarColor());
-	LCD_DrawFullRect(getWinXpos(),getWinYpos(),getWinWidth(),getWinHigh()/15);
+	LCD_DrawFullRect(getWinXpos(),getWinYpos(),getWinWidth(),STAT_BAR);
 	
-	if(winStyle == WS_DESKTOP)
+	//--------根据风格设置控件--------
+	if((getWinStyle()&WS_DEFAULT) != 0 )
 	{
-			uint8_t spr[]="This is Desktop!";
-			LCD_SetFont(&Font16x24);
-			LCD_SetColors(BLACK,getStatBarColor());
-			LCD_DisplayStringLine(LCD_LINE_0,spr );
+		uint8_t tital1[] = "x";
+		uint8_t tital2[] = "-";
+		Message *m1 = new Message();
+		Message *m2 = new Message();
+		m1->type = MSG_DESTROY;
+		m1->data = 0;
+		m2->type = MSG_CLOSE;
+		m1->data = 0;
+		//controlWin* bt1 = new button(tital1,0,0,STAT_BAR*2,STAT_BAR,m1);
+		//controlWin* bt2 = new button(tital2,STAT_BAR*2,0,STAT_BAR*2,STAT_BAR,m2);
+		controlWin* bt1 = new button(tital1,3,3,STAT_BAR*2-6,STAT_BAR-6,m1);//根据自己的lcd改的  好看用
+		controlWin* bt2 = new button(tital2,STAT_BAR*2,3,STAT_BAR*2-6,STAT_BAR-6,m2);
+		bt1->setBackColor(DESTROYCOLOR);
+		bt2->setBackColor(CLOSECOLOR);
+		//添加到控件列表
+		while(this->addControl(bt1)!=GUI_OK)
+		{printf("bt1 error!");}
+		while(this->addControl(bt2)!=GUI_OK)
+		{printf("bt2 error!");}
 	}
 	
-	while(cnum > 0)//循环遍历控件列表并布局
+	//------循环遍历控件列表并布局-------
+	uint8_t cnum = (uint8_t)list->getLength();
+	controlWin* ctemp = NULL;
+	while(cnum > 0)
 	{
 		cnum--;
 		ctemp = list->Next();
 		ctemp->layoutControl(this);
 	}
-	printf("layout ");
 }
 
 void mainWin::closeWin()
 {
 	//即刷新桌面 
-	//currentWin = Desktop;
+	currentWin = desktop->getWinID();
 	
-	//调用Desktop 重绘代码。sendMssage(desktop) //怎么解决desktop queue的句柄
+	//调用Desktop 重绘桌面
+	desktop->layoutWin();
 	
 	//后台运行Win
 	printf("Win CLOSE!!! ");
 	
 }
+void mainWin::destroyWin()
+{
+	//即刷新桌面 
+	currentWin = desktop->getWinID();
+	desktop->layoutWin();
+	vTaskPrioritySet(NULL,HUP_TASK_PRIORITY);
+}
 
 
-void mainWin::moveWin(uint32 data)//移动窗口
+
+void mainWin::moveWin(uint32_t data)//移动窗口
 {
 	//从data中分离获得数据
 	
@@ -140,7 +183,7 @@ void mainWin::moveWin(uint32 data)//移动窗口
 	repaintWin();
 }
 
-void mainWin::changeFont(uint32 data)
+void mainWin::changeFont(uint32_t data)
 {
 	//从data中分离获得数据
 	
@@ -165,8 +208,9 @@ void mainWin::repaintWin()
 void mainWin::execWin()
 {
 	Message buffer[1];
-	uint16 wXpos;
-	uint16 wYpos;
+	uint16_t wXpos;
+	uint16_t wYpos;
+	layoutWin();
 	while(1)
 	{
 		//获取点 判断是否在窗口内
@@ -176,15 +220,17 @@ void mainWin::execWin()
 			switch(buffer[0].type)
 			{
 				case MSG_EMPTY: printf("\n empty! "); break;	
-				case MSG_CLOSE:  closeWin(); break;	
-				case MSG_DESTROY: return;		//强制退出就返回 让上一层回收内存
-				case MSG_WINMOV: moveWin(buffer[1].data);break;			
-				case MSG_FONTCHANGE: changeFont(buffer[1].data);break;	
+				case MSG_CLOSE: closeWin(); break;	
+				case MSG_DESTROY: destroyWin();break;//降低优先级 挂起自己
+				case MSG_WINMOV: moveWin(buffer[0].data);break;			
+				case MSG_FONTCHANGE: changeFont(buffer[0].data);break;	
 				case MSG_ERASURE: erasureWin();break;	
 				case MSG_REPAINT: repaintWin();break;	
+				case MSG_APP:/*到时在转到desk机制里*/;break;
+				case MSG_OTHER: (*userFunc)();break;//自定义数据--调用传入的处理函数
 			}
 		}
-		if(isInArea(wXpos,wYpos))
+		if(isInArea(wXpos,wYpos)&&currentWin == (this->getWinID()))//且为本桌面
 		{
 			printf("%d,%d",wXpos,wYpos);
 			findExecControl(wXpos,wYpos); //列表中寻找控件并执行

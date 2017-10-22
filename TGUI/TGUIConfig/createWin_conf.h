@@ -13,11 +13,15 @@ extern "C"  {
 }
 #endif
 #include "winClass.h"
-extern uint16 TouchX;
-extern uint16 TouchY;
-extern uint8 TouchUp;
-	
-void createWin1();
+extern uint16_t TouchX;
+extern uint16_t TouchY;
+extern uint8_t TouchUp;
+
+
+
+void GUI_Run();
+
+
 
 
 #endif //!__CREATEWIN_CONFIG_H_
