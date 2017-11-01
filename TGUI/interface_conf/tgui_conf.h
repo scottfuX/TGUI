@@ -1,6 +1,5 @@
-#ifndef __TGUI_DRV_CONFIG_H_
-#define __TGUI_DRV_CONFIG_H_
-
+#ifndef _TGUICONF_H_
+#define _WINCLASS_H_ 
 
 #include "includes_all.h"
 #include "USART/USARTConfig.h"
@@ -18,8 +17,8 @@
 #define GUI_COLORMODE		RGB_565	
 #define GUI_BUFADDR 		LCD_FRAME_BUFFER 
 #define GUI_BUFSIZE 		BUFFER_OFFSET
-#define GUI_WIDTH			LCD_PIXEL_WIDTH
-#define GUI_HIGH			LCD_PIXEL_HEIGHT
+#define GUI_WIDTH				LCD_PIXEL_WIDTH
+#define GUI_HIGH				LCD_PIXEL_HEIGHT
 
 //采用的颜色
 #define DESTROYCOLOR RGB888ToRGB565(0xFB4A4A)
@@ -39,6 +38,11 @@
 #define CYAN 		LCD_COLOR_CYAN           
 #define YELLOW 	LCD_COLOR_YELLOW    
 
+//队列
+#define QUEUETYPE xQueueHandle
+#define SENDQUEUE  xQueueSendToBack
+#
+
 //优先级
 #define HUP_TASK_PRIORITY 1 //Hang up
 #define RUN_TASK_PRIORITY 2
@@ -47,7 +51,7 @@
 
 //像素位置
 #define STAT_BAR  GUI_HIGH/15
-#define CONTENT_AREA_X 0
+#define CONTENT_AREA_X 			0
 #define CONTENT_AREA_Y STAT_BAR
 
 #define APP_MAX_NUM 10
@@ -63,4 +67,4 @@ void GUIGetPoint(uint16_t* x,uint16_t* y);
 void GUITouchUp(int16_t xid,int16_t yid);
 void GUITouchDown(uint16_t x,uint16_t y);
 
-#endif //!__TGUI_DRV_CONFIG_H_
+#endif //!  _TGUICONF_H_ 

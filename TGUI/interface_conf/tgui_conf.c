@@ -1,12 +1,14 @@
-#include "TGUIConfig/tgui_drv_conf.h"
+#include "interface_conf/tgui_conf.h"
+
 volatile uint16_t TouchX = 65535;
 volatile uint16_t TouchY = 65535;
-volatile uint8_t TouchUp = 0;//Î´±»°´ÏÂ
+volatile uint8_t TouchUp = 0;//æ£€æŸ¥æŒ‰é”®æ˜¯å¦é‡Šæ”¾
 
 void GUISetPoint(uint16_t x,uint16_t y)
 {
 	TouchX = x;
 	TouchY = y;
+	TouchUp = 0;
 }
 
 void GUIGetPoint(uint16_t* x,uint16_t* y)
@@ -17,8 +19,8 @@ void GUIGetPoint(uint16_t* x,uint16_t* y)
 
 void GUITouchUp(int16_t xid,int16_t yid)
 {
-	//ÊÍ·Åº¯Êı ÔİÊ±²»´¦Àí Ö»ÊÇ³öÏÖÒ»¸ö±êÖ¾Î»
-	//»ñÈ¡ÊÍ·Åµã  Èç¹ûÊÍ·Å¾Í½øĞĞÊÍ·Å
+	//æš‚ä¸”å…ˆç”¨è¿™ä¸ªè®¾ç½®
+	//å¦‚æœä¸º 1 è¡¨ç¤ºæœªé‡Šæ”¾
 	TouchUp = 1 ;
 }
 
@@ -27,3 +29,4 @@ void GUITouchDown(uint16_t x,uint16_t y)
 	TouchX = x;
 	TouchY = y;
 }
+
