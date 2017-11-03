@@ -20,7 +20,7 @@ void GUIGetPoint(uint16_t* x,uint16_t* y)
 void GUITouchUp(int16_t xid,int16_t yid)
 {
 	//暂且先用这个设置
-	//如果为 1 表示未释放
+	//如果为 0 表示未释放
 	TouchUp = 1 ;
 }
 
@@ -28,5 +28,15 @@ void GUITouchDown(uint16_t x,uint16_t y)
 {
 	TouchX = x;
 	TouchY = y;
+	TouchUp = 0;
 }
+
+
+//暂时是单点触控
+uint8_t getTouchUP()
+{
+	return TouchUp;
+}
+
+
 

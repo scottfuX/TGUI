@@ -28,15 +28,18 @@ void buttonWin::paintWin()
 }
 
 //按钮失焦
-void defocusButton()
+void buttonWin::defocusButton()
 {
 	//绘画成纯灰色
+	LCD_SetColors(GREY,GREY);
+	LCD_DrawFullRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh());
 }
 //按钮按下
 void buttonWin::pressButton()
 {
 	LCD_SetColors(WHITE,WHITE);
 	LCD_DrawFullRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh());
+	//不准执行窗口过程函数
 }
 
 //按钮释放
@@ -49,12 +52,16 @@ void buttonWin::releaseButton()
 //激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
 void buttonWin::registerWin()
 {
-	this->createWin();
-	this->setAbsoluteXY();
+	rootWin::registerWin();
 }
 
 //注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
 void buttonWin::unregisterWin()
 {
-	this->destroyWin();
+	rootWin::unregisterWin();
+}
+
+void buttonWin::destroyWin()
+{
+	rootWin::destroyWin();
 }
