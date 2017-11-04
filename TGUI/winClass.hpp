@@ -84,6 +84,7 @@ class rootWin
 		uint16_t getWinHigh(){return winHigh;}
 		char* getWinName(){return name;}
 		uint16_t getWinStyle(){return wsStyle;}	
+		xQueueHandle getQueue(){return this->queue;}
 		
 		void setWinXpos(uint16_t winXpos){this->winXpos = winXpos;}   
 		void setWinYpos(uint16_t winYpos){this->winYpos = winYpos;}
@@ -180,11 +181,21 @@ class controlWin:public rootWin
 			xQueueHandle queue
 			);
 	virtual ~controlWin();
+	void displayStrCenter(sFONT font,uint32_t textColor,uint32_t backColor,char* str);    //显示字符串	
+	void setTextColor(uint32_t winColor){this->textColor = winColor;}
+	void setBackColor(uint32_t winColor){this->backColor = winColor;}
+	uint32_t getTextColor(){return this->textColor;}
+	uint32_t getBackColor(){return this->backColor;}
 	
 	virtual void paintWin()=0 ;//绘画 就自己 不同的窗口实现不同
 	virtual void registerWin(){} ;//激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
 	virtual void unregisterWin(){} ;//注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
 	virtual	void destroyWin(){};
+	
+	private:
+		uint32_t textColor;
+		uint32_t backColor;
+	
 };
 
 //按钮
@@ -199,8 +210,7 @@ class buttonWin:public controlWin
 			char* name,
 			uint8_t wsStyle,
 			rootWin* parent,
-			xQueueHandle queue,
-			uint32_t winColor
+			xQueueHandle queue
 	);
 	virtual ~buttonWin();
 			
@@ -208,13 +218,12 @@ class buttonWin:public controlWin
 	virtual void registerWin();//激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
 	virtual void unregisterWin();//注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
 	virtual	void destroyWin();
-			
+	
+	
 	void defocusButton();	 //按钮失焦
 	void pressButton(); 	 //按钮按下
 	void releaseButton();	 //按钮释放
 			
-	private:
-		uint32_t winColor;
 };
 
 //静态框
@@ -229,20 +238,56 @@ class staticFrameWin:public controlWin
 			char* name,
 			uint8_t wsStyle,
 			rootWin* parent,
-			xQueueHandle queue,
-			uint32_t winColor
-	);
+			xQueueHandle queue
+			);
 	virtual ~staticFrameWin();
-			
 	virtual void paintWin();//绘画 就自己 不同的窗口实现不同
 	virtual void registerWin();//激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
 	virtual void unregisterWin();//注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
 	virtual	void destroyWin();
-			
+	
 	private:
+
+		void winWeakProc(rootWin* rw, MsgType mt, uint32_t d1, uint32_t d2);
+};
+
+//列表
+class listBarWin:public controlWin
+{
+	private:
+		//并存入相应的列表里	
+		uint8_t itemNum;
+		char** itemList;//存储每一项字符数据的指针的数组
 		uint32_t winColor;
 	
-		void winWeakProc(rootWin* rw, MsgType mt, uint32_t d1, uint32_t d2);
+	public:
+		listBarWin(
+			uint16_t winXpos,
+			uint16_t winYpos,
+			uint16_t winWidth,
+			uint16_t winHigh,
+			char* name,
+			uint8_t wsStyle,
+			rootWin* parent,
+			xQueueHandle queue
+		);
+
+		virtual ~listBarWin();
+			
+		virtual void paintWin();	 	//绘画 就自己 不同的窗口实现不同
+		virtual void registerWin();	  	//激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
+		virtual void unregisterWin();	//注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
+		virtual	void destroyWin();
+		
+		void defocusListBar();	 	//按钮失焦
+		void pressListBar(); 	 	//按钮按下
+		void releaseListBar();	 	//按钮释放
+
+		void setItemList(char**  itemList, uint8_t num){this->itemList = itemList;this->itemNum = num;}
+		char** getItemList(){return itemList;}
+		uint8_t getItemNum(){return itemNum;}
+		void addItem();
+
 };
 
 #endif //!_WINCLASS_HPP_

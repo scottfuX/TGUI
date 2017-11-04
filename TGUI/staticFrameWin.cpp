@@ -8,11 +8,11 @@ staticFrameWin::staticFrameWin(
 			char* name,
 			uint8_t wsStyle,
 			rootWin* parent,
-			xQueueHandle queue,
-			uint32_t winColor
+			xQueueHandle queue
 ):controlWin(winXpos,winYpos,winWidth,winHigh,name,wsStyle,parent,queue)
 {
-	this->winColor = winColor;
+	setTextColor(BLACK);
+	setTextColor(WHITE);
 }
 
 staticFrameWin::~staticFrameWin()
@@ -25,8 +25,9 @@ staticFrameWin::~staticFrameWin()
 //绘画 就自己 不同的窗口实现不同
 void staticFrameWin::paintWin()
 {
-	LCD_SetColors(winColor,winColor);
+	LCD_SetColors(getBackColor(),getBackColor());
 	LCD_DrawFullRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh());
+	displayStrCenter(Font16x24,getTextColor(),getBackColor(),getWinName());
 }
 
 //激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化

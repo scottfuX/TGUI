@@ -4,6 +4,7 @@
 #include "includes_all.h"
 #include "USART/USARTConfig.h"
 #include "LCD/LCDConfig.h"
+#include "Font/fonts.h"
 #include "FreeRTOS.h"
 
 
@@ -27,16 +28,16 @@
 #define BACK_COLOR RGB888ToRGB565(0xE0E0E0)//window back
 #define STAT_COLOR RGB888ToRGB565(0xCFCFCF)//status bar
 	
-#define WHITE  	LCD_COLOR_WHITE          
-#define BLACK 	LCD_COLOR_BLACK          
+#define WHITE  		LCD_COLOR_WHITE          
+#define BLACK 		LCD_COLOR_BLACK          
 #define GREY 		LCD_COLOR_GREY           
 #define BLUE 		LCD_COLOR_BLUE           
-#define BLUE2 	LCD_COLOR_BLUE2          
+#define BLUE2 		LCD_COLOR_BLUE2          
 #define RED 		LCD_COLOR_RED            
-#define MAGENTA LCD_COLOR_MAGENTA        
-#define GREEN 	LCD_COLOR_GREEN          
+#define MAGENTA 	LCD_COLOR_MAGENTA        
+#define GREEN 		LCD_COLOR_GREEN          
 #define CYAN 		LCD_COLOR_CYAN           
-#define YELLOW 	LCD_COLOR_YELLOW    
+#define YELLOW 		LCD_COLOR_YELLOW    
 
 //队列
 #define QUEUETYPE xQueueHandle

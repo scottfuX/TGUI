@@ -119,6 +119,7 @@ rootWin* rootWin::locateWin(uint16_t x,uint16_t y)
 //先序重绘所有自己和子窗口
 void rootWin::paintAll()
 {
+	this->setAbsoluteXY();
 	paintWin();
 	preTraversePaint(this->child);
 }
@@ -171,6 +172,8 @@ void rootWin::preTraversePaint(rootWin* rw)
 {//先序重绘
 	if(rw)
 	{
+		//每次都要刷新一下绝对地址
+		rw->setAbsoluteXY();
 		rw->paintWin();
 		preTraversePaint(rw->getChild());
 		preTraversePaint(rw->getBrother());
@@ -181,14 +184,14 @@ void rootWin::preTraversePaint(rootWin* rw)
 //删除 这个节点 以及下面的所有节点 配合析构函数使用
 void rootWin::destroyCAndB()
 {
-		while(this->child != NULL)
+	while(this->child != NULL)
 	{
 		this->child->destroyCAndB();
 		this->child = NULL;
 	}
 	while(this->brother != NULL)
 	{
-		this->brother->destroyWin();
+		this->brother->destroyCAndB();
 		this->brother = NULL;
 	}
 	delete this;
@@ -233,11 +236,13 @@ void rootWin::remWinfromTree()
 					c->setBrother(this->brother);
 					this->brother = NULL;
 			}
+			this->parent = NULL;
 		}
 		else
 		{
 			this->parent->setChild(this->brother);
 			this->brother = NULL;
+			this->parent = NULL;
 		}
 	}
 }
