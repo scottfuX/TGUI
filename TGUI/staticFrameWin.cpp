@@ -20,8 +20,6 @@ staticFrameWin::~staticFrameWin()
 
 }
 
-
-
 //绘画 就自己 不同的窗口实现不同
 void staticFrameWin::paintWin()
 {

@@ -11,7 +11,8 @@ controlWin::controlWin(
 			xQueueHandle queue
 ):rootWin(winXpos,winYpos,winWidth,winHigh,name,wsStyle,parent,queue)
 {
-
+	textColor = BLACK;
+	backColor = GREY;
 }
 
 controlWin::~controlWin()
@@ -23,7 +24,7 @@ controlWin::~controlWin()
 void controlWin::displayStrCenter(sFONT font,uint32_t textColor,uint32_t backColor,char* str)
 {
 	if(str != NULL){
-		uint16_t temp = 'L';
+		uint16_t temp;
 		uint8_t i = 0,num  = 0;
 		while(str[num] != '\0' )
 		{
@@ -41,6 +42,35 @@ void controlWin::displayStrCenter(sFONT font,uint32_t textColor,uint32_t backCol
 		while(i < num )
 		{
 			temp = (uint16_t) str[i];
+			LCD_DisplayChar(line,column,temp);
+			column += font.Width;
+			i++;
+		}
+	}
+}
+void controlWin::displayStrNormal(sFONT font,uint32_t textColor,uint32_t backColor,char* str)
+{
+	if(str != NULL){
+		uint16_t temp;
+		uint8_t i = 0;
+		uint16_t line = getAbsoluteY() ;
+		uint16_t column = getAbsoluteX() ;
+		LCD_SetFont(&font);
+		LCD_SetColors(textColor,backColor);
+		while(str[i] != '\0' )
+		{
+			temp = (uint16_t) str[i];
+			if((getWinWidth() - (column - getAbsoluteX())) < font.Width )
+			{
+				if((getWinHigh()+getAbsoluteY()-line-font.Height) >= font.Height)
+				{
+					line += font.Height;
+					column = getAbsoluteX();
+				}
+				else{
+				return ;
+				}
+			}
 			LCD_DisplayChar(line,column,temp);
 			column += font.Width;
 			i++;

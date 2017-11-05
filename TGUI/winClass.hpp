@@ -40,7 +40,8 @@ typedef enum {
 	MSG_CLICK = 1,
 	MSG_UNCLICK,
 	MSG_CLOSE ,	
-	MSG_DESTROY,	
+	MSG_DESTROY,
+	MSG_ITEM,	
 	MSG_WINMOV,		
 	MSG_FONTCHANGE,
 	MSG_ERASURE,
@@ -182,6 +183,7 @@ class controlWin:public rootWin
 			);
 	virtual ~controlWin();
 	void displayStrCenter(sFONT font,uint32_t textColor,uint32_t backColor,char* str);    //显示字符串	
+	void displayStrNormal(sFONT font,uint32_t textColor,uint32_t backColor,char* str);	
 	void setTextColor(uint32_t winColor){this->textColor = winColor;}
 	void setBackColor(uint32_t winColor){this->backColor = winColor;}
 	uint32_t getTextColor(){return this->textColor;}
@@ -254,12 +256,7 @@ class staticFrameWin:public controlWin
 //列表
 class listBarWin:public controlWin
 {
-	private:
-		//并存入相应的列表里	
-		uint8_t itemNum;
-		char** itemList;//存储每一项字符数据的指针的数组
-		uint32_t winColor;
-	
+
 	public:
 		listBarWin(
 			uint16_t winXpos,
@@ -269,12 +266,14 @@ class listBarWin:public controlWin
 			char* name,
 			uint8_t wsStyle,
 			rootWin* parent,
-			xQueueHandle queue
+			xQueueHandle queue,
+			char**  itemList, 
+			uint8_t num
 		);
 
 		virtual ~listBarWin();
 			
-		virtual void paintWin();	 	//绘画 就自己 不同的窗口实现不同
+		virtual void paintWin(){};	 	//绘画 就自己 不同的窗口实现不同
 		virtual void registerWin();	  	//激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
 		virtual void unregisterWin();	//注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
 		virtual	void destroyWin();
@@ -282,12 +281,45 @@ class listBarWin:public controlWin
 		void defocusListBar();	 	//按钮失焦
 		void pressListBar(); 	 	//按钮按下
 		void releaseListBar();	 	//按钮释放
-
-		void setItemList(char**  itemList, uint8_t num){this->itemList = itemList;this->itemNum = num;}
+ 
+		bool isOpen(){return openStat;}
+		void changeOpenState();
+		
+		void initItem();
 		char** getItemList(){return itemList;}
+		rootWin** getRwList(){return rwList;}
 		uint8_t getItemNum(){return itemNum;}
-		void addItem();
+		uint16_t getItemHigh(){return this->itemHigh;}
+	private:
+		//并存入相应的列表里	
+		uint8_t itemNum;
+		uint16_t itemHigh;
+		char** itemList;//存储每一项字符数据的指针的数组
+		rootWin** rwList;
+		uint32_t winColor;
+		bool openStat;
+};
 
+//列表
+class optionWin:public controlWin
+{
+public:
+	public:
+		optionWin(
+			uint16_t winXpos,
+			uint16_t winYpos,
+			uint16_t winWidth,
+			uint16_t winHigh,
+			char* name,
+			uint8_t wsStyle,
+			rootWin* parent,
+			xQueueHandle queue
+		);
+		virtual ~optionWin();
+			
+
+private:
+	
 };
 
 #endif //!_WINCLASS_HPP_

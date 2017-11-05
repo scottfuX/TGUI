@@ -28,19 +28,23 @@ static void win0(void *pvParameters)
 	char t0[] = "IS TEST WIN !";
 	char t1[] = "x";
 	char t2[] = "-";
-	char t3[] = "Lin Ying";
+	char t3[] = "Lin Ying ";
+	char t4[] = "listBar";
+	char* item[] = {"ab","cd","ef"};
 	rootWin* mw = new mainWin(0,0,GUI_WIDTH,GUI_HIGH,NULL,WS_DEFAULT,NULL,queue);
-	rootWin* sf1 = new staticFrameWin(0,0,GUI_WIDTH,GUI_HIGH,NULL,WS_DEFAULT,mw,queue);
-	rootWin* sf2 = new staticFrameWin(0,0,GUI_WIDTH,GUI_HIGH/15,t0,WS_DEFAULT,sf1,queue);
+	rootWin* sf1 = new staticFrameWin(0,GUI_HIGH/15,GUI_WIDTH,GUI_HIGH-GUI_HIGH/15,NULL,WS_DEFAULT,mw,queue);
+	rootWin* sf2 = new staticFrameWin(0,0,GUI_WIDTH,GUI_HIGH/15,t0,WS_DEFAULT,mw,queue);
 	rootWin* bt1 = new buttonWin(2,2,GUI_WIDTH/15,GUI_HIGH/15-4,t1,WS_DEFAULT,sf2,queue);
 	rootWin* bt2 = new buttonWin(4+GUI_WIDTH/15,2,GUI_WIDTH/15,GUI_HIGH/15-4,t2,WS_DEFAULT,sf2,queue);
-	rootWin* bt3 = new buttonWin(50,100,GUI_WIDTH/5,100,t3,WS_DEFAULT,sf1,queue);
+	rootWin* bt3 = new buttonWin(50,100,GUI_WIDTH/5,100,t3,WS_DEFAULT,sf1,queue);	
+	rootWin* lbw1 = new listBarWin(400,100,GUI_WIDTH/5,50,t4,WS_DEFAULT,sf1,queue,item,3);
 	//------注册&打印-------
 	mw->registerWin();
 	mw->setWinProc(winWeakProc0);
 
 	sf1->registerWin();
 	sf1->setWinProc(winWeakProc1);
+	((staticFrameWin*)sf1)->setTextColor(BLACK);
 	((staticFrameWin*)sf1)->setBackColor(GREY);
 	sf2->registerWin();
 	((staticFrameWin*)sf2)->setTextColor(WHITE);
@@ -58,6 +62,11 @@ static void win0(void *pvParameters)
 	bt3->setWinProc(winWeakProc4);
 	((buttonWin*)bt3)->setTextColor(BLACK);
 	((buttonWin*)bt3)->setBackColor(CYAN);
+	
+	
+	((listBarWin*)lbw1)->setTextColor(BLACK);
+	((listBarWin*)lbw1)->setBackColor(GREEN);
+	lbw1->registerWin();
 	
 	mw->paintAll();
 	//------------------------窗口介绍------------------------
@@ -119,11 +128,7 @@ static void winWeakProc0(rootWin* rw,rootWin* fw, MsgType mt, uint32_t d1, uint3
 	printf("winproc 0\n");
 	switch(mt)
 	{
-		case MSG_OTHER:
-		{
-			printf("data1 = %d \n",d1);
-			printf("data2 = %d \n",d2);	
-		}
+		
 		default:	//处理不了就给父类
 		if(rw->getParent() != NULL){
 			message* msg = new message();
@@ -157,6 +162,16 @@ static void winWeakProc1(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, ui
 			rw->paintAll();
 			
 		}break;
+		case MSG_OTHER:
+		{
+			rw->setWinXpos(0);
+			rw->setWinYpos(0);
+			rw->setWinWidth(800);
+			rw->setWinHigh(480);
+			rw->paintAll();
+			printf("data1 = %d \n",d1);
+			printf("data2 = %d \n",d2);	
+		}
 		default:
 		if(rw->getParent() != NULL)
 		{
@@ -215,7 +230,7 @@ static void winWeakProc3(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, ui
 			((buttonWin*)rw)->pressButton();//显示被按下
 		}break;
 		case MSG_UNCLICK:
-		{
+		{ 
 			((buttonWin*)rw)->releaseButton();//显示松开 
 			message* msg = new message();
 			msg->type = MSG_OTHER;
@@ -249,26 +264,11 @@ static void winWeakProc4(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, ui
 		}break;
 		case MSG_UNCLICK:
 		{
-			char temp[] = "I LOVE U";
 			((buttonWin*)rw)->releaseButton();//显示松开
-            rootWin* sft1 =  new staticFrameWin(GUI_WIDTH/2,0,GUI_WIDTH/2,GUI_HIGH,temp,WS_DEFAULT,rw->getParent(),queue);
-				sft1->registerWin();
-				((buttonWin*)sft1)->setTextColor(BLACK);
-				((buttonWin*)sft1)->setBackColor(YELLOW);
-				sft1->paintWin();
-				sft1->unregisterWin();
-				sft1->destroyWin();
 			LCD_SetColors(RED,RED);
 			LCD_FillTriangle(300,500,400,240,240,340);
 			LCD_DrawFullCircle(350,190,70);
 			LCD_DrawFullCircle(450,190,70);
-			message* msg = new message();
-			msg->type = MSG_OTHER;
-			msg->data1 =  5201314;
-			msg->data2 =  950219;
-			msg->destWin = rw->getParent();
-			msg->fromWin = rw;
-			rw->sendMSGtoBack(msg,queue);
 		}break;
 		default:	//处理不了就给父类
 		if(rw->getParent() != NULL){

@@ -236,13 +236,11 @@ void rootWin::remWinfromTree()
 					c->setBrother(this->brother);
 					this->brother = NULL;
 			}
-			this->parent = NULL;
 		}
 		else
 		{
 			this->parent->setChild(this->brother);
 			this->brother = NULL;
-			this->parent = NULL;
 		}
 	}
 }

@@ -25,6 +25,8 @@ void buttonWin::paintWin()
 {	
 	LCD_SetColors(getBackColor(),getBackColor());
 	LCD_DrawFullRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh());
+	LCD_SetColors(getTextColor(),getTextColor());
+	LCD_DrawRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh());
 	displayStrCenter(Font16x24,getTextColor(),getBackColor(),getWinName());
 }
 
@@ -34,6 +36,8 @@ void buttonWin::defocusButton()
 	//绘画成纯灰色
 	LCD_SetColors(GREY,GREY);
 	LCD_DrawFullRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh());
+	LCD_SetColors(getTextColor(),getTextColor());
+	LCD_DrawRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh());
 	displayStrCenter(Font16x24,BLACK,GREY,getWinName());
 }
 
@@ -42,6 +46,8 @@ void buttonWin::pressButton()
 {
 	LCD_SetColors(WHITE,WHITE);
 	LCD_DrawFullRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh());
+	LCD_SetColors(getTextColor(),getTextColor());
+	LCD_DrawRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh());
 	displayStrCenter(Font16x24,getTextColor(),WHITE,getWinName());	
 }
 
