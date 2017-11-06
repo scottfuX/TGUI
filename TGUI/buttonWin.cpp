@@ -27,7 +27,7 @@ void buttonWin::paintWin()
 	LCD_DrawFullRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh());
 	LCD_SetColors(getTextColor(),getTextColor());
 	LCD_DrawRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh());
-	displayStrCenter(Font16x24,getTextColor(),getBackColor(),getWinName());
+	displayStrCenter(getFont(),getTextColor(),getBackColor(),getWinName());
 }
 
 //按钮失焦
@@ -38,7 +38,7 @@ void buttonWin::defocusButton()
 	LCD_DrawFullRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh());
 	LCD_SetColors(getTextColor(),getTextColor());
 	LCD_DrawRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh());
-	displayStrCenter(Font16x24,BLACK,GREY,getWinName());
+	displayStrCenter(getFont(),BLACK,GREY,getWinName());
 }
 
 //按钮按下
@@ -48,7 +48,7 @@ void buttonWin::pressButton()
 	LCD_DrawFullRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh());
 	LCD_SetColors(getTextColor(),getTextColor());
 	LCD_DrawRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh());
-	displayStrCenter(Font16x24,getTextColor(),WHITE,getWinName());	
+	displayStrCenter(getFont(),getTextColor(),WHITE,getWinName());	
 }
 
 

@@ -144,6 +144,25 @@ void rootWin::destroyWin()
 	destroyCAndB();
 }
 
+
+//移到最前端 -- 保证该对象在兄弟对象中最先被访问 
+void rootWin::movtoFront()
+{
+	if(this->parent->getChild() != this)
+	{
+		rootWin* temp = this->parent->getChild();
+		while(temp->getBrother() != this)
+		{
+			temp = temp->getBrother();
+		}
+		if(temp->getBrother() == this)
+		{
+			temp->setBrother(this->brother);
+			this->brother = this->parent->getChild();
+			this->parent->setChild(this);	
+		}
+	}
+}
 //发送消息到队尾
 retStatus rootWin::sendMSGtoBack(message* msg,xQueueHandle que)
 {	

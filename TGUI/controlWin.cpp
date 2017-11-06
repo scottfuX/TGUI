@@ -13,6 +13,7 @@ controlWin::controlWin(
 {
 	textColor = BLACK;
 	backColor = GREY;
+	font = Font16x24;
 }
 
 controlWin::~controlWin()
@@ -20,7 +21,8 @@ controlWin::~controlWin()
 
 }
 
-//¾ÓÖĞ´òÓ¡×Ö·û´®
+
+//ä¸­å¿ƒæ‰“å°
 void controlWin::displayStrCenter(sFONT font,uint32_t textColor,uint32_t backColor,char* str)
 {
 	if(str != NULL){
@@ -48,6 +50,7 @@ void controlWin::displayStrCenter(sFONT font,uint32_t textColor,uint32_t backCol
 		}
 	}
 }
+//åœ¨åŒºåŸŸä¸­ä»å¤´æ‰“å°
 void controlWin::displayStrNormal(sFONT font,uint32_t textColor,uint32_t backColor,char* str)
 {
 	if(str != NULL){
@@ -77,3 +80,5 @@ void controlWin::displayStrNormal(sFONT font,uint32_t textColor,uint32_t backCol
 		}
 	}
 }
+
+

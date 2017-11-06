@@ -16,10 +16,13 @@
 
 //基本LCD	
 #define GUI_COLORMODE		RGB_565	
-#define GUI_BUFADDR 		LCD_FRAME_BUFFER 
+#define GUI_PIXELSIZE		2          		 //每个像素2字节
+#define GUI_BUFADDR 		LCD_FRAME_BUFFER //lcd存储基地址 
 #define GUI_BUFSIZE 		BUFFER_OFFSET
-#define GUI_WIDTH				LCD_PIXEL_WIDTH
-#define GUI_HIGH				LCD_PIXEL_HEIGHT
+#define GUI_WIDTH			LCD_PIXEL_WIDTH
+#define GUI_HIGH			LCD_PIXEL_HEIGHT
+
+     
 
 //采用的颜色
 #define DESTROYCOLOR RGB888ToRGB565(0xFB4A4A)
@@ -67,6 +70,6 @@ void GUISetPoint(uint16_t x,uint16_t y);
 void GUIGetPoint(uint16_t* x,uint16_t* y);
 void GUITouchUp(int16_t xid,int16_t yid);
 void GUITouchDown(uint16_t x,uint16_t y);
-uint8_t getTouchUP();
+uint8_t getTouchUP(void);
 
 #endif //!  _TGUICONF_H_ 

@@ -4,9 +4,10 @@
 #ifdef __cplusplus
 extern "C"  {
 #endif
-	
+
 #include "interface_conf/tgui_conf.h"
-	
+#include "includes_all.h"
+
 #ifdef __cplusplus
 }
 #endif
@@ -105,7 +106,6 @@ class rootWin
 		
 		void setAbsoluteXY();		//设置绝对x，y
 		
-				
 		bool isInArea(uint16_t wXpos,uint16_t wYpos);
 		bool isHaveWinProc(){return this->WinProcSign;}//是否有窗口过程函数
 		rootWin* locateWin(uint16_t x,uint16_t y);//定位 然后返回其中最接近的win指针
@@ -121,6 +121,7 @@ class rootWin
 		virtual void registerWin() ;//激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
 		virtual void unregisterWin() ;//注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
 		virtual	void destroyWin();//窗口销毁 --（销毁所有子窗口和本身） 把自己和子类都从树中删除
+		void movtoFront();  //移到最前端 -- 保证该对象在兄弟对象中最先被访问 
 		
 	private:
 		uint16_t absoluteX;//绝对路径
@@ -186,8 +187,10 @@ class controlWin:public rootWin
 	void displayStrNormal(sFONT font,uint32_t textColor,uint32_t backColor,char* str);	
 	void setTextColor(uint32_t winColor){this->textColor = winColor;}
 	void setBackColor(uint32_t winColor){this->backColor = winColor;}
+	void setFont(sFONT f){this->font = f;}	
 	uint32_t getTextColor(){return this->textColor;}
 	uint32_t getBackColor(){return this->backColor;}
+	sFONT getFont(){return this->font;}
 	
 	virtual void paintWin()=0 ;//绘画 就自己 不同的窗口实现不同
 	virtual void registerWin(){} ;//激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
@@ -197,7 +200,7 @@ class controlWin:public rootWin
 	private:
 		uint32_t textColor;
 		uint32_t backColor;
-	
+		sFONT 	 font;
 };
 
 //按钮
@@ -273,7 +276,7 @@ class listBarWin:public controlWin
 
 		virtual ~listBarWin();
 			
-		virtual void paintWin(){};	 	//绘画 就自己 不同的窗口实现不同
+		virtual void paintWin();	 	//绘画 就自己 不同的窗口实现不同
 		virtual void registerWin();	  	//激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
 		virtual void unregisterWin();	//注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
 		virtual	void destroyWin();
@@ -285,11 +288,12 @@ class listBarWin:public controlWin
 		bool isOpen(){return openStat;}
 		void changeOpenState();
 		
-		void initItem();
-		char** getItemList(){return itemList;}
+		uint8_t*  getCoverBuffer(){return coverBuffer;}
+		uint32_t  getCoverBufLen(){return coverBufLen;}
+		char** 	  getItemList(){return itemList;}
 		rootWin** getRwList(){return rwList;}
-		uint8_t getItemNum(){return itemNum;}
-		uint16_t getItemHigh(){return this->itemHigh;}
+		uint8_t   getItemNum(){return itemNum;}
+		uint16_t  getItemHigh(){return this->itemHigh;}
 	private:
 		//并存入相应的列表里	
 		uint8_t itemNum;
@@ -298,9 +302,14 @@ class listBarWin:public controlWin
 		rootWin** rwList;
 		uint32_t winColor;
 		bool openStat;
+		//还未填写
+		uint8_t* coverBuffer;//被覆盖的数据的 存储区
+		uint32_t coverBufLen;
+	
+		void initItem();
 };
 
-//列表
+//选项
 class optionWin:public controlWin
 {
 public:
@@ -316,10 +325,20 @@ public:
 			xQueueHandle queue
 		);
 		virtual ~optionWin();
+		virtual void paintWin();	 	//绘画 就自己 不同的窗口实现不同
+		virtual void registerWin();	  	//激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
+		virtual void unregisterWin();	//注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
+		virtual	void destroyWin();
 			
-
+		void defocusOption()	; //选项失焦
+		void clickOption();	 	//改变选项
+		bool isSelect(){ return selectStat;}
+		
 private:
 	
+	bool selectStat;
+	void paintOption();//只重绘选项图标
+	void changSelectStat();
 };
 
 #endif //!_WINCLASS_HPP_

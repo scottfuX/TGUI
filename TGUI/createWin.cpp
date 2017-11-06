@@ -20,7 +20,8 @@ static void winWeakProc1(rootWin* rw,rootWin* fw, MsgType mt, uint32_t d1, uint3
 static void winWeakProc2(rootWin* rw,rootWin* fw, MsgType mt, uint32_t d1, uint32_t d2);
 static void winWeakProc3(rootWin* rw,rootWin* fw, MsgType mt, uint32_t d1, uint32_t d2);
 static void winWeakProc4(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, uint32_t d2);
-
+static void winWeakProc5(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, uint32_t d2);
+static void winWeakProc6(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, uint32_t d2);
 
 static void win0(void *pvParameters)
 {
@@ -30,43 +31,66 @@ static void win0(void *pvParameters)
 	char t2[] = "-";
 	char t3[] = "Lin Ying ";
 	char t4[] = "listBar";
-	char* item[] = {"ab","cd","ef"};
+	char* item[] = {"item1","item2","item3"};
+	char o1[] = "option1";
+	char o2[] = "option2";
+	char o3[] = "option3";
+	//mainWin
 	rootWin* mw = new mainWin(0,0,GUI_WIDTH,GUI_HIGH,NULL,WS_DEFAULT,NULL,queue);
+	//content
 	rootWin* sf1 = new staticFrameWin(0,GUI_HIGH/15,GUI_WIDTH,GUI_HIGH-GUI_HIGH/15,NULL,WS_DEFAULT,mw,queue);
+	//bar
 	rootWin* sf2 = new staticFrameWin(0,0,GUI_WIDTH,GUI_HIGH/15,t0,WS_DEFAULT,mw,queue);
 	rootWin* bt1 = new buttonWin(2,2,GUI_WIDTH/15,GUI_HIGH/15-4,t1,WS_DEFAULT,sf2,queue);
 	rootWin* bt2 = new buttonWin(4+GUI_WIDTH/15,2,GUI_WIDTH/15,GUI_HIGH/15-4,t2,WS_DEFAULT,sf2,queue);
-	rootWin* bt3 = new buttonWin(50,100,GUI_WIDTH/5,100,t3,WS_DEFAULT,sf1,queue);	
-	rootWin* lbw1 = new listBarWin(400,100,GUI_WIDTH/5,50,t4,WS_DEFAULT,sf1,queue,item,3);
+	rootWin* bt3 = new buttonWin(50,100,180,100,t3,WS_DEFAULT,sf1,queue);	
+	rootWin* lbw1 = new listBarWin(50,50,180,30,t4,WS_DEFAULT,sf1,queue,item,3);
+	rootWin* ow1 = new optionWin(50,230,180,30,o1,WS_DEFAULT,sf1,queue); 
+	rootWin* ow2 = new optionWin(50,275,180,30,o2,WS_DEFAULT,sf1,queue); 
+	rootWin* ow3 = new optionWin(50,320,180,30,o3,WS_DEFAULT,sf1,queue); 
 	//------注册&打印-------
 	mw->registerWin();
 	mw->setWinProc(winWeakProc0);
 
 	sf1->registerWin();
 	sf1->setWinProc(winWeakProc1);
-	((staticFrameWin*)sf1)->setTextColor(BLACK);
-	((staticFrameWin*)sf1)->setBackColor(GREY);
-	sf2->registerWin();
+	
 	((staticFrameWin*)sf2)->setTextColor(WHITE);
 	((staticFrameWin*)sf2)->setBackColor(BLACK);
-	bt1->registerWin();
-	bt1->setWinProc(winWeakProc2);
+	sf2->registerWin();
+	
+	
 	((buttonWin*)bt1)->setTextColor(BLACK);
 	((buttonWin*)bt1)->setBackColor(RED);
-	bt2->registerWin();
-	bt2->setWinProc(winWeakProc3);
+	bt1->registerWin();
+	bt1->setWinProc(winWeakProc2);
+
 	((buttonWin*)bt2)->setTextColor(BLACK);
 	((buttonWin*)bt2)->setBackColor(YELLOW);
+	bt2->registerWin();
+	bt2->setWinProc(winWeakProc3);
 	
-	bt3->registerWin();
-	bt3->setWinProc(winWeakProc4);
+	
 	((buttonWin*)bt3)->setTextColor(BLACK);
 	((buttonWin*)bt3)->setBackColor(CYAN);
+	bt3->registerWin();
+	bt3->setWinProc(winWeakProc4);
 	
 	
 	((listBarWin*)lbw1)->setTextColor(BLACK);
 	((listBarWin*)lbw1)->setBackColor(GREEN);
+	lbw1->setWinProc(winWeakProc5);
 	lbw1->registerWin();
+	
+	ow1->registerWin();
+	ow1->setWinProc(winWeakProc6);
+	
+	ow2->registerWin();
+	ow2->setWinProc(winWeakProc6);
+	
+	ow3->registerWin();
+	ow3->setWinProc(winWeakProc6);
+	
 	
 	mw->paintAll();
 	//------------------------窗口介绍------------------------
@@ -128,7 +152,16 @@ static void winWeakProc0(rootWin* rw,rootWin* fw, MsgType mt, uint32_t d1, uint3
 	printf("winproc 0\n");
 	switch(mt)
 	{
-		
+		case MSG_CLOSE: 
+		{
+			printf("close\n");
+			
+		}break;
+		case MSG_OTHER:
+		{
+			printf("data1 = %d \n",d1);
+			printf("data2 = %d \n",d2);	
+		}
 		default:	//处理不了就给父类
 		if(rw->getParent() != NULL){
 			message* msg = new message();
@@ -150,28 +183,6 @@ static void winWeakProc1(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, ui
 	printf("winproc 1\n");
 	switch(mt)
 	{
-		case MSG_CLOSE: 
-		{
-			printf("close\n");
-			
-			//这里可能会画出去  在内部还需要调整 
-			rw->setWinXpos(100);
-			rw->setWinYpos(0);
-			rw->setWinWidth(700);
-			rw->setWinHigh(480);
-			rw->paintAll();
-			
-		}break;
-		case MSG_OTHER:
-		{
-			rw->setWinXpos(0);
-			rw->setWinYpos(0);
-			rw->setWinWidth(800);
-			rw->setWinHigh(480);
-			rw->paintAll();
-			printf("data1 = %d \n",d1);
-			printf("data2 = %d \n",d2);	
-		}
 		default:
 		if(rw->getParent() != NULL)
 		{
@@ -283,7 +294,67 @@ static void winWeakProc4(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, ui
 	}
 } 
 
- 
+static void winWeakProc5(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, uint32_t d2)
+{
+	printf("winproc 5\n");
+	switch(mt)
+	{
+		case MSG_CLICK: 
+		{
+			((listBarWin*)rw)->pressListBar();//显示被按下
+		}break;
+		case MSG_UNCLICK:
+		{
+			((listBarWin*)rw)->releaseListBar();
+		}break;
+		case MSG_ITEM:
+		{
+			char* temp = (char*)d1;
+			printf("--%s\n",temp);
+		}
+		default:	//处理不了就给父类
+		if(rw->getParent() != NULL){
+			message* msg = new message();
+			msg->type = mt;
+			msg->data1 = d1;
+			msg->data2 = d2;
+			msg->destWin = rw->getParent();
+			msg->fromWin = fw; //
+			rw->sendMSGtoBack(msg,queue);
+		}break;
+	}
+}
+
+
+static void winWeakProc6(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, uint32_t d2)
+{
+	printf("winproc 5\n");
+	switch(mt)
+	{
+		case MSG_CLICK: 
+		{
+			//显示被按下
+		}break;
+		case MSG_UNCLICK:
+		{
+			((optionWin*)rw)->clickOption();//显示松开
+			printf("--%s\n",rw->getWinName());
+		}break;
+		default:	//处理不了就给父类
+		if(rw->getParent() != NULL){
+			message* msg = new message();
+			msg->type = mt;
+			msg->data1 = d1;
+			msg->data2 = d2;
+			msg->destWin = rw->getParent();
+			msg->fromWin = fw; //
+			rw->sendMSGtoBack(msg,queue);
+		}break;
+	}
+}
+
+
+
 static void ClickHandle(uint16_t x , uint16_t y ,uint32_t *data1,uint32_t *data2,rootWin* mw,uint8_t* stat)
 {
 	//--------- 获取点按情况 ---------
@@ -330,5 +401,4 @@ static void ClickHandle(uint16_t x , uint16_t y ,uint32_t *data1,uint32_t *data2
 		}
 	}
 }
-
 
