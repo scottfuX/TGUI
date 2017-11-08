@@ -52,6 +52,7 @@ void optionWin::defocusOption()	 //选项失焦
 }
 void optionWin::clickOption() 	 	//改变选项
 {
+	setWinSelectedStat(false);
 	changSelectStat();
 	paintOption();//不必都重绘 只用绘图标
 }

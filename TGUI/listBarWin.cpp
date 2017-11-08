@@ -67,42 +67,55 @@ void listBarWin::defocusListBar()
 //列表按下
 void listBarWin::pressListBar() 	 	
 {
-	LCD_SetColors(WHITE,WHITE);
-	LCD_DrawFullRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getItemHigh());
-	LCD_SetColors(getTextColor(),getTextColor());
-	LCD_DrawRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getItemHigh());
-	
-	if(getWinName() != NULL)
+	if(!isWinSelected())//之前未被选中 改为选中
 	{
-		uint16_t temp;
-		uint8_t i = 0,num  = 0;
-		sFONT f =getFont();
-		while(getWinName()[num] != '\0' )
+		changSelectedStat();
+		LCD_SetColors(WHITE,WHITE);
+		LCD_DrawFullRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getItemHigh());
+		LCD_SetColors(getTextColor(),getTextColor());
+		LCD_DrawRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getItemHigh());
+		
+		if(getWinName() != NULL)
 		{
-			num++;
-			if((getWinWidth()- getFont().Width*num) <= 0)
+			uint16_t temp;
+			uint8_t i = 0,num  = 0;
+			sFONT f =getFont();
+			while(getWinName()[num] != '\0' )
 			{
-				num--;
-				break;
+				num++;
+				if((getWinWidth()- getFont().Width*num) <= 0)
+				{
+					num--;
+					break;
+				}
 			}
-		}
-		uint16_t line = getAbsoluteY() + ((getItemHigh()- getFont().Height)/2);
-		uint16_t column = getAbsoluteX() + ((getWinWidth()- getFont().Width*num)/2);
-		LCD_SetFont(&f);
-		LCD_SetColors(getTextColor(),WHITE);
-		while(i < num )
-		{
-			temp = (uint16_t) getWinName()[i];
-			LCD_DisplayChar(line,column,temp);
-			column += getFont().Width;
-			i++;
+			uint16_t line = getAbsoluteY() + ((getItemHigh()- getFont().Height)/2);
+			uint16_t column = getAbsoluteX() + ((getWinWidth()- getFont().Width*num)/2);
+			LCD_SetFont(&f);
+			LCD_SetColors(getTextColor(),WHITE);
+			while(i < num )
+			{
+				temp = (uint16_t) getWinName()[i];
+				LCD_DisplayChar(line,column,temp);
+				column += getFont().Width;
+				i++;
+			}
 		}
 	}
 }
 //按钮释放
 void listBarWin::releaseListBar()	 	
 {
-	if(isOpen() == false)
+	if(isWinSelected())//若之前选中 改为未选中
+	{
+		paintAll();	
+		changSelectedStat();
+	}
+}
+
+void listBarWin::changeOpenList()
+{
+	if(!isOpen())
 	{ // 若未打开 -->  遍历列表 注册
 		int i,max = getItemNum();
 		for(i=0;i<max;i++)
@@ -110,11 +123,11 @@ void listBarWin::releaseListBar()
 			getRwList()[i]->registerWin();
 		}
 		movtoFront(); //打开的话 就把这个列表推到最前 保证最新被访问
-		paintAll();//重绘listBar
 		setWinHigh(getItemHigh()*(max+1));
 		changeOpenState();//改变打开状态
 	}else
 	{// 若打开 -->  遍历列表 注销
+		printf("list is zx!\n");
 		int i,max=getItemNum();
 		for(i=0;i<max;i++)
 		{
@@ -124,7 +137,7 @@ void listBarWin::releaseListBar()
 		getParent()->paintAll();//重绘listBar的父亲窗口 因为打开时把父亲的给覆盖了
 		changeOpenState();//改变打开状态
 	}
-	paintAll();
+	paintAll();		
 }
 
 //改变状态标志位
@@ -147,6 +160,7 @@ void listBarWin::registerWin()
 void listBarWin::unregisterWin()
 {
 	rootWin::unregisterWin();
+	delete rwList;
 }
 
 //摧毁控件
@@ -226,34 +240,35 @@ for(i=0;i < ((listBarWin*)(rw->getParent()))->getCoverBufLen();i++)
 
 static void itemWinProc(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, uint32_t d2)
 {
+	printf("itemWIn\n");
 	switch(mt)
 	{
 		case MSG_CLICK: 
 		{
-			((buttonWin*)rw)->pressButton();//显示被按下
+			if(rw->isInArea((uint16_t)d1,(uint16_t)d2))
+			{
+				((buttonWin*)rw)->pressButton();//显示被按下
+				
+			}else{
+				((buttonWin*)rw)->releaseButton();//显示松开
+			}
 		}break;
-		case MSG_UNCLICK: 
+		case MSG_RELEASECLICK:
 		{
-			((buttonWin*)rw)->releaseButton();
-			//按下  存储数据
-			message* msg = new message();
+			((buttonWin*)rw)->releaseButton();//显示松开
+			if(rw->isInArea(d1,d2))//若为空间内部松开-->执行应有的程序
+			{
+				//按下  存储数据
+				message* msg = new message();
 				msg->type = MSG_ITEM;
 				msg->data1 = (uint32_t)rw->getWinName();//存储为uint32_t 到时需要强行转换为char*
 				msg->data2 =  0;
 				msg->destWin = rw->getParent();
 				msg->fromWin = rw;
-			rw->sendMSGtoBack(msg,rw->getQueue());
-		}break;
-		default:
-		if(rw->getParent() != NULL){
-			message* msg = new message();
-			msg->type = mt;
-			msg->data1 = d1;
-			msg->data2 = d2;
-			msg->destWin = rw->getParent();
-			msg->fromWin = fw; //
-			rw->sendMSGtoBack(msg,rw->getQueue());
-		}break;
+				rw->sendMSGtoBack(msg,rw->getQueue());
+			}
+		}
+		default:break;
 	}
 }
 

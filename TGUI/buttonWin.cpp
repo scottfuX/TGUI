@@ -44,20 +44,26 @@ void buttonWin::defocusButton()
 //按钮按下
 void buttonWin::pressButton()
 {
-	LCD_SetColors(WHITE,WHITE);
-	LCD_DrawFullRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh());
-	LCD_SetColors(getTextColor(),getTextColor());
-	LCD_DrawRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh());
-	displayStrCenter(getFont(),getTextColor(),WHITE,getWinName());	
+	if(!isWinSelected())//之前未被选中 改为选中
+	{
+		LCD_SetColors(WHITE,WHITE);
+		LCD_DrawFullRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh());
+		LCD_SetColors(getTextColor(),getTextColor());
+		LCD_DrawRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh());
+		displayStrCenter(getFont(),getTextColor(),WHITE,getWinName());	
+		changSelectedStat();		
+	}
 }
-
 
 
 //按钮释放
 void buttonWin::releaseButton()
 {
-	//重绘
-	paintWin();
+	if(isWinSelected())//若之前选中 改为未选中
+	{
+		paintAll();
+		changSelectedStat();
+	}
 }
 
 //激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化

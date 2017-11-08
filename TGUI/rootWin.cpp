@@ -22,6 +22,7 @@ rootWin::rootWin(
 	this->child = NULL;
 	
 	this->WinProcSign = false;//默认没有窗口过程
+	winSelectedStat = false;//默认未被选中
 	
 	//根据相对位置 确定 绝对路径
 	rootWin* rw  = this;
@@ -163,6 +164,14 @@ void rootWin::movtoFront()
 		}
 	}
 }
+
+void rootWin::changSelectedStat()
+{
+	if(winSelectedStat)
+	{winSelectedStat = false;}
+	else
+	{winSelectedStat = true;}
+}
 //发送消息到队尾
 retStatus rootWin::sendMSGtoBack(message* msg,xQueueHandle que)
 {	
@@ -263,4 +272,3 @@ void rootWin::remWinfromTree()
 		}
 	}
 }
-

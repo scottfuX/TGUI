@@ -11,9 +11,9 @@ void GUI_Run()
 //用孩子兄弟二叉树的第一个孩子作为当前界面的
 
 xQueueHandle queue =  xQueueCreate( MSG_QUENUM, sizeof( message));
-rootWin* tempWin;//定义现在按下（为松开）的控件  
+rootWin* curClickWin;  
 
-static void ClickHandle(uint16_t x , uint16_t y ,uint32_t *data1,uint32_t *data2,rootWin* mw,uint8_t* stat);
+static void ClickHandle(uint16_t x , uint16_t y ,rootWin* mw,uint8_t* stat);
 static void winDefaultProc(rootWin* rw,rootWin* fw, MsgType mt, uint32_t d1, uint32_t d2);
 static void winWeakProc0(rootWin* rw,rootWin* fw, MsgType mt, uint32_t d1, uint32_t d2);
 static void winWeakProc1(rootWin* rw,rootWin* fw, MsgType mt, uint32_t d1, uint32_t d2);
@@ -22,6 +22,8 @@ static void winWeakProc3(rootWin* rw,rootWin* fw, MsgType mt, uint32_t d1, uint3
 static void winWeakProc4(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, uint32_t d2);
 static void winWeakProc5(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, uint32_t d2);
 static void winWeakProc6(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, uint32_t d2);
+static void winWeakProc7(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, uint32_t d2);
+
 
 static void win0(void *pvParameters)
 {
@@ -48,6 +50,8 @@ static void win0(void *pvParameters)
 	rootWin* ow1 = new optionWin(50,230,180,30,o1,WS_DEFAULT,sf1,queue); 
 	rootWin* ow2 = new optionWin(50,275,180,30,o2,WS_DEFAULT,sf1,queue); 
 	rootWin* ow3 = new optionWin(50,320,180,30,o3,WS_DEFAULT,sf1,queue); 
+	rootWin* tbw1 = new trackBarWin(280,50,300,30,o3,WS_DEFAULT,sf1,queue,true);
+	rootWin* tbw2 = new trackBarWin(750,20,30,400,o3,WS_DEFAULT,sf1,queue,false);
 	//------注册&打印-------
 	mw->registerWin();
 	mw->setWinProc(winWeakProc0);
@@ -59,12 +63,10 @@ static void win0(void *pvParameters)
 	((staticFrameWin*)sf2)->setBackColor(BLACK);
 	sf2->registerWin();
 	
-	
 	((buttonWin*)bt1)->setTextColor(BLACK);
 	((buttonWin*)bt1)->setBackColor(RED);
 	bt1->registerWin();
 	bt1->setWinProc(winWeakProc2);
-
 	((buttonWin*)bt2)->setTextColor(BLACK);
 	((buttonWin*)bt2)->setBackColor(YELLOW);
 	bt2->registerWin();
@@ -75,7 +77,6 @@ static void win0(void *pvParameters)
 	((buttonWin*)bt3)->setBackColor(CYAN);
 	bt3->registerWin();
 	bt3->setWinProc(winWeakProc4);
-	
 	
 	((listBarWin*)lbw1)->setTextColor(BLACK);
 	((listBarWin*)lbw1)->setBackColor(GREEN);
@@ -91,32 +92,39 @@ static void win0(void *pvParameters)
 	ow3->registerWin();
 	ow3->setWinProc(winWeakProc6);
 	
+	tbw1->registerWin();
+	tbw1->setWinProc(winWeakProc7);
+	((trackBarWin*)tbw1)->addText();
+	((trackBarWin*)tbw1)->paintText();
 	
+	tbw2->registerWin();
+	tbw2->setWinProc(winWeakProc7);
+	
+
 	mw->paintAll();
 	//------------------------窗口介绍------------------------
 	
 	//----------------------信息处理函数----------------------
 	uint16_t x,y;
 	rootWin* rw;
-	uint32_t data1;
-	uint32_t data2;
-	uint8_t stat = 0;//确定是否按下 以及脱手
+	uint8_t thouchStat = 0;//确定是否按下 以及脱手
+	
 	message* buffer; 
 	buffer = (message*)pvPortMalloc(sizeof(message));
 	printf("message = %d\n",sizeof( message));
 	while(1)//获取msg
 	{
-		ClickHandle(x,y,&data1,&data2,mw,&stat); //点击处理函数
+		ClickHandle(x,y,mw,&thouchStat); //点击处理函数
 		portBASE_TYPE xStatus = xQueueReceive(queue,buffer,0); //获取信息
 		if(xStatus == pdPASS )
 		{
-			printf("have msg -- type = %d",buffer->type);
+			printf("-------have msg \ntype = %d\n",buffer->type);
 			rw = buffer->destWin;
 			//这里应该判断是否有窗口过程，没有就使用默认winProc函数
 			if(rw->isHaveWinProc())
 			{
 				rw->winProc(buffer->destWin,buffer->fromWin,buffer->type,buffer->data1,buffer->data2);
-				printf("end\n");
+				printf("-------end\n");
 			}
 			else
 			{
@@ -133,6 +141,8 @@ static void winDefaultProc(rootWin* rw,rootWin* fw, MsgType mt, uint32_t d1, uin
 { //默认没有参数 可以添加这个 把数据原封不动的给父类
 	switch(mt)
 	{
+		case MSG_CLICK: break;
+		case MSG_RELEASECLICK: break;
 		default: 
 			if(rw->getParent() != NULL){
 				message* msg = new message();
@@ -152,6 +162,8 @@ static void winWeakProc0(rootWin* rw,rootWin* fw, MsgType mt, uint32_t d1, uint3
 	printf("winproc 0\n");
 	switch(mt)
 	{
+		case MSG_CLICK: break;
+		case MSG_RELEASECLICK: break;
 		case MSG_CLOSE: 
 		{
 			printf("close\n");
@@ -172,7 +184,7 @@ static void winWeakProc0(rootWin* rw,rootWin* fw, MsgType mt, uint32_t d1, uint3
 			msg->fromWin = fw; //
 			rw->sendMSGtoBack(msg,queue);
 		}else{
-			printf("undefinition msg");
+			printf("undefinition msg\n");
 		}break;
 	}
 }
@@ -183,6 +195,8 @@ static void winWeakProc1(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, ui
 	printf("winproc 1\n");
 	switch(mt)
 	{
+		case MSG_CLICK: break;
+		case MSG_RELEASECLICK: break;
 		default:
 		if(rw->getParent() != NULL)
 		{
@@ -205,20 +219,28 @@ static void winWeakProc2(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, ui
 	{
 		case MSG_CLICK: 
 		{
-			((buttonWin*)rw)->pressButton();//显示被按下
+			if(rw->isInArea((uint16_t)d1,(uint16_t)d2))
+			{
+				((buttonWin*)rw)->pressButton();//显示被按下
+				
+			}else{
+				((buttonWin*)rw)->releaseButton();//显示松开
+			}
 		}break;
-		case MSG_UNCLICK:
+		case MSG_RELEASECLICK:
 		{
 			((buttonWin*)rw)->releaseButton();//显示松开
-			d1 = d2 = 0;
-			message* msg = new message();
-			msg->type = MSG_CLOSE;
-			msg->data1 = d1;
-			msg->data2 = d2;
-			msg->destWin = rw->getParent();
-			msg->fromWin = rw;
-			rw->sendMSGtoBack(msg,queue);
-		}break;
+			if(rw->isInArea(d1,d2))
+			{
+				message* msg = new message();
+				msg->type = MSG_CLOSE;
+				msg->data1 = d1;
+				msg->data2 = d2;
+				msg->destWin = rw->getParent();
+				msg->fromWin = rw;
+				rw->sendMSGtoBack(msg,queue);
+			}
+		}
 		default:	//处理不了就给父类
 		if(rw->getParent() != NULL){
 			message* msg = new message();
@@ -236,20 +258,30 @@ static void winWeakProc3(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, ui
 	printf("winproc 3\n");
 	switch(mt)
 	{
+		
 		case MSG_CLICK: 
 		{
-			((buttonWin*)rw)->pressButton();//显示被按下
+			if(rw->isInArea((uint16_t)d1,(uint16_t)d2))
+			{
+				((buttonWin*)rw)->pressButton();//显示被按下
+				
+			}else{
+				((buttonWin*)rw)->releaseButton();//显示松开
+			}
 		}break;
-		case MSG_UNCLICK:
-		{ 
-			((buttonWin*)rw)->releaseButton();//显示松开 
-			message* msg = new message();
-			msg->type = MSG_OTHER;
-			msg->data1 =  5201314;
-			msg->data2 =  950219;
-			msg->destWin = rw->getParent();
-			msg->fromWin = rw;
-			rw->sendMSGtoBack(msg,queue);
+		case MSG_RELEASECLICK:
+		{
+			((buttonWin*)rw)->releaseButton();//显示松开
+			if(rw->isInArea(d1,d2))
+			{
+				message* msg = new message();
+				msg->type = MSG_OTHER;
+				msg->data1 =  5201314;
+				msg->data2 =  950219;
+				msg->destWin = rw->getParent();
+				msg->fromWin = rw;
+				rw->sendMSGtoBack(msg,queue);
+			}
 		}break;
 		default:	//处理不了就给父类
 		if(rw->getParent() != NULL){
@@ -271,15 +303,23 @@ static void winWeakProc4(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, ui
 	{
 		case MSG_CLICK: 
 		{
-			((buttonWin*)rw)->pressButton();//显示被按下
+			if(rw->isInArea((uint16_t)d1,(uint16_t)d2))
+			{
+				((buttonWin*)rw)->pressButton();//显示被按下
+			}else{
+				((buttonWin*)rw)->releaseButton();//显示松开
+			}
 		}break;
-		case MSG_UNCLICK:
+		case MSG_RELEASECLICK:
 		{
 			((buttonWin*)rw)->releaseButton();//显示松开
-			LCD_SetColors(RED,RED);
-			LCD_FillTriangle(300,500,400,240,240,340);
-			LCD_DrawFullCircle(350,190,70);
-			LCD_DrawFullCircle(450,190,70);
+			if(rw->isInArea(d1,d2))
+			{
+				LCD_SetColors(RED,RED);
+				LCD_FillTriangle(300,500,400,240,240,340);
+				LCD_DrawFullCircle(350,190,70);
+				LCD_DrawFullCircle(450,190,70);
+			}
 		}break;
 		default:	//处理不了就给父类
 		if(rw->getParent() != NULL){
@@ -301,17 +341,27 @@ static void winWeakProc5(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, ui
 	{
 		case MSG_CLICK: 
 		{
-			((listBarWin*)rw)->pressListBar();//显示被按下
+			if(rw->isInArea((uint16_t)d1,(uint16_t)d2))
+			{
+				((listBarWin*)rw)->pressListBar();//显示被按下
+			}else{
+				((listBarWin*)rw)->releaseListBar();
+			}
+			
 		}break;
-		case MSG_UNCLICK:
+		case MSG_RELEASECLICK:
 		{
-			((listBarWin*)rw)->releaseListBar();
+			((listBarWin*)rw)->releaseListBar();//松开 
+			if(rw->isInArea(d1,d2))//若为空间内部松开-->执行应有的程序
+			{
+				((listBarWin*)rw)->changeOpenList();
+			}
 		}break;
 		case MSG_ITEM:
 		{
 			char* temp = (char*)d1;
 			printf("--%s\n",temp);
-		}
+		}break;
 		default:	//处理不了就给父类
 		if(rw->getParent() != NULL){
 			message* msg = new message();
@@ -328,17 +378,58 @@ static void winWeakProc5(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, ui
 
 static void winWeakProc6(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, uint32_t d2)
 {
-	printf("winproc 5\n");
+	printf("winproc 6\n");
 	switch(mt)
 	{
 		case MSG_CLICK: 
 		{
 			//显示被按下
 		}break;
-		case MSG_UNCLICK:
+		case MSG_RELEASECLICK:
 		{
 			((optionWin*)rw)->clickOption();//显示松开
-			printf("--%s\n",rw->getWinName());
+			if(rw->isInArea(d1,d2))//若为空间内部松开-->执行应有的程序
+			{
+				printf("--%s\n",rw->getWinName());
+			}
+		}break;
+		default:	//处理不了就给父类
+		if(rw->getParent() != NULL){
+			message* msg = new message();
+			msg->type = mt;
+			msg->data1 = d1;
+			msg->data2 = d2;
+			msg->destWin = rw->getParent();
+			msg->fromWin = fw; //
+			rw->sendMSGtoBack(msg,queue);
+		}break;
+	}
+}
+
+static void winWeakProc7(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, uint32_t d2)
+{
+	printf("winproc 7\n");
+	switch(mt)
+	{
+		case MSG_CLICK: 
+		{//显示被按下
+			((trackBarWin*)rw)->sliderSliding(d1,d2);
+			if(((trackBarWin*)rw)->getSlidertext() != NULL)
+			{
+				((trackBarWin*)rw)->paintText();
+			}
+			//创建MSG_SLIDERMOV 消息
+//			message* msg = new message();
+//			msg->type = MSG_SLIDERMOV ;
+//			msg->data1 = d1;
+//			msg->data2 = d2;
+//			msg->destWin = rw->getParent();//目标
+//			msg->fromWin = fw; //
+//			rw->sendMSGtoBack(msg,queue);
+		}break;
+		case MSG_RELEASECLICK:
+		{
+			((trackBarWin*)rw)->releaseSlider();//显示松开
 		}break;
 		default:	//处理不了就给父类
 		if(rw->getParent() != NULL){
@@ -355,50 +446,65 @@ static void winWeakProc6(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, ui
 
 
 
-static void ClickHandle(uint16_t x , uint16_t y ,uint32_t *data1,uint32_t *data2,rootWin* mw,uint8_t* stat)
+static void ClickHandle(uint16_t x , uint16_t y ,rootWin* mw,uint8_t* stat)
 {
 	//--------- 获取点按情况 ---------
 	//stat 这里有点绝对 按下就不再获取x ，y值了 像滑块就无法实现了需改进
-	if(getTouchUP() == 0 && (*stat) == 0)
+	if(getTouchUP() == 0) //&& (*stat) == 0)
 	{
 		GUIGetPoint(&x,&y);
 		if(x < GUI_WIDTH && y < GUI_HIGH)
 		{	
-			printf("touch up = 0\n");
-			*data1 = x;
-			*data2 = y;
-			*stat = 1;
-			rootWin* dw = mw->locateWin(x,y);
-			if(dw!=NULL){tempWin = dw;}
-			message* msg = new message();
-				msg->type = MSG_CLICK;
-				msg->data1 = *data1;
-				msg->data2 = *data2;
-				msg->destWin = tempWin;
-				msg->fromWin = NULL;
-			if(xQueueSendToBack(queue,msg,0) == pdPASS)
+			//若被按下为松开 且位置出了当前的窗口区，向之前的对象发送click信号
+			if(*stat == 1)
+			{		
+				if(curClickWin != NULL)
+				{
+					message* msg = new message();
+					msg->type = MSG_CLICK;
+					msg->data1 = x;
+					msg->data2 = y;
+					msg->destWin = curClickWin;
+					msg->fromWin = NULL;
+					if(xQueueSendToBack(queue,msg,0) == pdPASS)
+					{delete msg;}
+				}
+			}
+			else//第一次点击时 寻找到其窗口 并发送click信号
 			{
-				delete msg;
+				printf("touch up = 0\n");
+				rootWin* dw = mw->locateWin(x,y);
+				*stat = 1;
+				if(dw != NULL){curClickWin = dw;}
+				message* msg = new message();
+				msg->type = MSG_CLICK;
+				msg->data1 = x;
+				msg->data2 = y;
+				msg->destWin = curClickWin;
+				msg->fromWin = NULL;
+				if(xQueueSendToBack(queue,msg,0) == pdPASS)
+				{delete msg;}
 			}
 		}
 	}
-	else if(getTouchUP() != 0 && (*stat) == 1 )//之前按下的 松开
+	else if(getTouchUP() != 0 && (*stat) == 1)//之前按下的 松开
 	{
 		//获取 松开后的下x,y
-		
-		//
 		printf("touch up = 1\n");
 		*stat = 0;
-		message* msg =  new message();
-			msg->type = MSG_UNCLICK;
-			msg->data1 = *data1;
-			msg->data2 = *data2;
-			msg->destWin = tempWin;
+		GUIGetPoint(&x,&y);
+		//if(curClickWin->isInArea(x,y))//这里改为 其他地方进行验证
+		//{
+			message* msg =  new message();
+			msg->type = MSG_RELEASECLICK;
+			msg->data1 = x;
+			msg->data2 = y;
+			msg->destWin = curClickWin;
 			msg->fromWin = NULL;
-		if(xQueueSendToBack(queue,msg,0) == pdPASS)
-		{
-			delete msg;
-		}
+			if(xQueueSendToBack(queue,msg,0) == pdPASS)
+			{delete msg;}
+		//}
+		curClickWin = NULL;
 	}
 }
 

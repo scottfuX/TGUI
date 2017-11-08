@@ -67,9 +67,10 @@
 
 
 void GUISetPoint(uint16_t x,uint16_t y);
+void GUIGetPrePoint(uint16_t* x,uint16_t* y);
 void GUIGetPoint(uint16_t* x,uint16_t* y);
 void GUITouchUp(int16_t xid,int16_t yid);
-void GUITouchDown(uint16_t x,uint16_t y);
+void GUITouchDown(uint16_t pre_x,uint16_t pre_y,uint16_t x,uint16_t y);
 uint8_t getTouchUP(void);
 
 #endif //!  _TGUICONF_H_ 

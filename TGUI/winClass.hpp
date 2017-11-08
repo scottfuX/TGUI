@@ -21,8 +21,8 @@ extern "C"  {
 #define	 WS_BORDER 				32//创建有边框的窗口
 #define	 WS_VSCROLL 			64//创建带垂直滚动条的窗口
 #define	 WS_HSCROLL 			128//创建带水平滚动条的窗口
-#define	 WS_MINIMIZEBOX 	256//标题栏上带最小化按钮
-#define	 WS_MAXIMIZEBOX 	512//标题栏上带最大化按钮
+#define	 WS_MINIMIZEBOX 		256//标题栏上带最小化按钮
+#define	 WS_MAXIMIZEBOX 		512//标题栏上带最大化按钮
 
 
 typedef enum {
@@ -39,10 +39,12 @@ typedef enum {
 typedef enum {
 	MSG_EMPTY = 0,
 	MSG_CLICK = 1,
+	MSG_RELEASECLICK,
 	MSG_UNCLICK,
 	MSG_CLOSE ,	
 	MSG_DESTROY,
-	MSG_ITEM,	
+	MSG_ITEM,
+	MSG_SLIDERMOV,
 	MSG_WINMOV,		
 	MSG_FONTCHANGE,
 	MSG_ERASURE,
@@ -105,23 +107,25 @@ class rootWin
 		uint16_t getAbsoluteY(){return absoluteY;}
 		
 		void setAbsoluteXY();		//设置绝对x，y
-		
+		bool isWinSelected(){return winSelectedStat;}
+		void changSelectedStat();
+		void setWinSelectedStat(bool winSelectedStat){this->winSelectedStat = winSelectedStat;}
 		bool isInArea(uint16_t wXpos,uint16_t wYpos);
 		bool isHaveWinProc(){return this->WinProcSign;}//是否有窗口过程函数
 		rootWin* locateWin(uint16_t x,uint16_t y);//定位 然后返回其中最接近的win指针
-		
+		void movtoFront();  //移到最前端 -- 保证该对象在兄弟对象中最先被访问 
 		retStatus sendMSGtoBack(message* msg,xQueueHandle que);
 		retStatus sendMSGtoFront(message* msg,xQueueHandle que);
 		
 		void (*winProc)(rootWin* , rootWin* , MsgType , uint32_t , uint32_t );//窗口过程
 		void setWinProc(void (*winProc)(rootWin* , rootWin* rw, MsgType mt, uint32_t d1, uint32_t d2));
-		
+				
+
 		void paintAll();
 		virtual void paintWin() = 0;//绘画 就自己 不同的窗口实现不同
 		virtual void registerWin() ;//激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
 		virtual void unregisterWin() ;//注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
 		virtual	void destroyWin();//窗口销毁 --（销毁所有子窗口和本身） 把自己和子类都从树中删除
-		void movtoFront();  //移到最前端 -- 保证该对象在兄弟对象中最先被访问 
 		
 	private:
 		uint16_t absoluteX;//绝对路径
@@ -137,6 +141,7 @@ class rootWin
 		rootWin* parent;//父窗口
 		rootWin* child;//子窗口
 		rootWin* brother;//兄弟窗口		
+	bool winSelectedStat;//窗口是否被选中 //用于显示当前点击点是否在win上
 	
 	    bool WinProcSign;//窗口过程标志 表示是否需要
 		
@@ -284,7 +289,7 @@ class listBarWin:public controlWin
 		void defocusListBar();	 	//按钮失焦
 		void pressListBar(); 	 	//按钮按下
 		void releaseListBar();	 	//按钮释放
- 
+		void changeOpenList();
 		bool isOpen(){return openStat;}
 		void changeOpenState();
 		
@@ -335,10 +340,94 @@ public:
 		bool isSelect(){ return selectStat;}
 		
 private:
-	
 	bool selectStat;
 	void paintOption();//只重绘选项图标
 	void changSelectStat();
 };
+
+//滑块
+class trackBarWin:public controlWin
+{
+public:
+	trackBarWin(
+		uint16_t winXpos,
+		uint16_t winYpos,
+		uint16_t winWidth,
+		uint16_t winHigh,
+		char* name,
+		uint8_t wsStyle,
+		rootWin* parent,
+		xQueueHandle queue,
+		bool HorizorVert
+	);
+	virtual ~trackBarWin();
+	virtual void paintWin();	 	//绘画 就自己 不同的窗口实现不同
+	virtual void registerWin();	  	//激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
+	virtual void unregisterWin();	//注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
+	virtual	void destroyWin();
+	
+	void addText();
+	void paintText();
+	rootWin* getSlidertext(){return slidertext;}
+		
+	void generateValue(); //根据现在的位置求 百分比
+	void setSliderWidth(uint16_t sliderWidth){this->sliderWidth = sliderWidth;}
+	void sliderSliding(uint16_t xpos,uint16_t ypos);
+	void releaseSlider();
+	uint8_t getSliderValue(){generateValue();return sliderValue;}
+	
+private:
+	uint8_t sliderValue; //现在滑块位置所代表的值
+	uint32_t sliderStat; //前16位为x，后16位为y
+	bool HorizorVert; //true 为水平 false为垂直
+	uint16_t sliderWidth; //滑块宽度
+	void paintSlider(uint16_t xpos,uint16_t ypos);
+	rootWin* slidertext;
+	char* textStr;
+};
+
+
+//进度条
+class progressBar :public controlWin
+{
+	
+};
+
+//文本框
+class textBarWin:public controlWin
+{
+public:
+	textBarWin(
+		uint16_t winXpos,
+		uint16_t winYpos,
+		uint16_t winWidth,
+		uint16_t winHigh,
+		char* name,
+		uint8_t wsStyle,
+		rootWin* parent,
+		xQueueHandle queue, 
+		uint16_t bufSize
+	);
+	virtual ~textBarWin();
+	virtual void paintWin();	 	//绘画 就自己 不同的窗口实现不同
+	virtual void registerWin();	  	//激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
+	virtual void unregisterWin();	//注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
+	virtual	void destroyWin();
+		
+	void writeChar(char c);
+	void writeString(char* s,uint16_t n);
+	void setTextBuf(char* s,uint16_t n);
+	char*	getTextBuf(){return textBuf;}
+	void displayChar(char c);
+
+private:
+	char* textBuf;
+	uint16_t bufSize;
+	uint8_t bufIndicator;
+	uint16_t charX;//下一个字符的x
+	uint16_t charY;//下一个字符的y
+};
+
+
 
 #endif //!_WINCLASS_HPP_
