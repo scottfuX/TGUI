@@ -6,11 +6,10 @@ trackBarWin::trackBarWin(
 		uint16_t winWidth,
 		uint16_t winHigh,
 		char* name,
-		uint8_t wsStyle,
 		rootWin* parent,
 		xQueueHandle queue,
 		bool HorizorVert
-	):controlWin(winXpos,winYpos,winWidth,winHigh,name,wsStyle,parent,queue)
+	):controlWin(winXpos,winYpos,winWidth,winHigh,name,parent,queue)
 {
 	this->HorizorVert = HorizorVert;
 	uint32_t tx =  getAbsoluteX();
@@ -20,15 +19,13 @@ trackBarWin::trackBarWin(
 		{sliderWidth = getWinHigh()*3/2;}
 	else
 		{sliderWidth = getWinWidth()*3/2;}
-		slidertext = NULL;
-		textStr = NULL;
+	sliderValue = 0;
 }
 
 trackBarWin::~trackBarWin()
 {
 
 }
-
 
 //先画个背景在 再上面画个button作为滑块
 void trackBarWin::paintWin()
@@ -41,30 +38,6 @@ void trackBarWin::paintWin()
 	sliderSliding((uint16_t)(sliderStat>>16),(uint16_t)sliderStat);
 } 	
 
-void trackBarWin::addText()
-{
-	//只对水平滑块有效
-	if(HorizorVert)
-	{
-			slidertext = new staticFrameWin(getWinXpos()+getWinWidth(),getWinYpos(),getFont().Width*5,getWinHigh(),NULL,WS_DEFAULT,getParent(),getQueue());
-			char str[5];
-			textStr = str;
-	}
-}
-
-void trackBarWin::paintText()
-{
-			generateValue();
-			int ge = sliderValue%10;
-			int shi = sliderValue/10%10;
-			int bai = sliderValue/100;
-			textStr[0] = bai+48;
-			textStr[1] = shi+48;
-			textStr[2] = ge+48;
-			textStr[3] = '\%';
-			textStr[4] = '\0';
-			((staticFrameWin*)slidertext)->displayStrCenter(getFont(),getTextColor(),getBackColor(),textStr);
-}
 
 //滑块滑动 只需pos
 void trackBarWin::sliderSliding(uint16_t xpos,uint16_t ypos)
@@ -111,7 +84,6 @@ void trackBarWin::generateValue()
 void trackBarWin::registerWin()
 {
 	rootWin::registerWin();
-
 }	
 void trackBarWin::unregisterWin()
 {
@@ -119,10 +91,6 @@ void trackBarWin::unregisterWin()
 }
 void trackBarWin::destroyWin()
 {
-	if(textStr != NULL)
-	{delete textStr;}
-	if(slidertext != NULL)
-	{slidertext->destroyWin();}
 	rootWin::destroyWin();
 }
 
@@ -137,9 +105,9 @@ void trackBarWin::paintSlider(uint16_t xpos,uint16_t ypos)
 				y = getAbsoluteY();
 				h = getWinHigh();
 				if(x < getAbsoluteX())
-					{x = getAbsoluteX();}
+				{x = getAbsoluteX();}
 				else if(x > (getAbsoluteX()+getWinWidth()-w))
-					{x = getAbsoluteX()+getWinWidth()-w;}
+				{x = getAbsoluteX()+getWinWidth()-w;}
 		}
 		else//垂直
 		{
@@ -154,5 +122,8 @@ void trackBarWin::paintSlider(uint16_t xpos,uint16_t ypos)
 		}
 		LCD_DrawFullRect(x,y,w,h);
 }
+
+
+
 
 

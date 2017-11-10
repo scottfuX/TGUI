@@ -6,10 +6,9 @@ controlWin::controlWin(
 			uint16_t winWidth,
 			uint16_t winHigh,
 			char* name,
-			uint8_t wsStyle,
 			rootWin* parent,
 			xQueueHandle queue
-):rootWin(winXpos,winYpos,winWidth,winHigh,name,wsStyle,parent,queue)
+):rootWin(winXpos,winYpos,winWidth,winHigh,name,parent,queue)
 {
 	textColor = BLACK;
 	backColor = GREY;

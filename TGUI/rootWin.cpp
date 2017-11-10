@@ -5,7 +5,6 @@ rootWin::rootWin(
 	uint16_t winWidth,
 	uint16_t winHigh,
 	char* name,
-	uint8_t wsStyle,
 	rootWin* parent,
 	xQueueHandle queue
 )
@@ -15,7 +14,6 @@ rootWin::rootWin(
 	this->winWidth = winWidth;
 	this->winHigh = winHigh;
 	this->name = name;
-	this->wsStyle = wsStyle;
 	this->parent = parent;
 	this->queue = queue;
 	this->brother = NULL;

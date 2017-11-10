@@ -6,10 +6,9 @@ buttonWin::buttonWin(
 			uint16_t winWidth,
 			uint16_t winHigh,
 			char* name,
-			uint8_t wsStyle,
 			rootWin* parent,
 			xQueueHandle queue
-):controlWin(winXpos,winYpos,winWidth,winHigh,name,wsStyle,parent,queue)
+):controlWin(winXpos,winYpos,winWidth,winHigh,name,parent,queue)
 {
 	setTextColor(BLACK);
 	setTextColor(WHITE);

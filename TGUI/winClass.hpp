@@ -43,6 +43,7 @@ typedef enum {
 	MSG_UNCLICK,
 	MSG_CLOSE ,	
 	MSG_DESTROY,
+	MSG_RADIOBTN,
 	MSG_ITEM,
 	MSG_SLIDERMOV,
 	MSG_WINMOV,		
@@ -76,7 +77,6 @@ class rootWin
 			uint16_t winWidth,
 			uint16_t winHigh,
 			char* name,
-			uint8_t wsStyle,
 			rootWin* parent,
 			xQueueHandle queue
 		);
@@ -87,7 +87,6 @@ class rootWin
 		uint16_t getWinWidth(){return winWidth;}
 		uint16_t getWinHigh(){return winHigh;}
 		char* getWinName(){return name;}
-		uint16_t getWinStyle(){return wsStyle;}	
 		xQueueHandle getQueue(){return this->queue;}
 		
 		void setWinXpos(uint16_t winXpos){this->winXpos = winXpos;}   
@@ -95,7 +94,7 @@ class rootWin
 		void setWinWidth(uint16_t winWidth){this->winWidth = winWidth;}
 		void setWinHigh(uint16_t winHigh){this->winHigh = winHigh;}
 		void setName(char* name){this->name = name;}
-		void setWinStyle(uint8_t wsStyle){this->wsStyle =  wsStyle;}	
+
 		
 		rootWin* getParent(){return  parent;};//查找父亲节点
 		rootWin* getBrother(){return brother;};//查找下一个兄弟节点
@@ -107,7 +106,7 @@ class rootWin
 		uint16_t getAbsoluteY(){return absoluteY;}
 		
 		void setAbsoluteXY();		//设置绝对x，y
-		bool isWinSelected(){return winSelectedStat;}
+		bool isWinSelected(){return winSelectedStat;}//是否被选中
 		void changSelectedStat();
 		void setWinSelectedStat(bool winSelectedStat){this->winSelectedStat = winSelectedStat;}
 		bool isInArea(uint16_t wXpos,uint16_t wYpos);
@@ -122,7 +121,7 @@ class rootWin
 				
 
 		void paintAll();
-		virtual void paintWin() = 0;//绘画 就自己 不同的窗口实现不同
+		virtual void paintWin()=0;//绘画 就自己 不同的窗口实现不同
 		virtual void registerWin() ;//激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
 		virtual void unregisterWin() ;//注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
 		virtual	void destroyWin();//窗口销毁 --（销毁所有子窗口和本身） 把自己和子类都从树中删除
@@ -135,13 +134,12 @@ class rootWin
 		uint16_t winWidth;
 		uint16_t winHigh;
 		char* name;
-		uint8_t wsStyle;
 		xQueueHandle queue;//要发送的消息队列
 	
 		rootWin* parent;//父窗口
 		rootWin* child;//子窗口
 		rootWin* brother;//兄弟窗口		
-	bool winSelectedStat;//窗口是否被选中 //用于显示当前点击点是否在win上
+		bool winSelectedStat;//窗口是否被选中 //用于显示当前点击点是否在win上
 	
 	    bool WinProcSign;//窗口过程标志 表示是否需要
 		
@@ -161,16 +159,47 @@ class mainWin:public rootWin
 			uint16_t winWidth,
 			uint16_t winHigh,
 			char* name,
-			uint8_t wsStyle,
 			rootWin* parent,
-			xQueueHandle queue
+			xQueueHandle queue,
+				uint8_t wsStyle
 	);
 	virtual ~mainWin();
 			
+	uint16_t getWinStyle(){return wsStyle;}	
+	void setWinStyle(uint8_t wsStyle){this->wsStyle =  wsStyle;}	
+	
+	virtual void paintWin();//绘画 就自己 不同的窗口实现不同
+	virtual void registerWin();//激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
+	virtual void unregisterWin();//注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
+	virtual	void destroyWin();	
+
+	private:
+		uint8_t wsStyle;
+};
+
+//对话框 ------------
+class dialogWin:public mainWin
+{
+public:
+	dialogWin(
+		uint16_t winXpos,
+		uint16_t winYpos,
+		uint16_t winWidth,
+		uint16_t winHigh,
+		char* name,
+		rootWin* parent,
+		xQueueHandle queue,
+		uint8_t wsStyle
+	);
+	virtual ~dialogWin();
+		
 	virtual void paintWin();//绘画 就自己 不同的窗口实现不同
 	virtual void registerWin();//激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
 	virtual void unregisterWin();//注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
 	virtual	void destroyWin();		
+		
+private:
+	
 };
 
 //控件
@@ -183,7 +212,6 @@ class controlWin:public rootWin
 			uint16_t winWidth,
 			uint16_t winHigh,
 			char* name,
-			uint8_t wsStyle,
 			rootWin* parent,
 			xQueueHandle queue
 			);
@@ -218,7 +246,6 @@ class buttonWin:public controlWin
 			uint16_t winWidth,
 			uint16_t winHigh,
 			char* name,
-			uint8_t wsStyle,
 			rootWin* parent,
 			xQueueHandle queue
 	);
@@ -246,7 +273,6 @@ class staticFrameWin:public controlWin
 			uint16_t winWidth,
 			uint16_t winHigh,
 			char* name,
-			uint8_t wsStyle,
 			rootWin* parent,
 			xQueueHandle queue
 			);
@@ -272,11 +298,8 @@ class listBarWin:public controlWin
 			uint16_t winWidth,
 			uint16_t winHigh,
 			char* name,
-			uint8_t wsStyle,
 			rootWin* parent,
-			xQueueHandle queue,
-			char**  itemList, 
-			uint8_t num
+			xQueueHandle queue
 		);
 
 		virtual ~listBarWin();
@@ -292,6 +315,7 @@ class listBarWin:public controlWin
 		void changeOpenList();
 		bool isOpen(){return openStat;}
 		void changeOpenState();
+		void itemInit(char**  itemList, uint8_t num);//--------------------------???????
 		
 		uint8_t*  getCoverBuffer(){return coverBuffer;}
 		uint32_t  getCoverBufLen(){return coverBufLen;}
@@ -325,9 +349,9 @@ public:
 			uint16_t winWidth,
 			uint16_t winHigh,
 			char* name,
-			uint8_t wsStyle,
 			rootWin* parent,
-			xQueueHandle queue
+			xQueueHandle queue,
+			bool RadioorCheck
 		);
 		virtual ~optionWin();
 		virtual void paintWin();	 	//绘画 就自己 不同的窗口实现不同
@@ -338,12 +362,47 @@ public:
 		void defocusOption()	; //选项失焦
 		void clickOption();	 	//改变选项
 		bool isSelect(){ return selectStat;}
-		
+		void setSelectStat(bool stat){this->selectStat = stat;}
+			
 private:
 	bool selectStat;
 	void paintOption();//只重绘选项图标
 	void changSelectStat();
+
+	bool RadioorCheck;
 };
+
+//单选
+class radioBtnWin:public controlWin
+{
+	public:
+		radioBtnWin(
+			uint16_t winXpos,
+			uint16_t winYpos,
+			uint16_t winWidth,
+			uint16_t winHigh,
+			char* name,
+			rootWin* parent,
+			xQueueHandle queue
+		);
+		virtual ~radioBtnWin();
+		virtual void paintWin();	 	//绘画 就自己 不同的窗口实现不同
+		virtual void registerWin();	  	//激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
+		virtual void unregisterWin();	//注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
+		virtual	void destroyWin();
+		
+		void 	radioBtnInit(char**,uint8_t num,bool hv);
+		void	setOptionNum(uint8_t num){ this->optionNum = num;}
+		void 	optionSelect(optionWin* opw);
+			
+	private:
+	uint8_t optionNum;
+	optionWin** optionList;
+	char** nameList;
+	bool HorizorVert; //true 为水平 false为垂直排列
+		
+};
+
 
 //滑块
 class trackBarWin:public controlWin
@@ -355,7 +414,6 @@ public:
 		uint16_t winWidth,
 		uint16_t winHigh,
 		char* name,
-		uint8_t wsStyle,
 		rootWin* parent,
 		xQueueHandle queue,
 		bool HorizorVert
@@ -366,10 +424,8 @@ public:
 	virtual void unregisterWin();	//注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
 	virtual	void destroyWin();
 	
-	void addText();
-	void paintText();
-	rootWin* getSlidertext(){return slidertext;}
-		
+	
+	bool getHorizorVert(){return HorizorVert;}
 	void generateValue(); //根据现在的位置求 百分比
 	void setSliderWidth(uint16_t sliderWidth){this->sliderWidth = sliderWidth;}
 	void sliderSliding(uint16_t xpos,uint16_t ypos);
@@ -382,18 +438,67 @@ private:
 	bool HorizorVert; //true 为水平 false为垂直
 	uint16_t sliderWidth; //滑块宽度
 	void paintSlider(uint16_t xpos,uint16_t ypos);
-	rootWin* slidertext;
-	char* textStr;
+	
+};
+
+class trackTextWin:public controlWin//带text显示
+{
+public:
+	trackTextWin(
+		uint16_t winXpos,
+		uint16_t winYpos,
+		uint16_t winWidth,
+		uint16_t winHigh,
+		char* name,
+		rootWin* parent,
+		xQueueHandle queue
+			);
+	virtual ~trackTextWin();
+	virtual void paintWin();	 	//绘画 就自己 不同的窗口实现不同
+	virtual void registerWin();	  	//激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
+	virtual void unregisterWin();	//注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
+	virtual	void destroyWin();
+	void sliderSliding(uint16_t xpos,uint16_t ypos);
+	void releaseSlider();
+	void paintText();
+	rootWin* getSlidertext(){return slidertext;}
+private:	
+		trackBarWin* trackWin;
+		staticFrameWin* slidertext;
+		char* textStr;
+
 };
 
 
 //进度条
-class progressBar :public controlWin
+class progressBarWin :public controlWin
 {
+public:
+	progressBarWin(
+		uint16_t winXpos,
+		uint16_t winYpos,
+		uint16_t winWidth,
+		uint16_t winHigh,
+		char* name,
+		rootWin* parent,
+		xQueueHandle queue
+	);
+	virtual ~progressBarWin();
 	
+	virtual void paintWin();	 	//绘画 就自己 不同的窗口实现不同
+	virtual void registerWin();	  	//激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
+	virtual void unregisterWin();	//注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
+	virtual	void destroyWin();
+	
+	void paintBarWin();	 //只画进度条
+	void setProgressValue(uint8_t pv);//传入 百分比*100 的值
+	
+private:
+	uint16_t pBarWidth;//进度条的宽度
+	uint8_t progressValue;//进度条的百分比值
 };
 
-//文本框
+//文本框-----------未完成
 class textBarWin:public controlWin
 {
 public:
@@ -403,7 +508,6 @@ public:
 		uint16_t winWidth,
 		uint16_t winHigh,
 		char* name,
-		uint8_t wsStyle,
 		rootWin* parent,
 		xQueueHandle queue, 
 		uint16_t bufSize
@@ -426,6 +530,31 @@ private:
 	uint8_t bufIndicator;
 	uint16_t charX;//下一个字符的x
 	uint16_t charY;//下一个字符的y
+};
+
+
+//图片框-----------未完成
+class pictureBoxWin:public controlWin
+{
+public:
+	pictureBoxWin(
+		uint16_t winXpos,
+		uint16_t winYpos,
+		uint16_t winWidth,
+		uint16_t winHigh,
+		char* name,
+		rootWin* parent,
+		xQueueHandle queue
+	);
+	virtual ~pictureBoxWin();
+	virtual void paintWin();	 	//绘画 就自己 不同的窗口实现不同
+	virtual void registerWin();	  	//激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
+	virtual void unregisterWin();	//注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
+	virtual	void destroyWin();
+		
+	void setBMPAddress(uint32_t addr){BmpAddress = addr;}
+private:
+	uint32_t BmpAddress;
 };
 
 

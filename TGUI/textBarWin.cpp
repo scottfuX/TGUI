@@ -6,11 +6,10 @@ textBarWin::textBarWin(
 		uint16_t winWidth,
 		uint16_t winHigh,
 		char* name,
-		uint8_t wsStyle,
 		rootWin* parent,
 		xQueueHandle queue,
 		uint16_t bufSize
-	):controlWin(winXpos,winYpos,winWidth,winHigh,name,wsStyle,parent,queue)
+	):controlWin(winXpos,winYpos,winWidth,winHigh,name,parent,queue)
 {
 	
 		this->bufSize = bufSize;

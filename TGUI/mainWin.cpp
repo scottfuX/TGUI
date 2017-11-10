@@ -6,12 +6,12 @@ mainWin::mainWin(
 			uint16_t winWidth,
 			uint16_t winHigh,
 			char* name,
-			uint8_t wsStyle,
 			rootWin* parent,
-			xQueueHandle queue
-):rootWin(winXpos,winYpos,winWidth,winHigh,name,wsStyle,parent,queue)
+			xQueueHandle queue,
+			uint8_t wsStyle
+):rootWin(winXpos,winYpos,winWidth,winHigh,name,parent,queue)
 {
-
+	this->wsStyle = wsStyle;
 }
 
 mainWin::~mainWin()
