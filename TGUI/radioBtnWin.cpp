@@ -13,8 +13,7 @@ radioBtnWin::radioBtnWin(
 ):controlWin(winXpos,winYpos,winWidth,winHigh,name,parent,queue)
 {
 	this->HorizorVert = true;
-	this->optionNum = 0;
-	optionList = NULL;
+
 }
 
 
@@ -28,26 +27,29 @@ radioBtnWin::~radioBtnWin()
 void radioBtnWin::radioBtnInit(char** list,uint8_t num,bool hv)
 {
 	nameList = list;
-	optionNum = num;
+	setRwNum(num);
+	comboBoxInit();
 	HorizorVert = hv;
-	optionList = new optionWin*[optionNum];
-	int i;
+	int i,temp=0;
+	
 	if(HorizorVert)
 	{
-		for(i=0;i < optionNum;i++)
-		{
-			optionList[i] = new optionWin(i*getWinWidth()/optionNum,0,getWinWidth()/optionNum,getWinHigh(),\
+		for(i=0;i < getRwNum();i++)
+		{//未优化
+			getRwList()[i] = new optionWin(temp,0,getWinWidth()/getRwNum(),getWinHigh(),\
 				list[i],this,getQueue(),true);
-			optionList[i]->registerWin();
-			optionList[i]->setWinProc(optionWinProc);
+			getRwList()[i]->registerWin();
+			getRwList()[i]->setWinProc(optionWinProc);
+			temp += getWinWidth()/getRwNum();
 		}
 	}else{
-		for(i=0;i < optionNum;i++)
+		temp = getRwNum()*2+getRwNum()-1;//控件空出控件
+		for(i=0;i < getRwNum();i++)
 		{
-			optionList[i] = new optionWin(0,i*getWinHigh()/optionNum,getWinWidth(),getWinHigh()/optionNum,\
+			getRwList()[i] = new optionWin(0,3*i*getWinHigh()/temp,getWinWidth(),2*getWinHigh()/temp,\
 				list[i],this,getQueue(),true);
-			optionList[i]->registerWin();
-			optionList[i]->setWinProc(optionWinProc);
+			getRwList()[i]->registerWin();
+			getRwList()[i]->setWinProc(optionWinProc);
 		}
 	}
 }
@@ -59,10 +61,10 @@ void radioBtnWin::optionSelect(optionWin* opw)
 		opw->clickOption();
 	}else{
 		int i;
-		for(i=0;i<optionNum;i++)// all clear 
+		for(i=0;i<getRwNum();i++)// all clear 
 		{
-			optionList[i]->setSelectStat(false);
-			optionList[i]->paintWin();
+			((optionWin*) getRwList()[i])->setSelectStat(false);
+			getRwList()[i]->paintWin();
 		}
 		opw->clickOption();//select
 	}
@@ -87,7 +89,7 @@ void radioBtnWin::unregisterWin()
 void radioBtnWin::destroyWin()
 {
 		delete nameList;
-		delete optionList;
+		comboBoxDestroy();
 		rootWin::destroyWin();
 }
 

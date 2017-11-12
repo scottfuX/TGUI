@@ -1,5 +1,8 @@
 #include "interface_conf/tgui_conf.h"
 
+//id 数值 设置其实ID
+volatile uint16_t win_id = 0;
+
 volatile uint16_t TouchX_pre = 65535;
 volatile uint16_t TouchY_pre = 65535;
 volatile uint16_t TouchX = 65535;

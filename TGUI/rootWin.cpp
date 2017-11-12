@@ -18,10 +18,12 @@ rootWin::rootWin(
 	this->queue = queue;
 	this->brother = NULL;
 	this->child = NULL;
+	//setID
+	this->winID = ++win_id;
 	
 	this->WinProcSign = false;//默认没有窗口过程
 	winSelectedStat = false;//默认未被选中
-	
+	isAddTree = false;//未加入树
 	//根据相对位置 确定 绝对路径
 	rootWin* rw  = this;
 	this->absoluteX = winXpos;
@@ -127,13 +129,21 @@ void rootWin::paintAll()
 //注册 
 void rootWin::registerWin()
 {
-	addWintoTree();
+	if(!isAddTree)// no added tree
+	{
+		addWintoTree();//added
+		isAddTree = true;
+	}
 }
 
 //注销
 void rootWin::unregisterWin()
 {
-	remWinfromTree();
+	if(isAddTree)// added tree
+	{
+		remWinfromTree(); //remove
+		isAddTree = false; 
+	}
 }
 
 //先移出树，然后再删除
@@ -162,6 +172,39 @@ void rootWin::movtoFront()
 		}
 	}
 }
+//移到最后 -- 保证该对象在兄弟对象中最后被访问 
+void rootWin::movtoBack()
+{
+	rootWin* temp = this->parent->getChild();
+	if(this->parent->getChild() != this)
+	{
+		while(temp->getBrother() != this)
+		{
+			temp = temp->getBrother();
+		}
+		temp->setBrother(this->getBrother());
+		while(temp->brother != NULL )
+		{
+			temp = temp->getBrother();
+		}
+		temp->setBrother(this);
+		this->setBrother(NULL);
+	}else{
+		if(this->getBrother() != NULL)
+		{
+			temp = this->getBrother();
+			this->parent->setChild(temp);
+			while(temp->getBrother() != NULL)
+			{
+				temp = temp->getBrother();
+			}
+			temp->setBrother(this);
+			this->setBrother(NULL);
+		}
+		
+	}
+	
+}
 
 void rootWin::changSelectedStat()
 {
@@ -173,7 +216,7 @@ void rootWin::changSelectedStat()
 //发送消息到队尾
 retStatus rootWin::sendMSGtoBack(message* msg,xQueueHandle que)
 {	
-	if(xQueueSendToBack(que,msg,0)!= pdPASS)//等待时间为0
+	if(xQueueSendToBack(que,msg,QUE_WAIT_TIME)!= pdPASS)//等待时间为0
 	{
 			return GUI_QFULL;
 	}
@@ -184,7 +227,7 @@ retStatus rootWin::sendMSGtoBack(message* msg,xQueueHandle que)
 //发送消息到队头
 retStatus rootWin::sendMSGtoFront(message* msg,xQueueHandle que)
 {	
-	if(xQueueSendToFront(que,msg,0)!= pdPASS)//等待时间为0
+	if(xQueueSendToFront(que,msg,QUE_WAIT_TIME)!= pdPASS)//等待时间为0
 	{
 			return GUI_QFULL;
 	}

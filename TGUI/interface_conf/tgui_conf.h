@@ -45,16 +45,19 @@
 //队列
 #define QUEUETYPE xQueueHandle
 #define SENDQUEUE  xQueueSendToBack
-#
+//消息队列存放消息个数 
+#define MSG_QUENUM	   10 //适度调大
+//队列满时的等待时间  单位freertos的tisk周期（默认1ms）
+#define QUE_WAIT_TIME  10 //10ms
 
 //优先级
 #define HUP_TASK_PRIORITY 1 //Hang up
 #define RUN_TASK_PRIORITY 2
 
-#define MSG_QUENUM		5 //消息队列存放消息个数
 
 //像素位置
 #define STAT_BAR  GUI_HIGH/15
+#define SYS_BTN_W GUI_WIDTH/15
 #define CONTENT_AREA_X 			0
 #define CONTENT_AREA_Y STAT_BAR
 
@@ -72,5 +75,4 @@ void GUIGetPoint(uint16_t* x,uint16_t* y);
 void GUITouchUp(int16_t xid,int16_t yid);
 void GUITouchDown(uint16_t pre_x,uint16_t pre_y,uint16_t x,uint16_t y);
 uint8_t getTouchUP(void);
-
 #endif //!  _TGUICONF_H_ 

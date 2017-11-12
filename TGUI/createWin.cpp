@@ -3,7 +3,7 @@ static void win0(void *pvParameters);
 
 void GUI_Run()
 {
-	xTaskCreate( win0, "win0", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
+	xTaskCreate( win0, "win0", 1000, NULL, 1, NULL);
 	vTaskStartScheduler();		// 启动调度器，任务开始执行	
 }
 
@@ -27,84 +27,79 @@ static void winWeakProc7(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, ui
 static void winWeakProc71(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, uint32_t d2);
 
 progressBarWin* tempWin;
+virKeyboardWin* vkWin;
 static void win0(void *pvParameters)
 {
 	//----------------这里开始配置窗口-------------------
-	char t0[] = "IS TEST WIN !";
-	char t1[] = "x";
-	char t2[] = "-";
-	char t3[] = "Lin Ying ";
-	char t4[] = "listBar";
 	char* item[] = {"item1","item2","item3"};
 	char* o1[] = {"option1","option2","option3"};
+	rootWin* root = new mainWin(0,0,GUI_WIDTH,GUI_HIGH,"ROOT!",NULL,queue,WS_DEFAULT);
 	//mainWin
-	rootWin* mw = new mainWin(0,0,GUI_WIDTH,GUI_HIGH,NULL,NULL,queue,WS_DEFAULT);
-	//content
-	rootWin* sf1 = new staticFrameWin(0,GUI_HIGH/15,GUI_WIDTH,GUI_HIGH-GUI_HIGH/15,NULL,mw,queue);
-	//bar
-	rootWin* sf2 = new staticFrameWin(0,0,GUI_WIDTH,GUI_HIGH/15,t0,mw,queue);
-	rootWin* bt1 = new buttonWin(2,2,GUI_WIDTH/15,GUI_HIGH/15-4,t1,sf2,queue);
-	rootWin* bt2 = new buttonWin(4+GUI_WIDTH/15,2,GUI_WIDTH/15,GUI_HIGH/15-4,t2,sf2,queue);
-	rootWin* lbw1 = new listBarWin(50,50,180,30,t4,sf1,queue);
-	rootWin* bt3 = new buttonWin(50,100,180,100,t3,sf1,queue);
-	radioBtnWin* rbw1 = new radioBtnWin(50,230,180,100,NULL,sf1,queue);
-	optionWin* opw1 = new optionWin(50,350,180,30,"check1",sf1,queue,false);
-	optionWin* opw2 = new optionWin(50,400,180,30,"check2",sf1,queue,false);
-	trackTextWin* tbw1 = new trackTextWin(280,50,380,30,NULL,sf1,queue);
-	rootWin* tbw2 = new trackBarWin(750,30,30,400,NULL,sf1,queue,false);
-	progressBarWin* pbw1 = new progressBarWin(280,110,300,30,NULL,sf1,queue);
+	mainWin* mw = new mainWin(0,0,GUI_WIDTH,GUI_HIGH,"IT IS TEST WIN 1!",root,queue,WS_DEFAULT);
 	//------注册&打印-------
 	mw->registerWin();
 	mw->setWinProc(winWeakProc0);
-
-	sf1->registerWin();
-	sf1->setWinProc(winWeakProc1);
+	rootWin* sf1 = mw->getBackWin();
 	
-	((staticFrameWin*)sf2)->setTextColor(WHITE);
-	((staticFrameWin*)sf2)->setBackColor(BLACK);
-	sf2->registerWin();
+	listBarWin* lbw1 = new listBarWin(50,50,180,30,"listBar",sf1,queue);
+	lbw1->setTextColor(BLACK);
+	lbw1->setBackColor(GREEN);
+	lbw1->setWinProc(winWeakProc5);
+	lbw1->itemInit(item,3);
+	lbw1->registerWin();
 	
-	((buttonWin*)bt1)->setTextColor(BLACK);
-	((buttonWin*)bt1)->setBackColor(RED);
-	bt1->registerWin();
-	bt1->setWinProc(winWeakProc2);
-	((buttonWin*)bt2)->setTextColor(BLACK);
-	((buttonWin*)bt2)->setBackColor(YELLOW);
-	bt2->registerWin();
-	bt2->setWinProc(winWeakProc3);
-	
-	
+	rootWin* bt3 = new buttonWin(50,100,180,100,"Lin Ying ",sf1,queue);
 	((buttonWin*)bt3)->setTextColor(BLACK);
 	((buttonWin*)bt3)->setBackColor(CYAN);
 	bt3->registerWin();
 	bt3->setWinProc(winWeakProc4);
 	
-	((listBarWin*)lbw1)->setTextColor(BLACK);
-	((listBarWin*)lbw1)->setBackColor(GREEN);
-	lbw1->setWinProc(winWeakProc5);
-	((listBarWin*)lbw1)->itemInit(item,3);
-	lbw1->registerWin();
-	
+	radioBtnWin* rbw1 = new radioBtnWin(50,220,180,110,NULL,sf1,queue);
 	rbw1->radioBtnInit(o1,3,false);
 	rbw1->registerWin();
 	rbw1->setWinProc(winWeakProc6);
 	
+	//radioBtnWin* rbw2 = new radioBtnWin(250,185,400,30,NULL,sf1,queue);
+	//rbw2->radioBtnInit(o1,3,true);
+	//rbw2->registerWin();
+	//rbw2->setWinProc(winWeakProc6);
+	
+	optionWin* opw1 = new optionWin(50,350,180,30,"check1",sf1,queue,false);
 	opw1->registerWin();
 	opw1->setWinProc(winWeakProc61);
+	
+	optionWin* opw2 = new optionWin(50,400,180,30,"check2",sf1,queue,false);
 	opw2->registerWin();
 	opw2->setWinProc(winWeakProc61);
 	
-	
+	trackTextWin* tbw1 = new trackTextWin(280,50,380,30,NULL,sf1,queue);
+	tbw1->trackTextInit();
 	tbw1->registerWin();
 	tbw1->setWinProc(winWeakProc71);
 	
+	rootWin* tbw2 = new trackBarWin(750,30,30,400,NULL,sf1,queue,false);
 	tbw2->registerWin();
 	tbw2->setWinProc(winWeakProc7);
-
+	
+	progressBarWin* pbw1 = new progressBarWin(280,110,300,30,NULL,sf1,queue);
 	pbw1->registerWin();
 	tempWin = (progressBarWin*)pbw1;
 	
+	virKeyboardWin* kbw = new virKeyboardWin(0,240,800,240,NULL,sf1,queue);
+	kbw->setTextColor(BLACK);
+	kbw->setBackColor(GREY2);
+	kbw->keyBoardInit();
+	kbw->setWinProc(winWeakProc1);
+//	kbw->registerWin();
+	vkWin = kbw;
+ 
+	textBarWin* tbw = new textBarWin(250,160,400,90,NULL,sf1,queue);
+	tbw->setTextColor(BLACK);
+	tbw->setBackColor(YELLOW);
+	tbw->setWinProc(winWeakProc2);
+	tbw->registerWin();
 	mw->paintAll();
+
 	//------------------------窗口介绍------------------------
 	
 	//----------------------信息处理函数----------------------
@@ -121,7 +116,7 @@ static void win0(void *pvParameters)
 		portBASE_TYPE xStatus = xQueueReceive(queue,buffer,0); //获取信息
 		if(xStatus == pdPASS )
 		{
-			printf("-------have msg \ntype = %d\n",buffer->type);
+			printf("-------have msg \ntype = %d\nid = %d\n",buffer->type,buffer->destWin->getWinID());
 			rw = buffer->destWin;
 			//这里应该判断是否有窗口过程，没有就使用默认winProc函数
 			if(rw->isHaveWinProc())
@@ -162,7 +157,7 @@ static void winDefaultProc(rootWin* rw,rootWin* fw, MsgType mt, uint32_t d1, uin
 //窗口过程0
 static void winWeakProc0(rootWin* rw,rootWin* fw, MsgType mt, uint32_t d1, uint32_t d2)
 {
-	printf("winproc 0\n");
+	printf("--winproc 0\n");
 	switch(mt)
 	{
 		case MSG_CLICK: break;
@@ -170,7 +165,10 @@ static void winWeakProc0(rootWin* rw,rootWin* fw, MsgType mt, uint32_t d1, uint3
 		case MSG_CLOSE: 
 		{
 			printf("close\n");
-			
+			dialogWin* dw1 = new dialogWin(800/5,120,3*800/5,150,"Click OK to close the window.",rw,rw->getQueue(),WS_DEFAULT);
+			dw1->dialogInit();	
+			dw1->registerWin();
+			dw1-> paintAll();
 		}break;
 		case MSG_OTHER:
 		{
@@ -192,116 +190,47 @@ static void winWeakProc0(rootWin* rw,rootWin* fw, MsgType mt, uint32_t d1, uint3
 	}
 }
 
-//窗口过程1
-static void winWeakProc1(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, uint32_t d2)
+static void winWeakProc1(rootWin* rw,rootWin* fw, MsgType mt, uint32_t d1, uint32_t d2)
 {
-	printf("winproc 1\n");
+	printf("keyboard--winproc 4\n");
 	switch(mt)
 	{
-		case MSG_CLICK: break;
-		case MSG_RELEASECLICK: break;
-		default:
-		if(rw->getParent() != NULL)
+		case MSG_KEYBOARD:
 		{
-			message* msg = new message();
-			msg->type = mt;
-			msg->data1 = d1;
-			msg->data2 = d2;
-			msg->destWin = rw->getParent();
-			msg->fromWin = fw; //
-			rw->sendMSGtoBack(msg,queue);
-		}break;
+			char temp = ' ';
+			((virKeyboardWin*)rw)->charConversion(d1,d2,&temp);
+			((virKeyboardWin*)rw)->keyboardConnect(temp);
+		}
+		default:break;
 	}
 }
 
 //窗口过程2
-static void winWeakProc2(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, uint32_t d2)
+static void winWeakProc2(rootWin* rw,rootWin* fw, MsgType mt, uint32_t d1, uint32_t d2)
 {
-	printf("winproc 2\n");
+	printf("textBar--winproc 2\n");
 	switch(mt)
 	{
-		case MSG_CLICK: 
-		{
-			if(rw->isInArea((uint16_t)d1,(uint16_t)d2))
-			{
-				((buttonWin*)rw)->pressButton();//显示被按下
-				
-			}else{
-				((buttonWin*)rw)->releaseButton();//显示松开
-			}
-		}break;
+		case MSG_CLICK: break;
 		case MSG_RELEASECLICK:
 		{
-			((buttonWin*)rw)->releaseButton();//显示松开
-			if(rw->isInArea(d1,d2))
-			{
-				message* msg = new message();
-				msg->type = MSG_CLOSE;
-				msg->data1 = d1;
-				msg->data2 = d2;
-				msg->destWin = rw->getParent();
-				msg->fromWin = rw;
-				rw->sendMSGtoBack(msg,queue);
-			}
+			//唤醒键盘
+				vkWin->setDestWorkWin(rw);
+				vkWin->registerWin();
+				vkWin->paintAll();
 		}
-		default:	//处理不了就给父类
-		if(rw->getParent() != NULL){
-			message* msg = new message();
-			msg->type = mt;
-			msg->data1 = d1;
-			msg->data2 = d2;
-			msg->destWin = rw->getParent();
-			msg->fromWin = fw; //
-			rw->sendMSGtoBack(msg,queue);
-		}break;
-	}
-} 
-static void winWeakProc3(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, uint32_t d2)
-{
-	printf("winproc 3\n");
-	switch(mt)
-	{
-		
-		case MSG_CLICK: 
+		break;
+		case MSG_CHAR:
 		{
-			if(rw->isInArea((uint16_t)d1,(uint16_t)d2))
-			{
-				((buttonWin*)rw)->pressButton();//显示被按下
-				
-			}else{
-				((buttonWin*)rw)->releaseButton();//显示松开
-			}
-		}break;
-		case MSG_RELEASECLICK:
-		{
-			((buttonWin*)rw)->releaseButton();//显示松开
-			if(rw->isInArea(d1,d2))
-			{
-				message* msg = new message();
-				msg->type = MSG_OTHER;
-				msg->data1 =  5201314;
-				msg->data2 =  950219;
-				msg->destWin = rw->getParent();
-				msg->fromWin = rw;
-				rw->sendMSGtoBack(msg,queue);
-			}
-		}break;
-		default:	//处理不了就给父类
-		if(rw->getParent() != NULL){
-			message* msg = new message();
-			msg->type = mt;
-			msg->data1 = d1;
-			msg->data2 = d2;
-			msg->destWin = rw->getParent();
-			msg->fromWin = fw; //
-			rw->sendMSGtoBack(msg,queue);
-		}break;
+			((textBarWin*)rw)->writeChar(((char)d1));
+		}
+		default:break;
 	}
-} 
+}
 
 static void winWeakProc4(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, uint32_t d2)
 {
-	printf("winproc 4\n");
+	printf("button--winproc 4\n");
 	switch(mt)
 	{
 		case MSG_CLICK: 
@@ -339,7 +268,7 @@ static void winWeakProc4(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, ui
 
 static void winWeakProc5(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, uint32_t d2)
 {
-	printf("winproc 5\n");
+	printf("listBar--winproc 5\n");
 	switch(mt)
 	{
 		case MSG_CLICK: 
@@ -365,8 +294,8 @@ static void winWeakProc5(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, ui
 			char* temp = (char*)d1;
 			printf("--%s\n",temp);
 		}break;
-		default:	//处理不了就给父类
-		if(rw->getParent() != NULL){
+		default:
+			if(rw->getParent() != NULL){
 			message* msg = new message();
 			msg->type = mt;
 			msg->data1 = d1;
@@ -379,7 +308,7 @@ static void winWeakProc5(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, ui
 }
 static void winWeakProc61(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, uint32_t d2)
 {
-	printf("winproc 61\n");
+	printf("option--winproc 61\n");
 	switch(mt)
 	{
 		case MSG_RELEASECLICK:
@@ -393,7 +322,7 @@ static void winWeakProc61(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, u
 
 static void winWeakProc6(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, uint32_t d2)
 {
-	printf("winproc 6\n");
+	printf("radiobtn--winproc 6\n");
 	switch(mt)
 	{
 		case MSG_RADIOBTN: 
@@ -407,7 +336,7 @@ static void winWeakProc6(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, ui
 
 static void winWeakProc71(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, uint32_t d2)
 {
-	printf("winproc 71\n");
+	printf("slider1--winproc 71\n");
 	switch(mt)
 	{
 		case MSG_CLICK: 
@@ -423,7 +352,7 @@ static void winWeakProc71(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, u
 }
 static void winWeakProc7(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, uint32_t d2)
 {
-	printf("winproc 7\n");
+	printf("slider2--winproc 7\n");
 	switch(mt)
 	{
 		case MSG_CLICK: 
@@ -462,7 +391,7 @@ static void ClickHandle(uint16_t x , uint16_t y ,rootWin* mw,uint8_t* stat)
 					msg->data2 = y;
 					msg->destWin = curClickWin;
 					msg->fromWin = NULL;
-					if(xQueueSendToBack(queue,msg,0) == pdPASS)
+					if(xQueueSendToBack(queue,msg,QUE_WAIT_TIME) == pdPASS)
 					{delete msg;}
 				}
 			}
@@ -470,16 +399,22 @@ static void ClickHandle(uint16_t x , uint16_t y ,rootWin* mw,uint8_t* stat)
 			{
 				printf("touch up = 0\n");
 				rootWin* dw = mw->locateWin(x,y);
+				printf("%d\n",*stat);
 				*stat = 1;
-				if(dw != NULL){curClickWin = dw;}
-				message* msg = new message();
-				msg->type = MSG_CLICK;
-				msg->data1 = x;
-				msg->data2 = y;
-				msg->destWin = curClickWin;
-				msg->fromWin = NULL;
-				if(xQueueSendToBack(queue,msg,0) == pdPASS)
-				{delete msg;}
+				printf("%d\n",*stat);
+				if(dw != NULL)
+				{
+					curClickWin = dw;
+					message* msg = new message();
+					msg->type = MSG_CLICK;
+					msg->data1 = x;
+					msg->data2 = y;
+					msg->destWin = curClickWin;
+					msg->fromWin = NULL;
+					printf("%d\n",*stat);
+					if(xQueueSendToBack(queue,msg,QUE_WAIT_TIME) == pdPASS)
+					{printf("delete--\n");delete msg;}
+				}
 			}
 		}
 	}

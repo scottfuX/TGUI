@@ -10,9 +10,7 @@ trackTextWin::trackTextWin(
 		xQueueHandle queue
 	):controlWin(winXpos,winYpos,winWidth,winHigh,name,parent,queue)
 {
-		trackWin = new trackBarWin(winXpos,winYpos,(winWidth-(getFont().Width)*5),winHigh,name,parent,queue,true);
-		slidertext = new staticFrameWin((getWinWidth()-(getFont().Width)*5),0,getFont().Width*5,getWinHigh(),NULL,this,getQueue());
-		textStr = new char[5];
+		
 }
 
 
@@ -20,33 +18,42 @@ trackTextWin::~trackTextWin()
 {
 
 }
+void trackTextWin::trackTextInit()
+{
+	setRwNum(2);
+	comboBoxInit();
+	getRwList()[0] = new trackBarWin(getWinXpos(),getWinYpos(),\
+		(getWinWidth()-(getFont().Width)*5),getWinHigh(),getWinName(),getParent(),getQueue(),true);
+	getRwList()[1] = new staticFrameWin((getWinWidth()-(getFont().Width)*5),0,getFont().Width*5,getWinHigh(),NULL,this,getQueue());
+		textStr = new char[5];
+}
 
 void trackTextWin::paintText()
 {
-			int ge = trackWin->getSliderValue()%10;
-			int shi = trackWin->getSliderValue()/10%10;
-			int bai = trackWin->getSliderValue()/100;
+			int ge = ((trackBarWin*)getRwList()[0])->getSliderValue()%10;
+			int shi = ((trackBarWin*)getRwList()[0])->getSliderValue()/10%10;
+			int bai = ((trackBarWin*)getRwList()[0])->getSliderValue()/100;
 			textStr[0] = bai+48;
 			textStr[1] = shi+48;
 			textStr[2] = ge+48;
 			textStr[3] = '%';
 			textStr[4] = '\0';
-			((staticFrameWin*)slidertext)->displayStrCenter(getFont(),getTextColor(),getBackColor(),textStr);
+			((staticFrameWin*)getRwList()[1])->displayStrCenter(getFont(),getTextColor(),getBackColor(),textStr);
 }
 
 void trackTextWin::sliderSliding(uint16_t xpos,uint16_t ypos)
 {
-	trackWin->sliderSliding(xpos,ypos);
+	((trackBarWin*)getRwList()[0])->sliderSliding(xpos,ypos);
 	paintText();
 }
 
 void trackTextWin::releaseSlider()
 {
-	trackWin->releaseSlider();
+	((trackBarWin*)getRwList()[0])->releaseSlider();
 }
 void trackTextWin::paintWin()
 {
-	trackWin->paintWin();
+	((trackBarWin*)getRwList()[0])->paintWin();
 	paintText();
 }
 void trackTextWin::registerWin()
@@ -61,8 +68,7 @@ void trackTextWin::destroyWin()
 {
 	if(textStr != NULL)
 	{delete textStr;}
-	if(slidertext != NULL)
-	{slidertext->destroyWin();}
+	comboBoxDestroy();
 	rootWin::destroyWin();
 }
 

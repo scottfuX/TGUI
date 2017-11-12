@@ -7,14 +7,14 @@ textBarWin::textBarWin(
 		uint16_t winHigh,
 		char* name,
 		rootWin* parent,
-		xQueueHandle queue,
-		uint16_t bufSize
+		xQueueHandle queue
 	):controlWin(winXpos,winYpos,winWidth,winHigh,name,parent,queue)
 {
-	
-		this->bufSize = bufSize;
-	  textBuf = new char[bufSize];
-		bufIndicator = 0;
+	bufSize = winHigh/(getFont().Height) * winWidth/(getFont().Width)-1;
+	textBuf = new char[bufSize];
+	bufIndicator = 0;
+	charX = getAbsoluteX();
+	charY = getAbsoluteY();
 }
 textBarWin::~textBarWin()
 {
@@ -23,12 +23,42 @@ textBarWin::~textBarWin()
 
 void textBarWin::writeChar(char c)
 {
-	if(bufIndicator <= bufSize)
-	{
-		textBuf[bufIndicator] = c;
-		displayChar(c);
+	switch(c)
+	{ 
+		case 46:deleteChar();/*delete*/break;
+		case 16:/*shift*/break;
+		case 8 :returnLine();/*enter*/break;
+		case 9 :/*tab*/break;
+		case 20:/*caps lock*/break;
+		case 17:/*ctrl*/break;
+		case 18:/*alt*/break;
+		case 0 :/*other*/break;
+		default:
+		if(bufIndicator <= bufSize)
+		{
+			textBuf[bufIndicator] = c;
+			displayChar(c);
+			bufIndicator++;
+		}
 	}
-	bufIndicator++;
+}
+
+void textBarWin::deleteChar()
+{
+	if(bufIndicator > 0)
+	{
+		bufIndicator--;
+		textBuf[bufIndicator] = 0;
+		paintWin();
+	}
+}
+void textBarWin::returnLine()//回车换行  ---这里应该设置一些符号换行符
+{
+	if((charY+getFont().Height) <= getAbsoluteY()+getWinHigh())
+	{
+		charX = getAbsoluteX();
+		charY += getFont().Height;
+	}
 }
 
 void textBarWin::writeString(char* s,uint16_t n)//会打印出来
@@ -61,17 +91,24 @@ void textBarWin::paintWin()
 {
 	LCD_SetColors(getBackColor(),getBackColor());
 	LCD_DrawFullRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh());
-	displayStrNormal(getFont(),getTextColor(),getBackColor(),textBuf);
+	int i;
+	charX = getAbsoluteX();
+	charY = getAbsoluteY();
+	for(i=0;i < bufIndicator ; i++)
+	{displayChar(textBuf[i]);}
 }
+
 void textBarWin::registerWin()
 {
 	rootWin::registerWin();
 
-}	
+}
+
 void textBarWin::unregisterWin()
 {
 	rootWin::unregisterWin();
 }
+
 void textBarWin::destroyWin()
 {
 	delete textBuf;
@@ -83,14 +120,15 @@ void textBarWin::displayChar(char c)
 	sFONT f =getFont();
 	LCD_SetFont(&f);
 	LCD_SetColors(getTextColor(),getBackColor());
-	LCD_DisplayChar(charX,charY,c);
+	LCD_DisplayChar(charY,charX,c);//(line,column,ascii)
 	charX += getFont().Width;
-	if(charX > getAbsoluteX()+getWinWidth())
+	if(charX >= getAbsoluteX()+getWinWidth())
 	{
 		charX = getAbsoluteX();
 		charY += getFont().Height;
 		if(charY > getAbsoluteY()+getWinHigh())
 		{
+			charX = getAbsoluteX();
 			charY =  getAbsoluteY();//溢出就从头打
 		}
 	}

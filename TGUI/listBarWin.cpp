@@ -14,7 +14,6 @@ listBarWin::listBarWin(
 	this->itemHigh = winHigh; //保存当前的高 作为之后每一个item的高
 	this->openStat = false;
 	this->itemList = NULL;
-	this->itemNum = 0;
 }
 
 listBarWin::~listBarWin()
@@ -35,10 +34,11 @@ listBarWin::~listBarWin()
 void listBarWin::itemInit(char**  itemList, uint8_t num)
 {
 	this->itemList = itemList;
-	this->itemNum = num;
-	rwList = new rootWin*[itemNum];
-	coverBufLen = getItemHigh()*getWinWidth()*itemNum*2;
-	int i,max = itemNum;
+	setRwNum(num);
+	comboBoxInit();
+	
+	coverBufLen = getItemHigh()*getWinWidth()*getRwNum()*2;
+	int i,max = getRwNum();
 	for(i=0;i<max;i++)
 	{
 		//更具上一个进行 y ++；   ----getWinXpos ---还未改
@@ -47,7 +47,7 @@ void listBarWin::itemInit(char**  itemList, uint8_t num)
 		((controlWin*)temp)->setTextColor(getTextColor());
 		((controlWin*)temp)->setBackColor(GREY1);
 		//并存入相应的列表里
-		rwList[i] = temp;
+		getRwList()[i] = temp;
 	}
 }
 
@@ -110,11 +110,11 @@ void listBarWin::releaseListBar()
 
 void listBarWin::changeOpenList()
 {
-	if(rwList != NULL)
+	if(getRwList() != NULL)
 	{
 		if(!isOpen())
 		{ // 若未打开 -->  遍历列表 注册
-			int i,max = getItemNum();
+			int i,max = getRwNum();
 			for(i=0;i<max;i++)
 			{
 				getRwList()[i]->registerWin();
@@ -122,10 +122,11 @@ void listBarWin::changeOpenList()
 			movtoFront(); //打开的话 就把这个列表推到最前 保证最新被访问
 			setWinHigh(getItemHigh()*(max+1));
 			changeOpenState();//改变打开状态
+			paintAll();	
 		}else
 		{// 若打开 -->  遍历列表 注销
 			printf("list is zx!\n");
-			int i,max=getItemNum();
+			int i,max = getRwNum();
 			for(i=0;i<max;i++)
 			{
 				getRwList()[i]->unregisterWin();
@@ -133,8 +134,7 @@ void listBarWin::changeOpenList()
 			setWinHigh(getItemHigh());
 			getParent()->paintAll();//重绘listBar的父亲窗口 因为打开时把父亲的给覆盖了
 			changeOpenState();//改变打开状态
-		}
-		paintAll();		
+		}	
 	}
 }
 
@@ -187,8 +187,8 @@ void listBarWin::unregisterWin()
 //摧毁控件
 void listBarWin::destroyWin()
 {
-	delete rwList;
 	delete itemList;
+	comboBoxDestroy();
 	rootWin::destroyWin();
 }
 
@@ -270,7 +270,16 @@ static void itemWinProc(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, uin
 				rw->sendMSGtoBack(msg,rw->getQueue());
 			}
 		}
-		default:break;
+		default:
+			if(rw->getParent() != NULL){
+			message* msg = new message();
+			msg->type = mt;
+			msg->data1 = d1;
+			msg->data2 = d2;
+			msg->destWin = rw->getParent();
+			msg->fromWin = fw; //
+			rw->sendMSGtoBack(msg,rw->getQueue());
+		}break;
 	}
 }
 
