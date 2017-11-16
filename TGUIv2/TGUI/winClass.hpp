@@ -74,6 +74,11 @@ typedef struct{
 	uint32_t data2;
 }message;
 
+typedef struct node{
+	rootWin* win;
+	struct node* next;
+}winListNode;
+
 //根窗口
 class rootWin
 {
@@ -95,13 +100,11 @@ class rootWin
 		uint16_t getWinHigh(){return winHigh;}
 		char* getWinName(){return name;}
 		xQueueHandle getQueue(){return this->queue;}
-		
 		void setWinXpos(uint16_t winXpos){this->winXpos = winXpos;}   
 		void setWinYpos(uint16_t winYpos){this->winYpos = winYpos;}
 		void setWinWidth(uint16_t winWidth){this->winWidth = winWidth;}
 		void setWinHigh(uint16_t winHigh){this->winHigh = winHigh;}
 		void setName(char* name){this->name = name;}
-
 		rootWin* getParent(){return  parent;};//查找父亲节点
 		rootWin* getBrother(){return brother;};//查找下一个兄弟节点
 		rootWin* getChild(){return child;};//查找第一个孩子节点
@@ -125,6 +128,13 @@ class rootWin
 		void movtoBack();
 		retStatus sendMSGtoBack(message* msg,xQueueHandle que);
 		retStatus sendMSGtoFront(message* msg,xQueueHandle que);
+		
+		void markCovered();
+		void markDelete();
+		void setCoverHead(winListNode* wln){coverHead = wln;}
+		winListNode* getCoverHead(){return coverHead;}
+		bool getIsMutable(){return isMutable;}
+		void setIsMutable(bool m){isMutable = m;}
 		
 		void (*winProc)(rootWin* , rootWin* , MsgType , uint32_t , uint32_t );//窗口过程
 		void setWinProc(void (*winProc)(rootWin* , rootWin* rw, MsgType mt, uint32_t d1, uint32_t d2));
@@ -152,11 +162,16 @@ class rootWin
 	  bool WinProcSign;//窗口过程标志 表示是否需要
 		bool isAddTree;//是否加入树
 	
+		bool isMutable;//窗口是否可变 ---可变就去找覆盖的窗口
+		winListNode* coverHead;//覆盖的窗口 链表映像
+	
 		void preTraversePaint(rootWin* rw);//先序重绘所有窗口 包括子窗口 和兄弟窗口
 		void destroyCAndB();
 		void addWintoTree();//创建窗口 -- 即加入树中
 		void remWinfromTree();//从树中移除
 		
+		void travMark(rootWin* rw,uint16_t x,uint16_t y);//遍历标记被覆盖
+		void travDelMark(rootWin* rw,uint16_t x,uint16_t y);//遍历删除标记
 };
 
 //组合框类

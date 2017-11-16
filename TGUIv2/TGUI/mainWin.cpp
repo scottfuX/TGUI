@@ -92,7 +92,6 @@ void mainWin::destroyWin()
 
 static void buttonWeakProc(rootWin* rw,rootWin* fw, MsgType mt, uint32_t d1, uint32_t d2)
 {
-	printf("buttonWeakProc 0\n");
 	switch(mt)
 	{
 		case MSG_CLICK: 

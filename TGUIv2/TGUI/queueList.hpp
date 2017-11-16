@@ -1,4 +1,5 @@
 #include<iostream>  
+
 using namespace std;  
 template <typename T>  
 class Queue  
@@ -6,7 +7,7 @@ class Queue
 public:  
     Queue()  
     {  
-        Node<T> *node=new Node<T>();  
+        Node<T> *node = new Node<T>();  
         node->data=NULL;  
         node->next=NULL;  
         qfront=qrear=node;  

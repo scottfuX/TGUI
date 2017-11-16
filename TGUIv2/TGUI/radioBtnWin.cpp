@@ -64,15 +64,15 @@ void radioBtnWin::optionSelect(optionWin* opw)
 		for(i=0;i<getRwNum();i++)// all clear 
 		{
 			((optionWin*) getRwList()[i])->setSelectStat(false);
-			getRwList()[i]->paintWin();
 		}
 		opw->clickOption();//select
+		paintAll();
 	}
 }
 
 void radioBtnWin::paintWin()
 {
-		
+	
 }
 
 void radioBtnWin::registerWin()
@@ -103,7 +103,7 @@ static  void optionWinProc(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, 
 			if(rw->isInArea(d1,d2))//若为空间内部松开-->执行应有的程序
 			{
 				((radioBtnWin*)(rw->getParent()))->optionSelect(((optionWin*)rw));
-				message* msg = new message();
+					message* msg = new message();
 					msg->type = MSG_RADIOBTN;
 					msg->data1 = (uint32_t)(rw->getWinName());
 					msg->data2 = 0;

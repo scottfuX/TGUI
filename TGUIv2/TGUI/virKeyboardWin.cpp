@@ -15,6 +15,7 @@ virKeyboardWin::virKeyboardWin(
 	destWorkWin = NULL;
 	shiftStat = 0;
 	capsLockStat = 0;
+	setIsMutable(true);
 }
 
 

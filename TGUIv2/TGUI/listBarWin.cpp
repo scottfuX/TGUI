@@ -14,6 +14,7 @@ listBarWin::listBarWin(
 	this->itemHigh = winHigh; //保存当前的高 作为之后每一个item的高
 	this->openStat = false;
 	this->itemList = NULL;
+	setIsMutable(true);
 }
 
 listBarWin::~listBarWin()
@@ -122,23 +123,26 @@ void listBarWin::changeOpenList()
 			movtoFront(); //打开的话 就把这个列表推到最前 保证最新被访问
 			setWinHigh(getItemHigh()*(max+1));
 			saveToBuf();//把要被覆盖的数据先存入缓冲区
+			if(getIsMutable())
+			{
+					markCovered();//把覆盖的win都标记一遍
+			}
 			changeOpenState();//改变打开状态
 			paintAll();	
-			printf("listHigh>>>>>>>>>>>>>>>%d",getWinHigh());
 		}else
 		{// 若打开 -->  遍历列表 注销
-			printf("list is zx!\n");
 			int i,max = getRwNum();
 			for(i=0;i<max;i++)
 			{
 				getRwList()[i]->unregisterWin();
 			}
 			//这里应该从buffer中取出数据
-			printf("listHigh>>>>>>>>>>>>>>>%d",getWinHigh());
 			readFromBuf();
+			if(getIsMutable())
+			{
+					markDelete();//把覆盖的win都标记一遍
+			}
 			setWinHigh(getItemHigh());
-			printf("listHigh>>>>>>>>>>>>>>>%d",getWinHigh());
-			//getParent()->paintAll();//重绘listBar的父亲窗口 因为打开时把父亲的给覆盖了
 			changeOpenState();//改变打开状态
 		}	
 	}

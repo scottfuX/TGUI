@@ -10,7 +10,7 @@ static void win0(void *pvParameters);
 
 void GUI_Run()
 {
-	xTaskCreate( win0, "win0", 1000, NULL, 1, NULL);
+	xTaskCreate( win0, "win0", 2000, NULL, 1, NULL);
 	vTaskStartScheduler();		// 启动调度器，任务开始执行	
 }
 
@@ -34,7 +34,6 @@ static void winWeakProc61(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, u
 static void winWeakProc6(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, uint32_t d2);
 static void winWeakProc7(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, uint32_t d2);
 static void winWeakProc71(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, uint32_t d2);
-rootWin* root1;
 progressBarWin* tempWin;
 
 static void win0(void *pvParameters)
@@ -49,7 +48,6 @@ static void win0(void *pvParameters)
 	mw->registerWin();
 	mw->setWinProc(winWeakProc0);
 	rootWin* sf1 = mw->getBackWin();
-	root1 =mw;
 	
 	listBarWin* lbw1 = new listBarWin(50,50,180,30,"listBar",sf1,queue);
 	lbw1->setTextColor(BLACK);
@@ -120,20 +118,17 @@ static void win0(void *pvParameters)
 	
 	message* buffer; 
 	buffer = (message*)pvPortMalloc(sizeof(message));
-	printf("message = %d\n",sizeof( message));
 	while(1)//获取msg
 	{
 		ClickHandle(x,y,mw,&thouchStat); //点击处理函数
 		portBASE_TYPE xStatus = xQueueReceive(queue,buffer,0); //获取信息
 		if(xStatus == pdPASS )
 		{
-			printf("-------have msg \ntype = %d\nid = %d\n",buffer->type,buffer->destWin->getWinID());
 			rw = buffer->destWin;
 			//这里应该判断是否有窗口过程，没有就使用默认winProc函数
 			if(rw->isHaveWinProc())
 			{
 				rw->winProc(buffer->destWin,buffer->fromWin,buffer->type,buffer->data1,buffer->data2);
-				printf("-------end\n");
 			}
 			else
 			{
@@ -168,7 +163,6 @@ static void winDefaultProc(rootWin* rw,rootWin* fw, MsgType mt, uint32_t d1, uin
 //窗口过程0
 static void winWeakProc0(rootWin* rw,rootWin* fw, MsgType mt, uint32_t d1, uint32_t d2)
 {
-	printf("--winproc 0\n");
 	switch(mt)
 	{
 		case MSG_CLICK: break;
@@ -176,7 +170,7 @@ static void winWeakProc0(rootWin* rw,rootWin* fw, MsgType mt, uint32_t d1, uint3
 		case MSG_CLOSE: 
 		{
 			printf("close\n");
-				dialogWin* dw1 = new dialogWin(800/5,120,3*800/5,150,"Click OK to close the window.",rw,queue,WS_DEFAULT);
+				dialogWin* dw1 = new dialogWin(800/5,120,3*800/5,150,"Click OK to close the window.",((mainWin*)rw)->getBackWin(),queue,WS_DEFAULT);
 				dw1->dialogInit();	
 				dw1->setWinProc(winWeakProc3);
 				dw1->registerWin();
@@ -190,7 +184,6 @@ static void winWeakProc0(rootWin* rw,rootWin* fw, MsgType mt, uint32_t d1, uint3
 
 static void winWeakProc1(rootWin* rw,rootWin* fw, MsgType mt, uint32_t d1, uint32_t d2)
 {
-	printf("keyboard--winproc 4\n");
 	switch(mt)
 	{
 		case MSG_KEYBOARD:
@@ -206,7 +199,6 @@ static void winWeakProc1(rootWin* rw,rootWin* fw, MsgType mt, uint32_t d1, uint3
 //窗口过程2
 static void winWeakProc2(rootWin* rw,rootWin* fw, MsgType mt, uint32_t d1, uint32_t d2)
 {
-	printf("textBar--winproc 2\n");
 	switch(mt)
 	{
 		case MSG_CLICK: break;
@@ -255,7 +247,6 @@ static void winWeakProc3(rootWin* rw,rootWin* fw, MsgType mt, uint32_t d1, uint3
 
 static void winWeakProc4(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, uint32_t d2)
 {
-	printf("button--winproc 4\n");
 	switch(mt)
 	{
 		case MSG_CLICK: 
@@ -272,10 +263,8 @@ static void winWeakProc4(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, ui
 			((buttonWin*)rw)->releaseButton();//显示松开
 			if(rw->isInArea(d1,d2))
 			{
-				LCD_SetColors(RED,RED);
-				LCD_FillTriangle(300,500,400,240,240,340);
-				LCD_DrawFullCircle(350,190,70);
-				LCD_DrawFullCircle(450,190,70);
+			//这里才是处理的代码
+				printf("button\n");
 			}
 		}break;
 		default:	//处理不了就给父类
@@ -293,7 +282,6 @@ static void winWeakProc4(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, ui
 
 static void winWeakProc5(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, uint32_t d2)
 {
-	printf("listBar--winproc 5\n");
 	switch(mt)
 	{
 		case MSG_CLICK: 
@@ -333,7 +321,6 @@ static void winWeakProc5(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, ui
 }
 static void winWeakProc61(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, uint32_t d2)
 {
-	printf("option--winproc 61\n");
 	switch(mt)
 	{
 		case MSG_RELEASECLICK:
@@ -347,13 +334,12 @@ static void winWeakProc61(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, u
 
 static void winWeakProc6(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, uint32_t d2)
 {
-	printf("radiobtn--winproc 6\n");
 	switch(mt)
 	{
 		case MSG_RADIOBTN: 
 		{
 			//显示被按下
-			printf(">>>>>>>>>>>>>>%s\n",(char*)d1);
+			printf("radiobtn>>>>>>>>%s\n",(char*)d1);
 		}break;
 		default:break;
 	}
@@ -361,7 +347,6 @@ static void winWeakProc6(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, ui
 
 static void winWeakProc71(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, uint32_t d2)
 {
-	printf("slider1--winproc 71\n");
 	switch(mt)
 	{
 		case MSG_CLICK: 
@@ -377,13 +362,12 @@ static void winWeakProc71(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, u
 }
 static void winWeakProc7(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, uint32_t d2)
 {
-	printf("slider2--winproc 7\n");
 	switch(mt)
 	{
 		case MSG_CLICK: 
 		{//显示被按下
 			((trackBarWin*)rw)->sliderSliding(d1,d2);
-				printf("slider---------->>>>>%d",((trackBarWin*)rw)->getSliderValue());
+				printf("slider---------->>>>>%d\n",((trackBarWin*)rw)->getSliderValue());
 				tempWin->setProgressValue(((trackBarWin*)rw)->getSliderValue());
 		}break;
 		case MSG_RELEASECLICK:
@@ -422,11 +406,8 @@ static void ClickHandle(uint16_t x , uint16_t y ,rootWin* mw,uint8_t* stat)
 			}
 			else//第一次点击时 寻找到其窗口 并发送click信号
 			{
-				printf("touch up = 0\n");
 				rootWin* dw = mw->locateWin(x,y);
-				printf("%d\n",*stat);
 				*stat = 1;
-				printf("%d\n",*stat);
 				if(dw != NULL)
 				{
 					curClickWin = dw;
@@ -436,9 +417,8 @@ static void ClickHandle(uint16_t x , uint16_t y ,rootWin* mw,uint8_t* stat)
 					msg->data2 = y;
 					msg->destWin = curClickWin;
 					msg->fromWin = NULL;
-					printf("%d\n",*stat);
 					if(xQueueSendToBack(queue,msg,QUE_WAIT_TIME) == pdPASS)
-					{printf("delete--\n");delete msg;}
+					{delete msg;}
 				}
 			}
 		}
@@ -446,7 +426,6 @@ static void ClickHandle(uint16_t x , uint16_t y ,rootWin* mw,uint8_t* stat)
 	else if(getTouchUP() != 0 && (*stat) == 1)//之前按下的 松开
 	{
 		//获取 松开后的下x,y
-		printf("touch up = 1\n");
 		*stat = 0;
 		GUIGetPoint(&x,&y);
 			message* msg =  new message();

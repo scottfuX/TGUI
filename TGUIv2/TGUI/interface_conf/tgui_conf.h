@@ -33,13 +33,13 @@ extern uint8_t LCD_BUFADDR[];
 	
 #define WHITE  		LCD_COLOR_WHITE          
 #define BLACK 		LCD_COLOR_BLACK          
-#define GREY 		LCD_COLOR_GREY           
-#define BLUE 		LCD_COLOR_BLUE           
+#define GREY 			LCD_COLOR_GREY           
+#define BLUE 			LCD_COLOR_BLUE           
 #define BLUE2 		LCD_COLOR_BLUE2          
-#define RED 		LCD_COLOR_RED            
+#define RED 			LCD_COLOR_RED            
 #define MAGENTA 	LCD_COLOR_MAGENTA        
 #define GREEN 		LCD_COLOR_GREEN          
-#define CYAN 		LCD_COLOR_CYAN           
+#define CYAN 			LCD_COLOR_CYAN           
 #define YELLOW 		LCD_COLOR_YELLOW    
 
 //队列
@@ -47,26 +47,28 @@ extern uint8_t LCD_BUFADDR[];
 #define SENDQUEUE  xQueueSendToBack
 //消息队列存放消息个数 
 #define MSG_QUENUM	   10 //适度调大
-//队列满时的等待时间  单位freertos的tisk周期（默认1ms）
+//队列满时的等待时间  单位freertos的tisk周期（tisk默认1ms）
 #define QUE_WAIT_TIME  10 //10ms
 
 //优先级
 #define HUP_TASK_PRIORITY 1 //Hang up
 #define RUN_TASK_PRIORITY 2
 
+//采样点数
+#define SAMPLING_POINT 20
 
 //像素位置
-#define STAT_BAR  GUI_HIGH/15
-#define SYS_BTN_W GUI_WIDTH/15
+#define STAT_BAR  32
+#define SYS_BTN_W 53
 #define CONTENT_AREA_X 			0
 #define CONTENT_AREA_Y STAT_BAR
 
 #define APP_MAX_NUM 10
 //app像素种类
-#define APP_HIGH (GUI_HIGH-STAT_BAR)/3 //APP总大小 约150
-#define APP_ETR_HIGH  APP_HIGH/6   	//外边框高度
-#define APP_INT_HIGH  APP_HIGH/3*2 	//内边框高度
-#define APP_LINE_NUM  5//800/APP_HIGH //一行的APP数
+#define APP_HIGH 			150//APP总大小 约150
+#define APP_ETR_HIGH  25 	//外边框高度
+#define APP_INT_HIGH 	100	//内边框高度
+#define APP_LINE_NUM  5 //800/APP_HIGH //一行的APP数
 
 
 void GUISetPoint(uint16_t x,uint16_t y);

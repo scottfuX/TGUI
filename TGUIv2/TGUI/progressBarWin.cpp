@@ -22,7 +22,8 @@ void progressBarWin::setProgressValue(uint8_t pv)
 {
 	progressValue = pv;
 	pBarWidth = pv*getWinWidth()/100;//设置相应的进度条宽度
-	paintBarWin();
+	paintAll();
+	//paintBarWin();
 }
 	
 void progressBarWin::paintWin()
@@ -43,8 +44,8 @@ void progressBarWin::paintBarWin()
 {
 	if(pBarWidth)
 	{
-	LCD_SetTextColor(BLUE);
-	LCD_DrawFullRect(getAbsoluteX(),getAbsoluteY(),pBarWidth,getWinHigh());
+		LCD_SetTextColor(BLUE);
+		LCD_DrawFullRect(getAbsoluteX(),getAbsoluteY(),pBarWidth,getWinHigh());
 	}
 }
 void progressBarWin::registerWin()

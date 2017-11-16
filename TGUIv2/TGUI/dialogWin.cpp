@@ -12,7 +12,7 @@ dialogWin::dialogWin(
 	uint8_t wsStyle
 ):mainWin(winXpos,winYpos,winWidth,winHigh,name,parent,queue,wsStyle)
 {
-	
+	setIsMutable(true);
 }
 dialogWin::~dialogWin()
 {
@@ -96,7 +96,6 @@ void dialogWin::readFromBuf()
 
 static void buttonWeakProc(rootWin* rw,rootWin* fw, MsgType mt, uint32_t d1, uint32_t d2)
 {
-	printf("buttonWeakProc 0\n");
 	switch(mt)
 	{
 		case MSG_CLICK: 
