@@ -11,7 +11,7 @@ buttonWin::buttonWin(
 ):controlWin(winXpos,winYpos,winWidth,winHigh,name,parent,queue)
 {
 	setTextColor(BLACK);
-	setTextColor(WHITE);
+	setBackColor(GREY1);
 }
 
 buttonWin::~buttonWin()

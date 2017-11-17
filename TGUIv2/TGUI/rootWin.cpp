@@ -120,7 +120,6 @@ rootWin* rootWin::locateWin(uint16_t x,uint16_t y)
 //先序重绘所有自己和子窗口
 void rootWin::paintAll()
 {
-	this->setAbsoluteXY();
 	paintWin();
 	preTraversePaint(this->child);
 	if(getCoverHead() != NULL)

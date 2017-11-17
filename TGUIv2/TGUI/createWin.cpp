@@ -14,8 +14,6 @@ void GUI_Run()
 	vTaskStartScheduler();		// 启动调度器，任务开始执行	
 }
 
-
-
 //用孩子兄弟二叉树的第一个孩子作为当前界面的
 
 xQueueHandle queue =  xQueueCreate( MSG_QUENUM, sizeof( message));
@@ -41,6 +39,8 @@ static void win0(void *pvParameters)
 	//----------------这里开始配置窗口-------------------
 	char* item[] = {"item1","item2","item3"};
 	char* o1[] = {"option1","option2","option3"};
+	
+	
 	rootWin* root = new mainWin(0,0,GUI_WIDTH,GUI_HIGH,"ROOT!",NULL,queue,WS_DEFAULT);
 	//mainWin
 	mainWin* mw = new mainWin(0,0,GUI_WIDTH,GUI_HIGH,"IT IS TEST WIN 1!",root,queue,WS_DEFAULT);
@@ -50,50 +50,108 @@ static void win0(void *pvParameters)
 	rootWin* sf1 = mw->getBackWin();
 	
 	listBarWin* lbw1 = new listBarWin(50,50,180,30,"listBar",sf1,queue);
+	rootWin* bt3 = new buttonWin(50,100,180,100,"button",sf1,queue);
+	radioBtnWin* rbw1 = new radioBtnWin(50,220,180,110,NULL,sf1,queue);
+	optionWin* opw1 = new optionWin(50,350,180,30,"check1",sf1,queue,false);
+	optionWin* opw2 = new optionWin(50,400,180,30,"check2",sf1,queue,false);
+	trackTextWin* tbw1 = new trackTextWin(0,0,150,30,NULL,sf1,queue);
+	rootWin* tbw2 = new trackBarWin(750,30,30,400,NULL,sf1,queue,false);
+	progressBarWin* pbw1 = new progressBarWin(280,110,300,30,NULL,sf1,queue);
+	textBarWin* tbw = new textBarWin(250,160,400,90,NULL,sf1,queue);
+
+//流式布局
+//	flowLayoutWin* flw = new flowLayoutWin(mw->getBackWin(),0,0,sf1->getWinWidth(),sf1->getWinHigh(),15,15);
+//	
+//	flw->addWin(lbw1);
+//	flw->addWin(bt3);
+//	flw->addWin(rbw1);
+//	flw->addWin(tbw1);
+//	flw->addWin(opw2);
+//	flw->addWin(opw1);
+//	flw->addWin(tbw2);
+//	flw->addWin(pbw1);
+//	flw->addWin(tbw);
+	
+//边框布局
+//	borderLayoutWin* blw = new borderLayoutWin(mw->getBackWin(),0,0,sf1->getWinWidth(),sf1->getWinHigh());
+//	blw->setHorizGap(0);
+//	blw->setVertGap(0);
+//	blw->setBorderSize(100,100,200,200);
+//	buttonWin* btemp1 = new buttonWin(0,0,800,100,"North",blw->getBackWin(),queue);
+//	blw->addWin(btemp1);
+//	btemp1->registerWin();
+//	buttonWin* btemp2 = new buttonWin(0,0,800,100,"South",blw->getBackWin(),queue);
+//	blw->addWin(btemp2);
+//	btemp2->registerWin();
+//	buttonWin* btemp3 = new buttonWin(0,0,200,240,"West",blw->getBackWin(),queue);
+//	blw->addWin(btemp3);
+//	btemp3->registerWin();
+//	buttonWin* btemp4 = new buttonWin(0,0,200,240,"East",blw->getBackWin(),queue);
+//	blw->addWin(btemp4);
+//	btemp4->registerWin();
+//	buttonWin* btemp5 = new buttonWin(0,0,400,240,"Center",blw->getBackWin(),queue);
+//	blw->addWin(btemp5);
+//	btemp5->registerWin();
+	
+//网格布局	
+//	gridLayoutWin* glw = new gridLayoutWin(mw->getBackWin(),0,0,sf1->getWinWidth(),sf1->getWinHigh(),3,3);
+//	//glw->generateGridWH(20,20);
+//	for(int i =0;i<9;i++)
+//	{
+//		buttonWin* btemp = new buttonWin(0,0,200,120,"BUTTON",glw->getBackWin(),queue);
+//		glw->addWin(btemp);
+//		btemp->setTextColor(BLACK);
+//		btemp->setBackColor(GREEN);
+//		btemp->registerWin();
+//	}
+	
+//	glw->addWin(lbw1);
+//	glw->addWin(bt3);
+//	glw->addWin(rbw1);
+//	glw->addWin(tbw1);
+//	glw->addWin(opw2);
+//	glw->addWin(opw1);
+//	glw->addWin(tbw2);
+//	glw->addWin(pbw1);
+//	glw->addWin(tbw);
+//	
 	lbw1->setTextColor(BLACK);
 	lbw1->setBackColor(GREEN);
 	lbw1->setWinProc(winWeakProc5);
 	lbw1->itemInit(item,3);
 	lbw1->registerWin();
 	
-	rootWin* bt3 = new buttonWin(50,100,180,100,"button",sf1,queue);
 	((buttonWin*)bt3)->setTextColor(BLACK);
 	((buttonWin*)bt3)->setBackColor(CYAN);
 	bt3->registerWin();
 	bt3->setWinProc(winWeakProc4);
 	
-	radioBtnWin* rbw1 = new radioBtnWin(50,220,180,110,NULL,sf1,queue);
 	rbw1->radioBtnInit(o1,3,false);
 	rbw1->registerWin();
 	rbw1->setWinProc(winWeakProc6);
 	
-	//radioBtnWin* rbw2 = new radioBtnWin(250,185,400,30,NULL,sf1,queue);
-	//rbw2->radioBtnInit(o1,3,true);
-	//rbw2->registerWin();
-	//rbw2->setWinProc(winWeakProc6);
-	
-	optionWin* opw1 = new optionWin(50,350,180,30,"check1",sf1,queue,false);
 	opw1->registerWin();
 	opw1->setWinProc(winWeakProc61);
-	
-	optionWin* opw2 = new optionWin(50,400,180,30,"check2",sf1,queue,false);
+
 	opw2->registerWin();
 	opw2->setWinProc(winWeakProc61);
 	
-	trackTextWin* tbw1 = new trackTextWin(280,50,380,30,NULL,sf1,queue);
 	tbw1->trackTextInit();
 	tbw1->registerWin();
 	tbw1->setWinProc(winWeakProc71);
 	
-	rootWin* tbw2 = new trackBarWin(750,30,30,400,NULL,sf1,queue,false);
 	tbw2->registerWin();
 	tbw2->setWinProc(winWeakProc7);
 	
-	progressBarWin* pbw1 = new progressBarWin(280,110,300,30,NULL,sf1,queue);
 	pbw1->registerWin();
 	tempWin = (progressBarWin*)pbw1;
 	
-	virKeyboardWin* kbw = new virKeyboardWin(0,244,400,200,NULL,sf1,queue);
+	tbw->setTextColor(BLACK);
+	tbw->setBackColor(YELLOW);
+	tbw->setWinProc(winWeakProc2);
+	tbw->registerWin();
+	
+	virKeyboardWin* kbw = new virKeyboardWin(0,244,800,200,NULL,sf1,queue);
 	kbw->setTextColor(BLACK);
 	kbw->setBackColor(GREY2);
 	kbw->keyBoardInit();
@@ -101,11 +159,7 @@ static void win0(void *pvParameters)
 //	kbw->registerWin();
 	vkWin = kbw;
  
-	textBarWin* tbw = new textBarWin(250,160,400,90,NULL,sf1,queue);
-	tbw->setTextColor(BLACK);
-	tbw->setBackColor(YELLOW);
-	tbw->setWinProc(winWeakProc2);
-	tbw->registerWin();
+
 	
 	mw->paintAll();
 
@@ -148,15 +202,15 @@ static void winDefaultProc(rootWin* rw,rootWin* fw, MsgType mt, uint32_t d1, uin
 		case MSG_CLICK: break;
 		case MSG_RELEASECLICK: break;
 		default: 
-			if(rw->getParent() != NULL){
-				message* msg = new message();
-				msg->type = mt;
-				msg->data1 = d1;
-				msg->data2 = d2;
-				msg->destWin = rw->getParent();
-				msg->fromWin = fw; //
-				rw->sendMSGtoBack(msg,queue);
-			}break; 
+		if(rw->getParent() != NULL){
+			message* msg = new message();
+			msg->type = mt;
+			msg->data1 = d1;
+			msg->data2 = d2;
+			msg->destWin = rw->getParent();
+			msg->fromWin = fw; //
+			rw->sendMSGtoBack(msg,queue);
+		}break; 
 	}
 }	
 

@@ -899,6 +899,26 @@
               <FileType>8</FileType>
               <FilePath>..\TGUI\dialogWin.cpp</FilePath>
             </File>
+            <File>
+              <FileName>layoutWin.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\TGUI\layoutWin.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>flowLayoutWin.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\TGUI\flowLayoutWin.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>borderLayoutWin.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\TGUI\borderLayoutWin.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>gridLayoutWin.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\TGUI\gridLayoutWin.cpp</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

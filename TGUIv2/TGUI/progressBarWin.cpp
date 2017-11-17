@@ -23,7 +23,6 @@ void progressBarWin::setProgressValue(uint8_t pv)
 	progressValue = pv;
 	pBarWidth = pv*getWinWidth()/100;//设置相应的进度条宽度
 	paintAll();
-	//paintBarWin();
 }
 	
 void progressBarWin::paintWin()
