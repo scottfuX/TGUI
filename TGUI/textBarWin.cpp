@@ -49,7 +49,7 @@ void textBarWin::deleteChar()
 	{
 		bufIndicator--;
 		textBuf[bufIndicator] = 0;
-		paintWin();
+		paintAll();
 	}
 }
 void textBarWin::returnLine()//回车换行  ---这里应该设置一些符号换行符
@@ -84,7 +84,7 @@ void textBarWin::setTextBuf(char* s,uint16_t n)
 		}
 		bufIndicator = i;
 	}
-	paintWin();
+	paintAll();
 }
 
 void textBarWin::paintWin()

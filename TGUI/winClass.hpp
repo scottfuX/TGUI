@@ -7,8 +7,10 @@ extern "C"  {
 
 #include "interface_conf/tgui_conf.h"
 #include "includes_all.h"
-extern uint16_t win_id;
 	
+extern uint16_t win_id;
+extern uint8_t win_buffer[];	
+extern uint8_t LCD_BUFADDR[];
 #ifdef __cplusplus
 }
 #endif
@@ -50,6 +52,7 @@ typedef enum {
 	MSG_ITEM,					//列表
 	MSG_SLIDERMOV,		//滑块
 	MSG_CHAR,					//字符
+	MSG_DIALOG,
 	MSG_WINMOV,				
 	MSG_FONTCHANGE,
 	MSG_ERASURE,
@@ -70,6 +73,11 @@ typedef struct{
 	uint32_t  data1;
 	uint32_t data2;
 }message;
+
+typedef struct node{
+	rootWin* win;
+	struct node* next;
+}winListNode;
 
 //根窗口
 class rootWin
@@ -92,13 +100,11 @@ class rootWin
 		uint16_t getWinHigh(){return winHigh;}
 		char* getWinName(){return name;}
 		xQueueHandle getQueue(){return this->queue;}
-		
-		void setWinXpos(uint16_t winXpos){this->winXpos = winXpos;}   
-		void setWinYpos(uint16_t winYpos){this->winYpos = winYpos;}
+		void setWinXpos(uint16_t winXpos){this->winXpos = winXpos;this->setAbsoluteXY();}   
+		void setWinYpos(uint16_t winYpos){this->winYpos = winYpos;this->setAbsoluteXY();}
 		void setWinWidth(uint16_t winWidth){this->winWidth = winWidth;}
 		void setWinHigh(uint16_t winHigh){this->winHigh = winHigh;}
 		void setName(char* name){this->name = name;}
-
 		rootWin* getParent(){return  parent;};//查找父亲节点
 		rootWin* getBrother(){return brother;};//查找下一个兄弟节点
 		rootWin* getChild(){return child;};//查找第一个孩子节点
@@ -123,9 +129,16 @@ class rootWin
 		retStatus sendMSGtoBack(message* msg,xQueueHandle que);
 		retStatus sendMSGtoFront(message* msg,xQueueHandle que);
 		
+		void markCovered();
+		void markDelete();
+		void setCoverHead(winListNode* wln){coverHead = wln;}
+		winListNode* getCoverHead(){return coverHead;}
+		bool getIsMutable(){return isMutable;}
+		void setIsMutable(bool m){isMutable = m;}
+		
 		void (*winProc)(rootWin* , rootWin* , MsgType , uint32_t , uint32_t );//窗口过程
 		void setWinProc(void (*winProc)(rootWin* , rootWin* rw, MsgType mt, uint32_t d1, uint32_t d2));
-		
+		bool isRegisterWin(){return isAddTree;}
 		void paintAll();
 		virtual void paintWin()=0;//绘画 就自己 不同的窗口实现不同
 		virtual void registerWin() ;//激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
@@ -149,19 +162,24 @@ class rootWin
 	  bool WinProcSign;//窗口过程标志 表示是否需要
 		bool isAddTree;//是否加入树
 	
+		bool isMutable;//窗口是否可变 ---可变就去找覆盖的窗口
+		winListNode* coverHead;//覆盖的窗口 链表映像
+	
 		void preTraversePaint(rootWin* rw);//先序重绘所有窗口 包括子窗口 和兄弟窗口
 		void destroyCAndB();
 		void addWintoTree();//创建窗口 -- 即加入树中
 		void remWinfromTree();//从树中移除
 		
+		void travMark(rootWin* rw,uint16_t x,uint16_t y);//遍历标记被覆盖
+		void travDelMark(rootWin* rw,uint16_t x,uint16_t y);//遍历删除标记
 };
 
-//组合框
+//组合框类
 class comboBoxWin
 {
 public:
 	comboBoxWin();
-	~comboBoxWin();
+	virtual ~comboBoxWin();
 	
 	rootWin** getRwList(){return rwList;}
 	uint16_t  getRwNum(){return rwNum;}
@@ -221,15 +239,13 @@ public:
 	);
 	virtual ~dialogWin();
 		
-//virtual void paintWin();//绘画 就自己 不同的窗口实现不同
-//virtual void registerWin();//激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
-//virtual void unregisterWin();//注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
-//virtual	void destroyWin();	
-
+	virtual void registerWin();
+	void closeDialog();	
 	void dialogInit();		
-		
+
 private:
-	
+	void saveToBuf();
+	void readFromBuf();
 };
 
 //控件
@@ -437,11 +453,12 @@ public:
 	virtual void unregisterWin();	//注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
 	virtual	void destroyWin();
 	
-
 	void writeChar(char c);
 	void writeString(char* s,uint16_t n);
 	void setTextBuf(char* s,uint16_t n);
 	char*	getTextBuf(){return textBuf;}
+	
+	
 
 private:
 	char* textBuf;
@@ -523,6 +540,9 @@ class listBarWin:public controlWin, comboBoxWin
 		//还未填写
 		uint8_t* coverBuffer;//被覆盖的数据的 存储区
 		uint32_t coverBufLen;
+	
+		void saveToBuf();
+		void readFromBuf();
 
 };
 
@@ -603,14 +623,124 @@ public:
 	virtual	void destroyWin(); 
 		
 	void keyBoardInit();
-	void charConversion(uint32_t data1,uint32_t data2,char *c);
+	void intConverChar(uint32_t data1,uint32_t data2,char *c);//数值转换为字符
 	void setDestWorkWin(rootWin* rw){destWorkWin = rw;}
-	void keyboardConnect(char c);
+	void keyboardSendChar(char c);
+	void wakeupAndConnect(rootWin*rw);//唤醒键盘
 private:
 	bool shiftStat;
 	bool capsLockStat;
 	rootWin* destWorkWin; 
+	
+	
+	void saveToBuf();
+	void readFromBuf();
 };
 
+//布局窗口类 -- 方便控件布局
+class layoutWin
+{
+public:
+	layoutWin(
+		rootWin* backWin,	//要被布局的对象
+		uint16_t X,			//所要布局的范围
+		uint16_t Y,
+		uint16_t Width,
+		uint16_t High
+	);
+	virtual ~layoutWin();
+
+	rootWin* getBackWin(){return backWin;}
+	uint16_t getLayoutX(){return layoutX;}
+	uint16_t getLayoutY(){return layoutY;}
+	uint16_t getLayoutWidth(){return layoutWidth;}
+	uint16_t getLayoutHigh(){return layoutHigh;}
+	
+	uint16_t getHorizGap(){return horizGap;}
+	uint16_t getVertGap(){return vertGap;}
+	void setHorizGap(uint16_t horizGap){this->horizGap = horizGap;}
+	void setVertGap(uint16_t vertGap){this->vertGap = vertGap;}
+	virtual void addWin(rootWin* rw) = 0;
+private:
+	rootWin* backWin;//要被布局的对象
+	uint16_t layoutX;//所要布局的范围
+	uint16_t layoutY;
+	uint16_t layoutWidth;
+	uint16_t layoutHigh;
+
+	uint16_t horizGap; //horizontal间隙
+	uint16_t vertGap; //vertical间隙
+};
+
+//流式布局
+class flowLayoutWin:public layoutWin
+{
+public:
+	flowLayoutWin(
+		rootWin* backWin,	//要被布局的对象
+		uint16_t X,			//所要布局的范围
+		uint16_t Y,
+		uint16_t Width,
+		uint16_t High,
+		uint16_t Hgap,
+		uint16_t Vgap
+	);
+	virtual ~flowLayoutWin();
+
+	virtual void addWin(rootWin* rw);
+private:
+	uint16_t residualW;//剩余宽度
+	uint16_t residualH;//剩余高度
+	uint16_t maxH; //一行中最长的高
+
+};
+
+//边界布局
+class borderLayoutWin:public layoutWin
+{
+public:
+	borderLayoutWin(
+		rootWin* backWin,	//要被布局的对象
+		uint16_t X,			//所要布局的范围
+		uint16_t Y,
+		uint16_t Width,
+		uint16_t High
+	);
+	virtual ~borderLayoutWin();
+	virtual void addWin(rootWin* rw);
+	void addWin(rootWin* rw,uint16_t seat);
+	void setBorderSize(uint16_t northH,uint16_t southH,uint16_t westW,uint16_t eastW);
+private:	
+	uint16_t northH;
+	uint16_t southH;
+	uint16_t westW;
+	uint16_t eastW;
+	uint8_t layoutStat;//布局状态 那几个已经布局了
+
+};
+
+//网格布局
+class gridLayoutWin:public layoutWin
+{
+public:
+	gridLayoutWin(
+		rootWin* backWin,	//要被布局的对象
+		uint16_t X,			//所要布局的范围相对位移
+		uint16_t Y,
+		uint16_t Width,
+		uint16_t High,
+		uint8_t  row,
+		uint8_t  column
+	);
+	virtual ~gridLayoutWin();
+	virtual void addWin(rootWin* rw);
+	void generateGridWH(uint16_t horizGap,uint16_t vertGap);
+private:
+	uint8_t row; //行
+	uint8_t column; //列
+	uint8_t currSeat;
+	uint16_t gridW;
+	uint16_t gridH;
+};
 
 #endif //!_WINCLASS_HPP_

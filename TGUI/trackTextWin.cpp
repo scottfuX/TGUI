@@ -22,9 +22,10 @@ void trackTextWin::trackTextInit()
 {
 	setRwNum(2);
 	comboBoxInit();
-	getRwList()[0] = new trackBarWin(getWinXpos(),getWinYpos(),\
-		(getWinWidth()-(getFont().Width)*5),getWinHigh(),getWinName(),getParent(),getQueue(),true);
-	getRwList()[1] = new staticFrameWin((getWinWidth()-(getFont().Width)*5),0,getFont().Width*5,getWinHigh(),NULL,this,getQueue());
+	getRwList()[0] = new trackBarWin(getWinXpos(),getWinYpos(),(getWinWidth()-(getFont().Width)*5),getWinHigh(),\
+		getWinName(),getParent(),getQueue(),true);
+	getRwList()[1] = new staticFrameWin((getWinXpos()+getWinWidth()-(getFont().Width)*5),getWinYpos(),getFont().Width*5,\
+		getWinHigh(),NULL,getParent(),getQueue());
 		textStr = new char[5];
 }
 

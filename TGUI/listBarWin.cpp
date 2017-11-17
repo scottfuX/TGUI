@@ -14,6 +14,7 @@ listBarWin::listBarWin(
 	this->itemHigh = winHigh; //保存当前的高 作为之后每一个item的高
 	this->openStat = false;
 	this->itemList = NULL;
+	setIsMutable(true);
 }
 
 listBarWin::~listBarWin()
@@ -121,18 +122,27 @@ void listBarWin::changeOpenList()
 			}
 			movtoFront(); //打开的话 就把这个列表推到最前 保证最新被访问
 			setWinHigh(getItemHigh()*(max+1));
+			saveToBuf();//把要被覆盖的数据先存入缓冲区
+			if(getIsMutable())
+			{
+					markCovered();//把覆盖的win都标记一遍
+			}
 			changeOpenState();//改变打开状态
 			paintAll();	
 		}else
 		{// 若打开 -->  遍历列表 注销
-			printf("list is zx!\n");
 			int i,max = getRwNum();
 			for(i=0;i<max;i++)
 			{
 				getRwList()[i]->unregisterWin();
 			}
+			//这里应该从buffer中取出数据
+			readFromBuf();
+			if(getIsMutable())
+			{
+					markDelete();//把覆盖的win都标记一遍
+			}
 			setWinHigh(getItemHigh());
-			getParent()->paintAll();//重绘listBar的父亲窗口 因为打开时把父亲的给覆盖了
 			changeOpenState();//改变打开状态
 		}	
 	}
@@ -204,6 +214,46 @@ void listBarWin::changeOpenState()
 
 //---------------------------------------
 
+void listBarWin::saveToBuf()
+{
+	uint16_t i,j;
+	uint16_t lineWidth = (getWinWidth()+1)*GUI_PIXELSIZE;//每行宽度
+	uint16_t lineNum = getWinHigh()+1;//多少行
+	uint16_t offset;
+	uint32_t cP;
+	cP	= (getAbsoluteX()+(getAbsoluteY())*GUI_WIDTH)*GUI_PIXELSIZE;//可能不是h衡向存储的
+	uint16_t nextLine = GUI_WIDTH*GUI_PIXELSIZE;
+	for(i=0;i<lineNum;i++)
+	{	
+		for(j=0;j<lineWidth;j++)
+		{
+			offset = j;
+			win_buffer[cP+offset] = GUI_BUFADDR[cP+offset];
+		}
+			cP +=nextLine;
+	}
+}
+
+void listBarWin::readFromBuf()
+{
+	uint16_t i,j;
+	uint16_t lineWidth = (getWinWidth()+1)*GUI_PIXELSIZE;//每行宽度
+	uint16_t lineNum = getWinHigh()+1;//多少行
+	uint16_t offset;
+	uint32_t cP;
+	cP = (getAbsoluteX()+(getAbsoluteY())*GUI_WIDTH)*GUI_PIXELSIZE;//可能不是h衡向存储的
+	uint16_t nextLine = GUI_WIDTH*GUI_PIXELSIZE;
+	for(i=0;i<lineNum;i++)
+	{
+		for(j=0;j<lineWidth;j++)
+		{
+			offset = j;
+			GUI_BUFADDR[cP+offset] = win_buffer[cP+offset];
+		}
+			cP +=nextLine;
+	}
+}
+
 
 /*
 //这里存储数据 
@@ -269,17 +319,8 @@ static void itemWinProc(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, uin
 				msg->fromWin = rw;
 				rw->sendMSGtoBack(msg,rw->getQueue());
 			}
-		}
-		default:
-			if(rw->getParent() != NULL){
-			message* msg = new message();
-			msg->type = mt;
-			msg->data1 = d1;
-			msg->data2 = d2;
-			msg->destWin = rw->getParent();
-			msg->fromWin = fw; //
-			rw->sendMSGtoBack(msg,rw->getQueue());
 		}break;
+		default:break;
 	}
 }
 

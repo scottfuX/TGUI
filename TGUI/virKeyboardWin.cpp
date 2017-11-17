@@ -15,6 +15,7 @@ virKeyboardWin::virKeyboardWin(
 	destWorkWin = NULL;
 	shiftStat = 0;
 	capsLockStat = 0;
+	setIsMutable(true);
 }
 
 
@@ -34,7 +35,7 @@ void virKeyboardWin::keyBoardInit()
 	setRwNum(60);
 	comboBoxInit();
 	uint16_t w = (getWinWidth()- getWinWidth()/29)/14;
-	uint16_t h = getWinHigh()/6;
+	uint16_t h = getWinHigh()/5;
 	uint8_t n ;//中间按键数量
 	uint16_t x;//x的位置
 	uint16_t wt;
@@ -125,10 +126,10 @@ void virKeyboardWin::keyBoardInit()
 	getRwList()[temp]->setWinProc(keyboardProc);
 	getRwList()[temp]->registerWin();
 	temp++;
-		
 }
 
-void virKeyboardWin::charConversion(uint32_t data1,uint32_t data2,char *c)
+//数值转换为字符
+void virKeyboardWin::intConverChar(uint32_t data1,uint32_t data2,char *c)
 {
 		*c = 0;
 		switch(((char)data1))
@@ -152,7 +153,9 @@ void virKeyboardWin::charConversion(uint32_t data1,uint32_t data2,char *c)
 				;break;
 			case 'a':	
 				if(((char)data2) == 'l'){*c = 18;};break;//alt 待定
-			case 'V': {unregisterWin();getParent()->paintAll();*c = 0;return;}//回收
+			case 'V': {unregisterWin();
+				readFromBuf();//>>>从缓冲区中读取出来
+			*c = 0;return;}//回收
 		}
 		if(*c == 0)
 		{
@@ -178,16 +181,23 @@ void virKeyboardWin::charConversion(uint32_t data1,uint32_t data2,char *c)
 			}
 		}
 }
+//唤醒并链接
+void virKeyboardWin::wakeupAndConnect(rootWin*rw)
+{
+		setDestWorkWin(rw);//设置目标对象
+		registerWin();//注册
+		paintAll();//绘制
+}
 
-//键盘链接器
-void virKeyboardWin::keyboardConnect(char c)
+//键盘发送器
+void virKeyboardWin::keyboardSendChar(char c)
 {
 		message* msg = new message();
 		msg->type = MSG_CHAR;
 		msg->data1 = c;
 		msg->data2 = 0;
-		msg->destWin = 
-		msg->fromWin = destWorkWin; //目标
+		msg->destWin = destWorkWin;
+		msg->fromWin = this; //目标
 		sendMSGtoBack(msg,getQueue());
 }
 void virKeyboardWin::paintWin()
@@ -197,7 +207,12 @@ void virKeyboardWin::paintWin()
 
 void virKeyboardWin::registerWin()
 {
-	rootWin::registerWin();
+	if(!isRegisterWin())
+	{
+		saveToBuf();//先把要覆盖的数据保存到缓冲区
+		rootWin::registerWin();
+	}
+	
 }
 
 void virKeyboardWin::unregisterWin()
@@ -211,6 +226,48 @@ void virKeyboardWin::destroyWin()
 	rootWin::destroyWin();
 }
 
+//显示器存到缓冲区
+void virKeyboardWin::saveToBuf()
+{
+	uint16_t i,j;
+	uint16_t lineWidth = (getWinWidth()+1)*GUI_PIXELSIZE;//每行宽度
+	uint16_t lineNum = getWinHigh()+1;//多少行
+	uint16_t offset;
+	uint32_t cP;
+	cP	= (getAbsoluteX()+(getAbsoluteY())*GUI_WIDTH)*GUI_PIXELSIZE;//可能不是h衡向存储的
+	uint16_t nextLine = GUI_WIDTH*GUI_PIXELSIZE;
+	for(i=0;i<lineNum;i++)
+	{	
+		for(j=0;j<lineWidth;j++)
+		{
+			offset = j;
+			win_buffer[cP+offset] = GUI_BUFADDR[cP+offset];
+		}
+			cP +=nextLine;
+	}
+}
+
+//缓冲区读到显示器
+void virKeyboardWin::readFromBuf()
+{
+	uint16_t i,j;
+	uint16_t lineWidth = (getWinWidth()+1)*GUI_PIXELSIZE;//每行宽度
+	uint16_t lineNum = getWinHigh()+1;//多少行
+	uint16_t offset;
+	uint32_t cP;
+	cP = (getAbsoluteX()+(getAbsoluteY())*GUI_WIDTH)*GUI_PIXELSIZE;//可能不是h衡向存储的
+	uint16_t nextLine = GUI_WIDTH*GUI_PIXELSIZE;
+	for(i=0;i<lineNum;i++)
+	{
+		for(j=0;j<lineWidth;j++)
+		{
+			offset = j;
+			GUI_BUFADDR[cP+offset] = win_buffer[cP+offset];
+		}
+			cP +=nextLine;
+		
+	}
+}
 static void keyboardProc(rootWin* rw,rootWin* fw, MsgType mt, uint32_t d1, uint32_t d2)
 {
 	switch(mt)
@@ -241,6 +298,8 @@ static void keyboardProc(rootWin* rw,rootWin* fw, MsgType mt, uint32_t d1, uint3
 		default:break;
 	}
 }
+
+
 
 
 //A <--------> 65

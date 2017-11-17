@@ -12,7 +12,7 @@ dialogWin::dialogWin(
 	uint8_t wsStyle
 ):mainWin(winXpos,winYpos,winWidth,winHigh,name,parent,queue,wsStyle)
 {
-	
+	setIsMutable(true);
 }
 dialogWin::~dialogWin()
 {
@@ -22,24 +22,80 @@ dialogWin::~dialogWin()
 
 void dialogWin::dialogInit()
 {
-			setRwNum(2);
-			comboBoxInit();
-			getRwList()[0]	= new buttonWin(getWinWidth()/7,getWinHigh()/4,2*getWinWidth()/7,getWinHigh()/2,"ok",this->getBackWin(),getQueue());
-			((controlWin* )getRwList()[0])->setTextColor(BLACK);
-			((controlWin* )getRwList()[0])->setBackColor(GREY2);
-			getRwList()[1] = new buttonWin(4*getWinWidth()/7,getWinHigh()/4,2*getWinWidth()/7,getWinHigh()/2,"cancel",this->getBackWin(),getQueue());
-			((controlWin* )getRwList()[1])->setTextColor(BLACK);
-			((controlWin* )getRwList()[1])->setBackColor(GREY2);
-			getRwList()[0]->setWinProc(buttonWeakProc);
-			getRwList()[1]->setWinProc(buttonWeakProc);
-			getRwList()[0]->registerWin();
-			getRwList()[1]->registerWin();
+	setRwNum(2);
+	comboBoxInit();
+	getRwList()[0]	= new buttonWin(getWinWidth()/7,getWinHigh()/4,2*getWinWidth()/7,getWinHigh()/2,"ok",this->getBackWin(),getQueue());
+	((controlWin* )getRwList()[0])->setTextColor(BLACK);
+	((controlWin* )getRwList()[0])->setBackColor(GREY2);
+	getRwList()[1] = new buttonWin(4*getWinWidth()/7,getWinHigh()/4,2*getWinWidth()/7,getWinHigh()/2,"cancel",this->getBackWin(),getQueue());
+	((controlWin* )getRwList()[1])->setTextColor(BLACK);
+	((controlWin* )getRwList()[1])->setBackColor(GREY2);
+	getRwList()[0]->setWinProc(buttonWeakProc);
+	getRwList()[1]->setWinProc(buttonWeakProc);
+	getRwList()[0]->registerWin();
+	getRwList()[1]->registerWin();
+}
+void dialogWin::closeDialog()
+{
+	readFromBuf();
+	unregisterWin();
 }
 
+void dialogWin::registerWin()
+{
+	if(!isRegisterWin())
+	{
+		saveToBuf();
+		mainWin::registerWin();
+	}
+}
+
+//-------------------------------------------------
+//显示器存到缓冲区
+void dialogWin::saveToBuf()
+{
+	uint16_t i,j;
+	uint16_t lineWidth = (getWinWidth()+1)*GUI_PIXELSIZE;//每行宽度
+	uint16_t lineNum = getWinHigh()+1;//多少行
+	uint16_t offset;
+	uint32_t cP;
+	cP	= (getAbsoluteX()+(getAbsoluteY())*GUI_WIDTH)*GUI_PIXELSIZE;//可能不是h衡向存储的
+	uint16_t nextLine = GUI_WIDTH*GUI_PIXELSIZE;
+	for(i=0;i<lineNum;i++)
+	{	
+		for(j=0;j<lineWidth;j++)
+		{
+			offset = j;
+			win_buffer[cP+offset] = GUI_BUFADDR[cP+offset];
+		}
+			cP +=nextLine;
+	}
+}
+
+//缓冲区读到显示器
+void dialogWin::readFromBuf()
+{
+	uint16_t i,j;
+	uint16_t lineWidth = (getWinWidth()+1)*GUI_PIXELSIZE;//每行宽度
+	uint16_t lineNum = getWinHigh()+1;//多少行
+	uint16_t offset;
+	uint32_t cP;
+	cP = (getAbsoluteX()+(getAbsoluteY())*GUI_WIDTH)*GUI_PIXELSIZE;//可能不是h衡向存储的
+	uint16_t nextLine = GUI_WIDTH*GUI_PIXELSIZE;
+	for(i=0;i<lineNum;i++)
+	{
+		for(j=0;j<lineWidth;j++)
+		{
+			offset = j;
+			GUI_BUFADDR[cP+offset] = win_buffer[cP+offset];
+		}
+			cP +=nextLine;
+		
+	}
+}
 
 static void buttonWeakProc(rootWin* rw,rootWin* fw, MsgType mt, uint32_t d1, uint32_t d2)
 {
-	printf("buttonWeakProc 0\n");
 	switch(mt)
 	{
 		case MSG_CLICK: 
@@ -56,24 +112,18 @@ static void buttonWeakProc(rootWin* rw,rootWin* fw, MsgType mt, uint32_t d1, uin
 			((buttonWin*)rw)->releaseButton();//显示松开
 			if(rw->isInArea(d1,d2))
 			{
-				printf(" mainWin will be closed!\n");
-				rootWin* t = rw->getParent()->getParent()->getParent();
-				rw->getParent()->getParent()->unregisterWin();
-				t->paintAll();
-				//rw->getParent()->getParent()->destroyWin();
+				//这里应该发送信息并注销dialog 
+				message* msg = new message();
+				msg->type = MSG_DIALOG;
+				msg->data1 = (uint32_t)rw->getWinName();
+				msg->data2 = rw->getWinID();
+				msg->destWin = rw->getParent();
+				msg->fromWin = rw; //
+				rw->sendMSGtoBack(msg,rw->getQueue());
+				//
 			}
 		}break;
-		default:	//处理不了就给父类
-		if(rw->getParent() != NULL)
-		{
-			message* msg = new message();
-			msg->type = mt;
-			msg->data1 = d1;
-			msg->data2 = d2;
-			msg->destWin = rw->getParent();
-			msg->fromWin = fw; //
-			rw->sendMSGtoBack(msg,rw->getQueue());
-		}break;
+		default:break;
 	}
 }
 

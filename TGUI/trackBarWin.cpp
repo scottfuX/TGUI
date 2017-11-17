@@ -27,7 +27,6 @@ trackBarWin::~trackBarWin()
 
 }
 
-//先画个背景在 再上面画个button作为滑块
 void trackBarWin::paintWin()
 {
 	//背景

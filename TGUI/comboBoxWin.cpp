@@ -8,7 +8,7 @@ comboBoxWin::comboBoxWin()
 
 comboBoxWin::~comboBoxWin()
 {
-	delete this;
+
 }
 
 void comboBoxWin::comboBoxInit()

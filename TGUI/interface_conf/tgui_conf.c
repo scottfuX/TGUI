@@ -2,6 +2,9 @@
 
 //id 数值 设置其实ID
 volatile uint16_t win_id = 0;
+//屏幕缓冲区，当有覆盖时进行存储
+uint8_t __EXRAM win_buffer[GUI_BUFSIZE];
+
 
 volatile uint16_t TouchX_pre = 65535;
 volatile uint16_t TouchY_pre = 65535;
