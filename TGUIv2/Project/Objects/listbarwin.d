@@ -1,5 +1,5 @@
 .\objects\listbarwin.o: ..\TGUI\listBarWin.cpp
-.\objects\listbarwin.o: ..\TGUI\winClass.hpp
+.\objects\listbarwin.o: ..\TGUI\winClass.h
 .\objects\listbarwin.o: ..\TGUI\interface_conf/tgui_conf.h
 .\objects\listbarwin.o: ..\User\includes_all.h
 .\objects\listbarwin.o: ..\Libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h

@@ -1,5 +1,5 @@
 .\objects\virkeyboardwin.o: ..\TGUI\virKeyboardWin.cpp
-.\objects\virkeyboardwin.o: ..\TGUI\winClass.hpp
+.\objects\virkeyboardwin.o: ..\TGUI\winClass.h
 .\objects\virkeyboardwin.o: ..\TGUI\interface_conf/tgui_conf.h
 .\objects\virkeyboardwin.o: ..\User\includes_all.h
 .\objects\virkeyboardwin.o: ..\Libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h

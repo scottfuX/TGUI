@@ -1,5 +1,5 @@
 .\objects\gridlayoutwin.o: ..\TGUI\gridLayoutWin.cpp
-.\objects\gridlayoutwin.o: ..\TGUI\winClass.hpp
+.\objects\gridlayoutwin.o: ..\TGUI\winClass.h
 .\objects\gridlayoutwin.o: ..\TGUI\interface_conf/tgui_conf.h
 .\objects\gridlayoutwin.o: ..\User\includes_all.h
 .\objects\gridlayoutwin.o: ..\Libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h

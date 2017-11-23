@@ -1,5 +1,5 @@
 .\objects\borderlayoutwin.o: ..\TGUI\borderLayoutWin.cpp
-.\objects\borderlayoutwin.o: ..\TGUI\winClass.hpp
+.\objects\borderlayoutwin.o: ..\TGUI\winClass.h
 .\objects\borderlayoutwin.o: ..\TGUI\interface_conf/tgui_conf.h
 .\objects\borderlayoutwin.o: ..\User\includes_all.h
 .\objects\borderlayoutwin.o: ..\Libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h

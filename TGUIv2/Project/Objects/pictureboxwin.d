@@ -1,5 +1,5 @@
 .\objects\pictureboxwin.o: ..\TGUI\pictureBoxWin.cpp
-.\objects\pictureboxwin.o: ..\TGUI\winClass.hpp
+.\objects\pictureboxwin.o: ..\TGUI\winClass.h
 .\objects\pictureboxwin.o: ..\TGUI\interface_conf/tgui_conf.h
 .\objects\pictureboxwin.o: ..\User\includes_all.h
 .\objects\pictureboxwin.o: ..\Libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h

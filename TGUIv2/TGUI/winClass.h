@@ -1,5 +1,5 @@
-#ifndef _WINCLASS_HPP_
-#define _WINCLASS_HPP_ 
+﻿#ifndef _WINCLASS_H_
+#define _WINCLASS_H_ 
 
 #ifdef __cplusplus
 extern "C"  {
@@ -743,4 +743,4 @@ private:
 	uint16_t gridH;
 };
 
-#endif //!_WINCLASS_HPP_
+#endif //!_WINCLASS_H_

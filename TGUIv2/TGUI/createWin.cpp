@@ -1,4 +1,4 @@
-#include "createWin.hpp"
+#include "createWin.h"
 
 /*
 问题1：缓冲区多重叠加不适用
@@ -54,7 +54,7 @@ static void win0(void *pvParameters)
 	radioBtnWin* rbw1 = new radioBtnWin(50,220,180,110,NULL,sf1,queue);
 	optionWin* opw1 = new optionWin(50,350,180,30,"check1",sf1,queue,false);
 	optionWin* opw2 = new optionWin(50,400,180,30,"check2",sf1,queue,false);
-	trackTextWin* tbw1 = new trackTextWin(0,0,150,30,NULL,sf1,queue);
+	trackTextWin* tbw1 = new trackTextWin(250,50,400,30,NULL,sf1,queue);
 	rootWin* tbw2 = new trackBarWin(750,30,30,400,NULL,sf1,queue,false);
 	progressBarWin* pbw1 = new progressBarWin(280,110,300,30,NULL,sf1,queue);
 	textBarWin* tbw = new textBarWin(250,160,400,90,NULL,sf1,queue);
@@ -156,13 +156,19 @@ static void win0(void *pvParameters)
 	kbw->setBackColor(GREY2);
 	kbw->keyBoardInit();
 	kbw->setWinProc(winWeakProc1);
-//	kbw->registerWin();
+//kbw->registerWin();
 	vkWin = kbw;
- 
 
-	
 	mw->paintAll();
-
+//画图测试  gui rect x,y,w,h
+	GUIRectangle* rect = new GUIRectangle(50,50,700,400,GREEN,GREEN);
+	rect->addInvalidArea(0,0,100,100);
+	rect->addInvalidArea(200,50,250,200);
+	rect->addInvalidArea(50,320,150,480);	
+	rect->addInvalidArea(700,400,800,480);
+	rect->addInvalidArea(400,150,500,300);
+	//rect->draw();
+	rect->drawFull();
 	//------------------------窗口介绍------------------------
 	
 	//----------------------信息处理函数----------------------

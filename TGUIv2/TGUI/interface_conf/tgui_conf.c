@@ -12,6 +12,23 @@ volatile uint16_t TouchX = 65535;
 volatile uint16_t TouchY = 65535;
 volatile uint8_t TouchUp = 0;//检查按键是否释放
 
+void GUIDma2d(uint16_t x ,uint16_t y,uint16_t w,uint16_t h,
+	uint32_t textColor,uint32_t backColor)
+{
+	LCD_SetColors(textColor,backColor);
+	LCD_DrawFullRect(x,y,w,h);
+}
+
+void GUISetColors(uint32_t textColor,uint32_t backColor)
+{
+	LCD_SetColors(textColor,backColor);
+}
+
+void GUIPutPixel(uint16_t xpos,uint16_t ypos)
+{//提供一个绘画一个点的驱动
+	PutPixel(xpos,ypos);
+}
+
 void GUISetPoint(uint16_t x,uint16_t y)
 {
 	TouchX = x;

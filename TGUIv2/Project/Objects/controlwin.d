@@ -1,5 +1,5 @@
 .\objects\controlwin.o: ..\TGUI\controlWin.cpp
-.\objects\controlwin.o: ..\TGUI\winClass.hpp
+.\objects\controlwin.o: ..\TGUI\winClass.h
 .\objects\controlwin.o: ..\TGUI\interface_conf/tgui_conf.h
 .\objects\controlwin.o: ..\User\includes_all.h
 .\objects\controlwin.o: ..\Libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h

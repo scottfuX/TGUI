@@ -1,5 +1,5 @@
 .\objects\buttonwin.o: ..\TGUI\buttonWin.cpp
-.\objects\buttonwin.o: ..\TGUI\winClass.hpp
+.\objects\buttonwin.o: ..\TGUI\winClass.h
 .\objects\buttonwin.o: ..\TGUI\interface_conf/tgui_conf.h
 .\objects\buttonwin.o: ..\User\includes_all.h
 .\objects\buttonwin.o: ..\Libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h

@@ -1,5 +1,5 @@
 .\objects\mainwin.o: ..\TGUI\mainWin.cpp
-.\objects\mainwin.o: ..\TGUI\winClass.hpp
+.\objects\mainwin.o: ..\TGUI\winClass.h
 .\objects\mainwin.o: ..\TGUI\interface_conf/tgui_conf.h
 .\objects\mainwin.o: ..\User\includes_all.h
 .\objects\mainwin.o: ..\Libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h

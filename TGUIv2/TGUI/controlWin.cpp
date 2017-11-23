@@ -1,4 +1,4 @@
-#include "winClass.hpp"
+#include "winClass.h"
 
 controlWin::controlWin(
 			uint16_t winXpos,

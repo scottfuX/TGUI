@@ -1,4 +1,4 @@
-#include "winClass.hpp"
+#include "winClass.h"
 
 borderLayoutWin::borderLayoutWin(
 	rootWin* backWin,	

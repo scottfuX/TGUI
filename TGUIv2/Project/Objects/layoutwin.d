@@ -1,5 +1,5 @@
 .\objects\layoutwin.o: ..\TGUI\layoutWin.cpp
-.\objects\layoutwin.o: ..\TGUI\winClass.hpp
+.\objects\layoutwin.o: ..\TGUI\winClass.h
 .\objects\layoutwin.o: ..\TGUI\interface_conf/tgui_conf.h
 .\objects\layoutwin.o: ..\User\includes_all.h
 .\objects\layoutwin.o: ..\Libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h

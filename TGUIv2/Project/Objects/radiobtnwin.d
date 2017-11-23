@@ -1,5 +1,5 @@
 .\objects\radiobtnwin.o: ..\TGUI\radioBtnWin.cpp
-.\objects\radiobtnwin.o: ..\TGUI\winClass.hpp
+.\objects\radiobtnwin.o: ..\TGUI\winClass.h
 .\objects\radiobtnwin.o: ..\TGUI\interface_conf/tgui_conf.h
 .\objects\radiobtnwin.o: ..\User\includes_all.h
 .\objects\radiobtnwin.o: ..\Libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h

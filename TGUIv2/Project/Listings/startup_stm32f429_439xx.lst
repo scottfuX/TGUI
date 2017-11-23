@@ -85,9 +85,9 @@ ARM Macro Assembler    Page 2
    50 00000400         ; </h>
    51 00000400         
    52 00000400         ;鍫嗚繘琛屼簡淇敼  鍘熶负0x200
-   53 00000400 00004000 
+   53 00000400 00002000 
                        Heap_Size
-                               EQU              0x00004000  ;0x00000800
+                               EQU              0x00002000  ;0x00000800
    54 00000400         
    55 00000400                 AREA             HEAP, NOINIT, READWRITE, ALIGN=
 3
@@ -96,22 +96,22 @@ ARM Macro Assembler    Page 2
    58 00000000         __heap_base
    59 00000000         Heap_Mem
                                SPACE            Heap_Size
-   60 00004000         __heap_limit                         ;EQU     0xd0800000
+   60 00002000         __heap_limit                         ;EQU     0xd0800000
                                                              ;设置堆的大小限制 
                                                             0xd0000000+0x008000
                                                             00
-   61 00004000         
-   62 00004000                 PRESERVE8
-   63 00004000                 THUMB
-   64 00004000         
-   65 00004000         ;加入freeRTOS
-   66 00004000         ;IMPORT xPortPendSVHandler 
-   67 00004000         ;IMPORT xPortSysTickHandler
-   68 00004000         ;IMPORT vPortSVCHandler
-   69 00004000         
-   70 00004000         
-   71 00004000         ; Vector Table Mapped to Address 0 at Reset
-   72 00004000                 AREA             RESET, DATA, READONLY
+   61 00002000         
+   62 00002000                 PRESERVE8
+   63 00002000                 THUMB
+   64 00002000         
+   65 00002000         ;加入freeRTOS
+   66 00002000         ;IMPORT xPortPendSVHandler 
+   67 00002000         ;IMPORT xPortSysTickHandler
+   68 00002000         ;IMPORT vPortSVCHandler
+   69 00002000         
+   70 00002000         
+   71 00002000         ; Vector Table Mapped to Address 0 at Reset
+   72 00002000                 AREA             RESET, DATA, READONLY
    73 00000000                 EXPORT           __Vectors
    74 00000000                 EXPORT           __Vectors_End
    75 00000000                 EXPORT           __Vectors_Size
@@ -1000,7 +1000,7 @@ s\arm\startup_stm32f429_439xx.s
       At line 457 in file ..\Libraries\CMSIS\Device\ST\STM32F4xx\Source\Templat
 es\arm\startup_stm32f429_439xx.s
 Comment: __heap_base used once
-__heap_limit 00004000
+__heap_limit 00002000
 
 Symbol: __heap_limit
    Definitions
@@ -2414,7 +2414,7 @@ es\arm\startup_stm32f429_439xx.s
 ARM Macro Assembler    Page 1 Alphabetic symbol ordering
 Absolute symbols
 
-Heap_Size 00004000
+Heap_Size 00002000
 
 Symbol: Heap_Size
    Definitions

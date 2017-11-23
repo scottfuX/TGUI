@@ -1,4 +1,4 @@
-#include "winClass.hpp"
+#include "winClass.h"
 
 textBarWin::textBarWin(
 		uint16_t winXpos,

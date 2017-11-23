@@ -1,8 +1,9 @@
 #ifndef __CREATEWIN_HPP_
 #define __CREATEWIN_HPP_
 
-#include "winClass.hpp"
-
+#include "winClass.h"
+#include "drawingClass.h"
+#include "GUIList.h"
 #ifdef __cplusplus
 extern "C"  {
 #endif

@@ -17,7 +17,7 @@ extern uint8_t LCD_BUFADDR[];
 //基本LCD	
 #define GUI_COLORMODE		RGB_565	
 #define GUI_PIXELSIZE		2          		 //每个像素2字节
-#define GUI_BUFADDR 	LCD_BUFADDR //lcd存储基地址 
+#define GUI_BUFADDR 	LCD_BUFADDR //lcd存储基地址 LCD_FRAME_BUFFER
 #define GUI_BUFSIZE 	BUFFER_OFFSET
 #define GUI_WIDTH			LCD_PIXEL_WIDTH
 #define GUI_HIGH			LCD_PIXEL_HEIGHT
@@ -68,6 +68,12 @@ extern uint8_t LCD_BUFADDR[];
 #define APP_INT_HIGH 	100	//内边框高度
 #define APP_LINE_NUM  5 //800/APP_HIGH //一行的APP数
 
+//是否使用DMA2D
+#define HAVE_DMA2D 1
+
+void GUIDma2d(uint16_t x ,uint16_t y,uint16_t w,uint16_t h,uint32_t textColor,uint32_t backColor);
+void GUISetColors(uint32_t textColor,uint32_t backColor);//提供一个设置颜色的驱动
+void GUIPutPixel(uint16_t xpos,uint16_t ypos);//提供一个绘画一个点的驱动
 
 void GUISetPoint(uint16_t x,uint16_t y);
 void GUIGetPrePoint(uint16_t* x,uint16_t* y);

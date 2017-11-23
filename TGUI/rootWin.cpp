@@ -1,4 +1,4 @@
-#include "winClass.hpp"
+#include "winClass.h"
 rootWin::rootWin(
 	uint16_t winXpos,
 	uint16_t winYpos,

@@ -1,4 +1,4 @@
-#include "winClass.hpp"
+#include "winClass.h"
 
 progressBarWin::progressBarWin(
 		uint16_t winXpos,

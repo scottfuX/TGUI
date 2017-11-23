@@ -1,4 +1,4 @@
-#include "winClass.hpp"
+#include "winClass.h"
 
 gridLayoutWin::gridLayoutWin(
 		rootWin* backWin,	

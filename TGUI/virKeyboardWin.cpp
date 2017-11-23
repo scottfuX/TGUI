@@ -1,4 +1,4 @@
-#include "winClass.hpp"
+#include "winClass.h"
 
 static void keyboardProc(rootWin* rw,rootWin* fw, MsgType mt, uint32_t d1, uint32_t d2);
 

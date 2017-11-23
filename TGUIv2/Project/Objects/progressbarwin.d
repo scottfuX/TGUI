@@ -1,5 +1,5 @@
 .\objects\progressbarwin.o: ..\TGUI\progressBarWin.cpp
-.\objects\progressbarwin.o: ..\TGUI\winClass.hpp
+.\objects\progressbarwin.o: ..\TGUI\winClass.h
 .\objects\progressbarwin.o: ..\TGUI\interface_conf/tgui_conf.h
 .\objects\progressbarwin.o: ..\User\includes_all.h
 .\objects\progressbarwin.o: ..\Libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h

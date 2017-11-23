@@ -1,5 +1,5 @@
 .\objects\textbarwin.o: ..\TGUI\textBarWin.cpp
-.\objects\textbarwin.o: ..\TGUI\winClass.hpp
+.\objects\textbarwin.o: ..\TGUI\winClass.h
 .\objects\textbarwin.o: ..\TGUI\interface_conf/tgui_conf.h
 .\objects\textbarwin.o: ..\User\includes_all.h
 .\objects\textbarwin.o: ..\Libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h

@@ -1,5 +1,5 @@
 .\objects\optionwin.o: ..\TGUI\optionWin.cpp
-.\objects\optionwin.o: ..\TGUI\winClass.hpp
+.\objects\optionwin.o: ..\TGUI\winClass.h
 .\objects\optionwin.o: ..\TGUI\interface_conf/tgui_conf.h
 .\objects\optionwin.o: ..\User\includes_all.h
 .\objects\optionwin.o: ..\Libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h

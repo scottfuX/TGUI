@@ -74,6 +74,7 @@
 ".\objects\flowlayoutwin.o"
 ".\objects\borderlayoutwin.o"
 ".\objects\gridlayoutwin.o"
+".\objects\guirectangle.o"
 ".\objects\diskio.o"
 ".\objects\ff.o"
 ".\objects\ffsystem.o"

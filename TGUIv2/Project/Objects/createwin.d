@@ -1,6 +1,6 @@
 .\objects\createwin.o: ..\TGUI\createWin.cpp
-.\objects\createwin.o: ..\TGUI\createWin.hpp
-.\objects\createwin.o: ..\TGUI\winClass.hpp
+.\objects\createwin.o: ..\TGUI\createWin.h
+.\objects\createwin.o: ..\TGUI\winClass.h
 .\objects\createwin.o: ..\TGUI\interface_conf/tgui_conf.h
 .\objects\createwin.o: ..\User\includes_all.h
 .\objects\createwin.o: ..\Libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h
@@ -59,5 +59,9 @@
 .\objects\createwin.o: ..\User\FONT/fonts.h
 .\objects\createwin.o: ..\User\SDRAM/SDRAMConfig.h
 .\objects\createwin.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\createwin.o: ..\TGUI\drawingClass.h
+.\objects\createwin.o: ..\TGUI\GUIList.h
+.\objects\createwin.o: ..\TGUI\interface_conf/tgui_conf.h
+.\objects\createwin.o: ..\TGUI\interface_conf/tgui_conf.h
 .\objects\createwin.o: ..\TGUI\interface_conf/tgui_conf.h
 .\objects\createwin.o: ..\User\DelayTemp/DelayTemp.h

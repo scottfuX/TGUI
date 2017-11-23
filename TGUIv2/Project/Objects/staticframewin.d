@@ -1,5 +1,5 @@
 .\objects\staticframewin.o: ..\TGUI\staticFrameWin.cpp
-.\objects\staticframewin.o: ..\TGUI\winClass.hpp
+.\objects\staticframewin.o: ..\TGUI\winClass.h
 .\objects\staticframewin.o: ..\TGUI\interface_conf/tgui_conf.h
 .\objects\staticframewin.o: ..\User\includes_all.h
 .\objects\staticframewin.o: ..\Libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h

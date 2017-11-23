@@ -919,6 +919,11 @@
               <FileType>8</FileType>
               <FilePath>..\TGUI\gridLayoutWin.cpp</FilePath>
             </File>
+            <File>
+              <FileName>GUIRectangle.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\TGUI\GUIRectangle.cpp</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

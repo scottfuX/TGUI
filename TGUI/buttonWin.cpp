@@ -1,4 +1,4 @@
-#include "winClass.hpp"
+#include "winClass.h"
 
 buttonWin::buttonWin(
 			uint16_t winXpos,

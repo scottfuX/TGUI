@@ -1,4 +1,4 @@
-#include "winClass.hpp"
+#include "winClass.h"
 
 optionWin::optionWin(
 			uint16_t winXpos,

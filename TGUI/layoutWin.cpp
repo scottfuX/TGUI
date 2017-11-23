@@ -1,4 +1,4 @@
-#include "winClass.hpp"
+#include "winClass.h"
 
 layoutWin::layoutWin(
 			rootWin* backWin,

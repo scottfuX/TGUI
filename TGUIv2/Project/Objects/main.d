@@ -72,7 +72,11 @@
 .\objects\main.o: ..\User\Test/SDRAMTest.h
 .\objects\main.o: ..\User\Test/LCDTest.h
 .\objects\main.o: ..\User\Test/LCDPalette.h
-.\objects\main.o: ..\TGUI\createWin.hpp
-.\objects\main.o: ..\TGUI\winClass.hpp
+.\objects\main.o: ..\TGUI\createWin.h
+.\objects\main.o: ..\TGUI\winClass.h
+.\objects\main.o: ..\TGUI\interface_conf/tgui_conf.h
+.\objects\main.o: ..\TGUI\drawingClass.h
+.\objects\main.o: ..\TGUI\GUIList.h
+.\objects\main.o: ..\TGUI\interface_conf/tgui_conf.h
 .\objects\main.o: ..\TGUI\interface_conf/tgui_conf.h
 .\objects\main.o: ..\TGUI\interface_conf/tgui_conf.h

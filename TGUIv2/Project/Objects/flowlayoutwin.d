@@ -1,5 +1,5 @@
 .\objects\flowlayoutwin.o: ..\TGUI\flowLayoutWin.cpp
-.\objects\flowlayoutwin.o: ..\TGUI\winClass.hpp
+.\objects\flowlayoutwin.o: ..\TGUI\winClass.h
 .\objects\flowlayoutwin.o: ..\TGUI\interface_conf/tgui_conf.h
 .\objects\flowlayoutwin.o: ..\User\includes_all.h
 .\objects\flowlayoutwin.o: ..\Libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h

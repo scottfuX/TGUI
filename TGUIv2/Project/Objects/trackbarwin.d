@@ -1,5 +1,5 @@
 .\objects\trackbarwin.o: ..\TGUI\trackBarWin.cpp
-.\objects\trackbarwin.o: ..\TGUI\winClass.hpp
+.\objects\trackbarwin.o: ..\TGUI\winClass.h
 .\objects\trackbarwin.o: ..\TGUI\interface_conf/tgui_conf.h
 .\objects\trackbarwin.o: ..\User\includes_all.h
 .\objects\trackbarwin.o: ..\Libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h

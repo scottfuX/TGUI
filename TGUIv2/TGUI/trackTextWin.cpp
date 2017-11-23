@@ -1,4 +1,4 @@
-#include "winClass.hpp"
+#include "winClass.h"
 
 trackTextWin::trackTextWin(
 		uint16_t winXpos,

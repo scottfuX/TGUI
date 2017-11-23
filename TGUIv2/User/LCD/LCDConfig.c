@@ -4032,9 +4032,9 @@ void PutPixel(int16_t x, int16_t y)
  LCD_DrawLine(x, y, 1, LCD_DIR_HORIZONTAL);
 #else
  {
-	  uint32_t  Xaddress = 0;
+	uint32_t  Xaddress = 0;
     Xaddress = CurrentFrameBuffer + 2*(LCD_PIXEL_WIDTH*y + x);
-    *(__IO uint16_t*) Xaddress= CurrentTextColor;
+    *(__IO uint16_t*) Xaddress = CurrentTextColor;
   }
 #endif
 }
