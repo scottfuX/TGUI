@@ -1,5 +1,7 @@
-.\objects\flowlayoutwin.o: ..\TGUI\flowLayoutWin.cpp
+.\objects\flowlayoutwin.o: ..\TGUI\layout_class\flowLayoutWin.cpp
+.\objects\flowlayoutwin.o: ..\TGUI\layout_class/layoutClass.h
 .\objects\flowlayoutwin.o: ..\TGUI\winClass.h
+.\objects\flowlayoutwin.o: ..\TGUI\GUIList.h
 .\objects\flowlayoutwin.o: ..\TGUI\interface_conf/tgui_conf.h
 .\objects\flowlayoutwin.o: ..\User\includes_all.h
 .\objects\flowlayoutwin.o: ..\Libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h
@@ -58,3 +60,7 @@
 .\objects\flowlayoutwin.o: ..\User\FONT/fonts.h
 .\objects\flowlayoutwin.o: ..\User\SDRAM/SDRAMConfig.h
 .\objects\flowlayoutwin.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\flowlayoutwin.o: ..\TGUI\draw_class/drawingClass.h
+.\objects\flowlayoutwin.o: ..\TGUI\interface_conf/tgui_conf.h
+.\objects\flowlayoutwin.o: ..\TGUI\interface_conf/tgui_conf.h
+.\objects\flowlayoutwin.o: ..\TGUI\interface_conf/tgui_conf.h

@@ -1,5 +1,6 @@
 .\objects\dialogwin.o: ..\TGUI\dialogWin.cpp
 .\objects\dialogwin.o: ..\TGUI\winClass.h
+.\objects\dialogwin.o: ..\TGUI\GUIList.h
 .\objects\dialogwin.o: ..\TGUI\interface_conf/tgui_conf.h
 .\objects\dialogwin.o: ..\User\includes_all.h
 .\objects\dialogwin.o: ..\Libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h
@@ -58,3 +59,6 @@
 .\objects\dialogwin.o: ..\User\FONT/fonts.h
 .\objects\dialogwin.o: ..\User\SDRAM/SDRAMConfig.h
 .\objects\dialogwin.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\dialogwin.o: ..\TGUI\draw_class/drawingClass.h
+.\objects\dialogwin.o: ..\TGUI\interface_conf/tgui_conf.h
+.\objects\dialogwin.o: ..\TGUI\interface_conf/tgui_conf.h

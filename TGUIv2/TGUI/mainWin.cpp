@@ -11,7 +11,7 @@ mainWin::mainWin(
 			rootWin* parent,
 			xQueueHandle queue,
 			uint8_t wsStyle
-):rootWin(winXpos,winYpos,winWidth,winHigh,name,parent,queue)
+):controlWin(winXpos,winYpos,winWidth,winHigh,name,parent,queue)
 {
 	this->wsStyle = wsStyle;
 	styleInit();
@@ -61,6 +61,27 @@ void mainWin::styleInit()
 		default:break;
 	}
 }
+
+void mainWin::addInvalidArea(GUIArea * tarea)
+{
+	controlWin::addInvalidArea(tarea);
+	//更新子覆盖链表
+	if(getInvalidList()->getNum() == 1)
+	{
+		for(int i=0;i< getRwNum();i++)
+		{
+			((controlWin*)getRwList()[i])->setInvalidList(this->getInvalidList());
+		}
+	}
+}
+void mainWin::paintInvalid(GUIArea * tarea)
+{
+	for(int i=0;i< getRwNum();i++)
+	{
+		((controlWin*)getRwList()[i])->paintInvalid(tarea);
+	}
+}
+
 
 rootWin* mainWin::getBackWin()
 {

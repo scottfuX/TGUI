@@ -900,29 +900,49 @@
               <FilePath>..\TGUI\dialogWin.cpp</FilePath>
             </File>
             <File>
-              <FileName>layoutWin.cpp</FileName>
+              <FileName>GUIChar.cpp</FileName>
               <FileType>8</FileType>
-              <FilePath>..\TGUI\layoutWin.cpp</FilePath>
-            </File>
-            <File>
-              <FileName>flowLayoutWin.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\TGUI\flowLayoutWin.cpp</FilePath>
-            </File>
-            <File>
-              <FileName>borderLayoutWin.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\TGUI\borderLayoutWin.cpp</FilePath>
-            </File>
-            <File>
-              <FileName>gridLayoutWin.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\TGUI\gridLayoutWin.cpp</FilePath>
+              <FilePath>..\TGUI\draw_class\GUIChar.cpp</FilePath>
             </File>
             <File>
               <FileName>GUIRectangle.cpp</FileName>
               <FileType>8</FileType>
-              <FilePath>..\TGUI\GUIRectangle.cpp</FilePath>
+              <FilePath>..\TGUI\draw_class\GUIRectangle.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>GUIShape.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\TGUI\draw_class\GUIShape.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>GUICircle.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\TGUI\draw_class\GUICircle.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>GUILine.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\TGUI\draw_class\GUILine.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>borderLayoutWin.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\TGUI\layout_class\borderLayoutWin.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>flowLayoutWin.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\TGUI\layout_class\flowLayoutWin.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>gridLayoutWin.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\TGUI\layout_class\gridLayoutWin.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>layoutWin.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\TGUI\layout_class\layoutWin.cpp</FilePath>
             </File>
           </Files>
         </Group>

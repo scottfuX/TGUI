@@ -1,5 +1,6 @@
 .\objects\rootwin.o: ..\TGUI\rootWin.cpp
 .\objects\rootwin.o: ..\TGUI\winClass.h
+.\objects\rootwin.o: ..\TGUI\GUIList.h
 .\objects\rootwin.o: ..\TGUI\interface_conf/tgui_conf.h
 .\objects\rootwin.o: ..\User\includes_all.h
 .\objects\rootwin.o: ..\Libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h
@@ -58,3 +59,6 @@
 .\objects\rootwin.o: ..\User\FONT/fonts.h
 .\objects\rootwin.o: ..\User\SDRAM/SDRAMConfig.h
 .\objects\rootwin.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\rootwin.o: ..\TGUI\draw_class/drawingClass.h
+.\objects\rootwin.o: ..\TGUI\interface_conf/tgui_conf.h
+.\objects\rootwin.o: ..\TGUI\interface_conf/tgui_conf.h

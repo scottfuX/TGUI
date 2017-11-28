@@ -48,22 +48,24 @@ public:
 			num = 0;
 	}
 	~GUIList(){}
-		
+	GUINode<T>* getHead(){return head;}
 	uint16_t getNum(){return num;}
 		
-	void addNode(T* t)
-	{
-		GUINode<T>* node = new GUINode<T>(t);
-		node->setNextNode(head->getNextNode());
-		head->setNextNode(node);
-		num ++;
-	}
+	
+	//重制当前结点 
+	void resetCurrNode(){this->currNode = head;}
+	//设置当前节点
 	void setCurrNode(GUINode<T>* node){currNode = node;}
+	//获取当前节点
 	GUINode<T>* getCurrNode(){return currNode;}
-	
+	//获取当前节点的数据
 	T* getCurrData()
-	{return currNode->getData();}
-	
+	{
+		if(currNode->getData() != NULL)
+			return currNode->getData();
+		return NULL;
+	}
+	//获取下一个节点的数据
 	T* getNextData()
 	{
 		if(currNode->getNextNode() != NULL)
@@ -78,6 +80,14 @@ public:
 		}
 	}
 	
+	void addNode(T* t)
+	{
+		GUINode<T>* node = new GUINode<T>(t);
+		node->setNextNode(head->getNextNode());
+		head->setNextNode(node);
+		num ++;
+	}
+	
 	T* getNode(uint16_t n)
 	{
 		if(n>num || n<=0)
@@ -90,20 +100,26 @@ public:
 		return temp->getNextNode()->getData();
 	}
 	
-	void delNode(uint16_t n) //n>0&&n<num
+	
+	void delNode(T* data)
 	{
-		if(n>num || n<=0)
-		{return ;}
 		GUINode<T>* temp = head;
-		for(int i=1;i < n;i++)
+		for(int i=1;temp->getNextNode() != NULL && i < num;i++)
 		{
+			if(temp->getNextNode()->getData() == data)
+			{
+				break;
+			}
 			temp = temp->getNextNode();
 		}
-		GUINode<T>* del = temp->getNextNode();
-		temp->setNextNode(del->getNextNode());
-		del->setNextNode(NULL);
-		delete del->getData();
-		delete del;
+		if(temp->getNextNode()->getData() == data)
+		{
+			GUINode<T>* del = temp->getNextNode();
+			temp->setNextNode(del->getNextNode());
+			del->setNextNode(NULL);
+			delete del;///---------------问题出在这
+			num--;
+		}	
 	}
 	
 	void destroyList()
@@ -120,6 +136,7 @@ public:
 		}
 		delete temp->getData();
 		delete temp;
+		delete this;
 	}
 private:
 	GUINode<T>* head;

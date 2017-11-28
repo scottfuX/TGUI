@@ -50,7 +50,7 @@ __initial_sp
 ; </h>
 
 ;堆进行了修改  原为0x200
-Heap_Size       EQU     0x00002000;0x00000800
+Heap_Size       EQU     0x00003000;0x00000800
 
                 AREA    HEAP, NOINIT, READWRITE, ALIGN=3
 

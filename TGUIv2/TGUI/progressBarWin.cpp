@@ -22,29 +22,54 @@ void progressBarWin::setProgressValue(uint8_t pv)
 {
 	progressValue = pv;
 	pBarWidth = pv*getWinWidth()/100;//设置相应的进度条宽度
-	paintAll();
+	//paintWin();
+	if(pBarWidth)
+	{
+		GUIRectangle a(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh(),BLUE,getInvalidList());
+		a.setIsFull(true);
+		a.setW(pBarWidth);
+		a.draw();
+
+	}
 }
 	
 void progressBarWin::paintWin()
 {
 	//背景
-	LCD_SetTextColor(GREY1);
-	LCD_DrawFullRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh());
+	GUIRectangle a(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh(),GREY1,getInvalidList());
+	a.setIsFull(true);
+	a.draw();
 	//进度条
 	if(pBarWidth)
 	{
-		LCD_SetTextColor(BLUE);
-		LCD_DrawFullRect(getAbsoluteX(),getAbsoluteY(),pBarWidth,getWinHigh());
+		a.setColor(BLUE);
+		a.setW(pBarWidth);
+		a.draw();
 	}
-	
 }
+
+void progressBarWin::paintInvalid(GUIArea * tarea)
+{
+	//背景
+	GUIRectangle a(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh(),GREY1,getInvalidList());
+	a.setIsFull(true);
+	a.drawInArea(tarea);
+	//进度条
+	if(pBarWidth)
+	{
+		a.setColor(BLUE);
+		a.setW(pBarWidth);
+		a.drawInArea(tarea);
+	}
+}
+
 
 void progressBarWin::paintBarWin()
 {
 	if(pBarWidth)
 	{
-		LCD_SetTextColor(BLUE);
-		LCD_DrawFullRect(getAbsoluteX(),getAbsoluteY(),pBarWidth,getWinHigh());
+		GUIRectangle a(getAbsoluteX(),getAbsoluteY(),pBarWidth,getWinHigh(),BLUE,getInvalidList());
+		a.draw();
 	}
 }
 void progressBarWin::registerWin()

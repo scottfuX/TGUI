@@ -22,22 +22,32 @@ dialogWin::~dialogWin()
 
 void dialogWin::dialogInit()
 {
-	setRwNum(2);
-	comboBoxInit();
-	getRwList()[0]	= new buttonWin(getWinWidth()/7,getWinHigh()/4,2*getWinWidth()/7,getWinHigh()/2,"ok",this->getBackWin(),getQueue());
-	((controlWin* )getRwList()[0])->setTextColor(BLACK);
-	((controlWin* )getRwList()[0])->setBackColor(GREY2);
-	getRwList()[1] = new buttonWin(4*getWinWidth()/7,getWinHigh()/4,2*getWinWidth()/7,getWinHigh()/2,"cancel",this->getBackWin(),getQueue());
-	((controlWin* )getRwList()[1])->setTextColor(BLACK);
-	((controlWin* )getRwList()[1])->setBackColor(GREY2);
-	getRwList()[0]->setWinProc(buttonWeakProc);
-	getRwList()[1]->setWinProc(buttonWeakProc);
-	getRwList()[0]->registerWin();
-	getRwList()[1]->registerWin();
+//	setRwNum(2);
+//	comboBoxInit();
+//	getRwList()[0]= new buttonWin(getWinWidth()/7,getWinHigh()/4,2*getWinWidth()/7,getWinHigh()/2,"ok",this->getBackWin(),getQueue());	
+//	((controlWin* )getRwList()[0])->setTextColor(BLACK);
+//	((controlWin* )getRwList()[0])->setBackColor(GREY2);
+//	getRwList()[1] = new buttonWin(4*getWinWidth()/7,getWinHigh()/4,2*getWinWidth()/7,getWinHigh()/2,"cancel",this->getBackWin(),getQueue());
+//	((controlWin* )getRwList()[1])->setTextColor(BLACK);
+//	((controlWin* )getRwList()[1])->setBackColor(GREY2);
+//	getRwList()[0]->setWinProc(buttonWeakProc);
+//	getRwList()[1]->setWinProc(buttonWeakProc);
+//	getRwList()[0]->registerWin();
+//	getRwList()[1]->registerWin();
+	buttonWin* bt1= new buttonWin(getWinWidth()/7,getWinHigh()/4,2*getWinWidth()/7,getWinHigh()/2,"ok",this->getBackWin(),getQueue());
+	bt1->setTextColor(BLACK);
+	bt1->setBackColor(GREY2);
+	buttonWin* bt2	= new buttonWin(4*getWinWidth()/7,getWinHigh()/4,2*getWinWidth()/7,getWinHigh()/2,"cancel",this->getBackWin(),getQueue());
+	bt2->setTextColor(BLACK);
+	bt2->setBackColor(GREY2);
+	bt1->setWinProc(buttonWeakProc);
+	bt2->setWinProc(buttonWeakProc);
+	bt1->registerWin();
+	bt2->registerWin();
 }
 void dialogWin::closeDialog()
 {
-	readFromBuf();
+	delCoverArea();
 	unregisterWin();
 }
 
@@ -45,54 +55,11 @@ void dialogWin::registerWin()
 {
 	if(!isRegisterWin())
 	{
-		saveToBuf();
+		addCoverArea();
 		mainWin::registerWin();
 	}
 }
 
-//-------------------------------------------------
-//显示器存到缓冲区
-void dialogWin::saveToBuf()
-{
-	uint16_t i,j;
-	uint16_t lineWidth = (getWinWidth()+1)*GUI_PIXELSIZE;//每行宽度
-	uint16_t lineNum = getWinHigh()+1;//多少行
-	uint16_t offset;
-	uint32_t cP;
-	cP	= (getAbsoluteX()+(getAbsoluteY())*GUI_WIDTH)*GUI_PIXELSIZE;//可能不是h衡向存储的
-	uint16_t nextLine = GUI_WIDTH*GUI_PIXELSIZE;
-	for(i=0;i<lineNum;i++)
-	{	
-		for(j=0;j<lineWidth;j++)
-		{
-			offset = j;
-			win_buffer[cP+offset] = GUI_BUFADDR[cP+offset];
-		}
-			cP +=nextLine;
-	}
-}
-
-//缓冲区读到显示器
-void dialogWin::readFromBuf()
-{
-	uint16_t i,j;
-	uint16_t lineWidth = (getWinWidth()+1)*GUI_PIXELSIZE;//每行宽度
-	uint16_t lineNum = getWinHigh()+1;//多少行
-	uint16_t offset;
-	uint32_t cP;
-	cP = (getAbsoluteX()+(getAbsoluteY())*GUI_WIDTH)*GUI_PIXELSIZE;//可能不是h衡向存储的
-	uint16_t nextLine = GUI_WIDTH*GUI_PIXELSIZE;
-	for(i=0;i<lineNum;i++)
-	{
-		for(j=0;j<lineWidth;j++)
-		{
-			offset = j;
-			GUI_BUFADDR[cP+offset] = win_buffer[cP+offset];
-		}
-			cP +=nextLine;
-		
-	}
-}
 
 static void buttonWeakProc(rootWin* rw,rootWin* fw, MsgType mt, uint32_t d1, uint32_t d2)
 {

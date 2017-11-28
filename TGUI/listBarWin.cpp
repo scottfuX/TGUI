@@ -37,8 +37,7 @@ void listBarWin::itemInit(char**  itemList, uint8_t num)
 	this->itemList = itemList;
 	setRwNum(num);
 	comboBoxInit();
-	
-	coverBufLen = getItemHigh()*getWinWidth()*getRwNum()*2;
+
 	int i,max = getRwNum();
 	for(i=0;i<max;i++)
 	{
@@ -65,37 +64,14 @@ void listBarWin::pressListBar()
 	if(!isWinSelected())//之前未被选中 改为选中
 	{
 		changSelectedStat();
-		LCD_SetColors(WHITE,WHITE);
-		LCD_DrawFullRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getItemHigh());
-		LCD_SetColors(getTextColor(),getTextColor());
-		LCD_DrawRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getItemHigh());
+		GUIRectangle grect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getItemHigh(),WHITE,getInvalidList());
+		grect.setIsFull(true);
+		grect.draw();
+		grect.setColor(getTextColor());
+		grect.setIsFull(false);
+		grect.draw();
 		
-		if(getWinName() != NULL)
-		{
-			uint16_t temp;
-			uint8_t i = 0,num  = 0;
-			sFONT f =getFont();
-			while(getWinName()[num] != '\0' )
-			{
-				num++;
-				if((getWinWidth()- getFont().Width*num) <= 0)
-				{
-					num--;
-					break;
-				}
-			}
-			uint16_t line = getAbsoluteY() + ((getItemHigh()- getFont().Height)/2);
-			uint16_t column = getAbsoluteX() + ((getWinWidth()- getFont().Width*num)/2);
-			LCD_SetFont(&f);
-			LCD_SetColors(getTextColor(),WHITE);
-			while(i < num )
-			{
-				temp = (uint16_t) getWinName()[i];
-				LCD_DisplayChar(line,column,temp);
-				column += getFont().Width;
-				i++;
-			}
-		}
+		stringChar();
 	}
 }
 
@@ -122,27 +98,25 @@ void listBarWin::changeOpenList()
 			}
 			movtoFront(); //打开的话 就把这个列表推到最前 保证最新被访问
 			setWinHigh(getItemHigh()*(max+1));
-			saveToBuf();//把要被覆盖的数据先存入缓冲区
 			if(getIsMutable())
 			{
-					markCovered();//把覆盖的win都标记一遍
+					addCoverArea();
 			}
 			changeOpenState();//改变打开状态
-			paintAll();	
+			paintAll();
 		}else
 		{// 若打开 -->  遍历列表 注销
 			int i,max = getRwNum();
 			for(i=0;i<max;i++)
 			{
-				getRwList()[i]->unregisterWin();
+					getRwList()[i]->unregisterWin();
 			}
-			//这里应该从buffer中取出数据
-			readFromBuf();
 			if(getIsMutable())
 			{
-					markDelete();//把覆盖的win都标记一遍
+					delCoverArea();
 			}
 			setWinHigh(getItemHigh());
+			paintWin();
 			changeOpenState();//改变打开状态
 		}	
 	}
@@ -150,36 +124,13 @@ void listBarWin::changeOpenList()
 
 void listBarWin::paintWin()
 {
-	LCD_SetColors(getBackColor(),getBackColor());
-	LCD_DrawFullRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getItemHigh());
-	LCD_SetColors(getTextColor(),getTextColor());
-	LCD_DrawRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getItemHigh());
-	if(getWinName() != NULL)
-	{
-		uint16_t temp;
-		uint8_t i = 0,num  = 0;
-		sFONT f =getFont();
-		while(getWinName()[num] != '\0' )
-		{
-			num++;
-			if((getWinWidth()- getFont().Width*num) <= 0)
-			{
-				num--;
-				break;
-			}
-		}
-		uint16_t line = getAbsoluteY() + ((getItemHigh()- getFont().Height)/2);
-		uint16_t column = getAbsoluteX() + ((getWinWidth()- getFont().Width*num)/2);
-		LCD_SetFont(&f);
-		LCD_SetColors(getTextColor(),getBackColor());
-		while(i < num )
-		{
-			temp = (uint16_t) getWinName()[i];
-			LCD_DisplayChar(line,column,temp);
-			column += getFont().Width;
-			i++;
-		}
-	}
+	GUIRectangle grect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getItemHigh(),getBackColor(),getInvalidList());
+	grect.setIsFull(true);
+	grect.draw();
+	grect.setColor(getTextColor());
+	grect.setIsFull(false);
+	grect.draw();
+	stringChar();
 }
 
 //激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
@@ -202,6 +153,32 @@ void listBarWin::destroyWin()
 	rootWin::destroyWin();
 }
 
+void listBarWin::addInvalidArea(GUIArea * tarea)
+{
+	controlWin::addInvalidArea(tarea);
+	//更新子覆盖链表
+	GUIRectangle grect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getItemHigh(),getBackColor(),getInvalidList());
+	grect.setIsFull(true);
+	grect.drawInArea(tarea);
+	grect.setColor(getTextColor());
+	grect.setIsFull(false);
+	grect.drawInArea(tarea);
+	stringChar();
+	if(getInvalidList()->getNum() == 1)
+	{
+		for(int i=0;i< getRwNum();i++)
+		{
+			((controlWin*)getRwList()[i])->setInvalidList(this->getInvalidList());
+		}
+	}
+}
+void listBarWin::paintInvalid(GUIArea * tarea)
+{
+	for(int i=0;i< getRwNum();i++)
+	{
+		((controlWin*)getRwList()[i])->paintInvalid(tarea);
+	}
+}
 
 //改变状态标志位
 void listBarWin::changeOpenState()
@@ -213,86 +190,41 @@ void listBarWin::changeOpenState()
 }
 
 //---------------------------------------
-
-void listBarWin::saveToBuf()
+void listBarWin::stringChar()
 {
-	uint16_t i,j;
-	uint16_t lineWidth = (getWinWidth()+1)*GUI_PIXELSIZE;//每行宽度
-	uint16_t lineNum = getWinHigh()+1;//多少行
-	uint16_t offset;
-	uint32_t cP;
-	cP	= (getAbsoluteX()+(getAbsoluteY())*GUI_WIDTH)*GUI_PIXELSIZE;//可能不是h衡向存储的
-	uint16_t nextLine = GUI_WIDTH*GUI_PIXELSIZE;
-	for(i=0;i<lineNum;i++)
-	{	
-		for(j=0;j<lineWidth;j++)
+	if(getWinName() != NULL)
+	{
+		uint16_t temp;
+		uint8_t i = 0,num  = 0;
+		sFONT f =getFont();
+		while(getWinName()[num] != '\0' )
 		{
-			offset = j;
-			win_buffer[cP+offset] = GUI_BUFADDR[cP+offset];
+			num++;
+			if((getWinWidth()- getFont().Width*num) <= 0)
+			{
+				num--;
+				break;
+			}
 		}
-			cP +=nextLine;
-	}
-}
-
-void listBarWin::readFromBuf()
-{
-	uint16_t i,j;
-	uint16_t lineWidth = (getWinWidth()+1)*GUI_PIXELSIZE;//每行宽度
-	uint16_t lineNum = getWinHigh()+1;//多少行
-	uint16_t offset;
-	uint32_t cP;
-	cP = (getAbsoluteX()+(getAbsoluteY())*GUI_WIDTH)*GUI_PIXELSIZE;//可能不是h衡向存储的
-	uint16_t nextLine = GUI_WIDTH*GUI_PIXELSIZE;
-	for(i=0;i<lineNum;i++)
-	{
-		for(j=0;j<lineWidth;j++)
+		uint16_t line = getAbsoluteY() + ((getItemHigh()- getFont().Height)/2);
+		uint16_t column = getAbsoluteX() + ((getWinWidth()- getFont().Width*num)/2);
+		GUIChar gchar(column,line,&f,getTextColor(),getTextColor(),getInvalidList());
+		while(i < num )
 		{
-			offset = j;
-			GUI_BUFADDR[cP+offset] = win_buffer[cP+offset];
+			temp = (uint16_t) getWinName()[i];
+			gchar.setCharXY(column,line);
+			gchar.setIsFull(false);
+			gchar.displayChar(temp);
+			column += getFont().Width;
+			i++;
 		}
-			cP +=nextLine;
 	}
+
 }
-
-
-/*
-//这里存储数据 
-uint16_t x = ((listBarWin*)(rw->getParent()))->getRwList()[0]->getAbsoluteX();
-uint16_t y = ((listBarWin*)(rw->getParent()))->getRwList()[0]->getAbsoluteY();
-uint32_t start = ((x-1)*y+y)*GUI_PIXELSIZE;
-uint8_t* temp = (uint8_t* )GUI_BUFADDR;
-uint8_t offset = 0;
-for(i=0;i < ((listBarWin*)(rw->getParent()))->getCoverBufLen();i++)
-{
-	offset = i % rw->getWinWidth();
-	((listBarWin*)(rw->getParent()))->getCoverBuffer()[i] = temp[start+offset];
-	if(i % rw->getWinWidth() == 0)
-	{
-		start += LCD_PIXEL_WIDTH ;
-	}
-}*/
-
-/*//这里应该用导出数据
-uint16_t x = ((listBarWin*)(rw->getParent()))->getRwList()[0]->getAbsoluteX();
-uint16_t y = ((listBarWin*)(rw->getParent()))->getRwList()[0]->getAbsoluteY();
-uint32_t start = ((x-1)*y+y)*GUI_PIXELSIZE;
-uint8_t* temp = (uint8_t* )GUI_BUFADDR;
-uint8_t offset = 0;
-for(i=0;i < ((listBarWin*)(rw->getParent()))->getCoverBufLen();i++)
-{
-	offset = i % rw->getWinWidth();
-	temp[start+offset] = ((listBarWin*)(rw->getParent()))->getCoverBuffer()[i] ;
-	if(i % rw->getWinWidth() == 0)
-	{
-		start += LCD_PIXEL_WIDTH ;
-	}
-}
-*/
 				
 
 static void itemWinProc(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, uint32_t d2)
 {
-	printf("itemWIn\n");
 	switch(mt)
 	{
 		case MSG_CLICK: 
@@ -323,4 +255,7 @@ static void itemWinProc(rootWin* rw , rootWin* fw , MsgType mt, uint32_t d1, uin
 		default:break;
 	}
 }
+
+
+
 

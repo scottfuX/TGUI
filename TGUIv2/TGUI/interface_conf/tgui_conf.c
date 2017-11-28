@@ -2,9 +2,6 @@
 
 //id 数值 设置其实ID
 volatile uint16_t win_id = 0;
-//屏幕缓冲区，当有覆盖时进行存储
-uint8_t __EXRAM win_buffer[GUI_BUFSIZE];
-
 
 volatile uint16_t TouchX_pre = 65535;
 volatile uint16_t TouchY_pre = 65535;
@@ -15,13 +12,40 @@ volatile uint8_t TouchUp = 0;//检查按键是否释放
 void GUIDma2d(uint16_t x ,uint16_t y,uint16_t w,uint16_t h,
 	uint32_t textColor,uint32_t backColor)
 {
-	LCD_SetColors(textColor,backColor);
-	LCD_DrawFullRect(x,y,w,h);
-}
+	//LCD_SetColors(textColor,backColor);
+	//LCD_DrawFullRect(x,y,w,h);
+	DMA2D_InitTypeDef      DMA2D_InitStruct;
 
-void GUISetColors(uint32_t textColor,uint32_t backColor)
-{
-	LCD_SetColors(textColor,backColor);
+	uint32_t  Xaddress = 0;
+	uint16_t Red_Value = 0, Green_Value = 0, Blue_Value = 0;
+
+	Red_Value = (0xF800 & textColor) >> 11;
+	Blue_Value = 0x001F & textColor;
+	Green_Value = (0x07E0 & textColor) >> 5;
+
+	Xaddress = (uint32_t)GUI_BUFADDR + 2*(LCD_PIXEL_WIDTH*y + x);
+
+	/* configure DMA2D */
+	DMA2D_DeInit();
+	DMA2D_InitStruct.DMA2D_Mode = DMA2D_R2M;
+	DMA2D_InitStruct.DMA2D_CMode = DMA2D_RGB565;
+	DMA2D_InitStruct.DMA2D_OutputGreen = Green_Value;
+	DMA2D_InitStruct.DMA2D_OutputBlue = Blue_Value;
+	DMA2D_InitStruct.DMA2D_OutputRed = Red_Value;
+	DMA2D_InitStruct.DMA2D_OutputAlpha = 0x0F;
+	DMA2D_InitStruct.DMA2D_OutputMemoryAdd = Xaddress;
+	DMA2D_InitStruct.DMA2D_OutputOffset = (LCD_PIXEL_WIDTH - w);
+	DMA2D_InitStruct.DMA2D_NumberOfLine = h;
+	DMA2D_InitStruct.DMA2D_PixelPerLine = w;
+	DMA2D_Init(&DMA2D_InitStruct);
+
+	/* Start Transfer */
+	DMA2D_StartTransfer();
+
+	/* Wait for CTC Flag activation */
+	while(DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET)
+	{
+	}
 }
 
 void GUIPutPixel(uint16_t xpos,uint16_t ypos)

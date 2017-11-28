@@ -1,5 +1,7 @@
-.\objects\borderlayoutwin.o: ..\TGUI\borderLayoutWin.cpp
+.\objects\borderlayoutwin.o: ..\TGUI\layout_class\borderLayoutWin.cpp
+.\objects\borderlayoutwin.o: ..\TGUI\layout_class/layoutClass.h
 .\objects\borderlayoutwin.o: ..\TGUI\winClass.h
+.\objects\borderlayoutwin.o: ..\TGUI\GUIList.h
 .\objects\borderlayoutwin.o: ..\TGUI\interface_conf/tgui_conf.h
 .\objects\borderlayoutwin.o: ..\User\includes_all.h
 .\objects\borderlayoutwin.o: ..\Libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h
@@ -58,3 +60,7 @@
 .\objects\borderlayoutwin.o: ..\User\FONT/fonts.h
 .\objects\borderlayoutwin.o: ..\User\SDRAM/SDRAMConfig.h
 .\objects\borderlayoutwin.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\borderlayoutwin.o: ..\TGUI\draw_class/drawingClass.h
+.\objects\borderlayoutwin.o: ..\TGUI\interface_conf/tgui_conf.h
+.\objects\borderlayoutwin.o: ..\TGUI\interface_conf/tgui_conf.h
+.\objects\borderlayoutwin.o: ..\TGUI\interface_conf/tgui_conf.h

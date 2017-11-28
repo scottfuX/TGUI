@@ -1,5 +1,5 @@
-.\objects\guirectangle.o: ..\TGUI\GUIRectangle.cpp
-.\objects\guirectangle.o: ..\TGUI\drawingClass.h
+.\objects\guirectangle.o: ..\TGUI\draw_class\GUIRectangle.cpp
+.\objects\guirectangle.o: ..\TGUI\draw_class\drawingClass.h
 .\objects\guirectangle.o: ..\TGUI\GUIList.h
 .\objects\guirectangle.o: ..\TGUI\interface_conf/tgui_conf.h
 .\objects\guirectangle.o: ..\User\includes_all.h

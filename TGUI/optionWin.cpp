@@ -22,35 +22,15 @@ optionWin::~optionWin()
 
 void optionWin::paintWin()
 {
-	//绘画 就自己 不同的窗口实现不同
 	paintOption();
-	sFONT f =  getFont();
-	if(getWinName() != NULL && getWinHigh() >= f.Height && getWinWidth()-getWinHigh() >= f.Width)
-	{//打印
-		LCD_SetFont(&f);
-		LCD_SetColors(getTextColor(),((controlWin*)getParent())->getBackColor());
-		uint16_t temp;
-		uint8_t i = 0;
-		uint16_t line = getAbsoluteY()+(getWinHigh()-f.Height)/2;
-		uint16_t column = getAbsoluteX() + getWinHigh()+1;
-		while(getWinName()[i] != '\0' )
-		{
-			temp = (uint16_t) getWinName()[i];
-			LCD_DisplayChar(line,column,temp);
-			column += f.Width;
-			if(column > getAbsoluteX()+getWinWidth())
-			{
-				break;
-			}
-				i++;
-		}
-	}	
+	optionString();
 }	 
 
 void optionWin::defocusOption()	 //选项失焦
 {
 	//失效
 }
+
 
 void optionWin::clickOption() 	 	//改变选项
 {
@@ -77,6 +57,61 @@ void optionWin::destroyWin()
 	
 }
 
+void optionWin::paintInvalid(GUIArea * tarea)
+{
+	if(RadioorCheck)
+	{
+		uint16_t r = 	getWinHigh();
+		uint16_t x =  getWinHigh()/2+getAbsoluteX();
+		uint16_t y =  getWinHigh()/2+getAbsoluteY();
+		GUICircle cir(x,y,r/2,GREY2,getInvalidList());
+		cir.drawInArea(tarea);
+		cir.setColor(BLACK);
+		cir.setR(r/2-r/8);
+		cir.drawInArea(tarea);
+		cir.setColor(WHITE);
+		cir.setR(r/2-r/4);
+		cir.drawInArea(tarea);
+
+		if(selectStat == true)
+		{//选中
+			cir.setColor(BLACK);
+			cir.setR(r/2-r/3);
+			cir.drawInArea(tarea);
+		}
+		optionString();
+	}
+	else
+	{
+		uint16_t x =  getAbsoluteX();
+		uint16_t y =  getAbsoluteY();	
+		uint16_t w = getWinHigh();
+		GUIRectangle a(x,y,w,w,BLACK,getInvalidList());
+		a.setIsFull(true);
+		a.drawInArea(tarea);
+		x += getWinHigh()/10;
+		y += getWinHigh()/10;
+		w -= getWinHigh()/5;
+		a.setX(x);
+		a.setY(y);
+		a.setW(w);
+		a.setH(w);
+		a.setColor(WHITE);
+		a.drawInArea(tarea);
+		if(selectStat == true)
+		{//选中//需要线段---待定
+			GUILine gline(x,y+w/2,x+w/2,y+w,BLACK,getInvalidList());
+			gline.drawInArea(tarea);
+			gline.setX1(x+w/2);
+			gline.setY1(y+w);
+			gline.setX2(x+w);
+			gline.setY2(y);
+			gline.drawInArea(tarea);
+		}
+		optionString();
+	}
+}
+
 //---------------------------------private---------------------------------
 void optionWin::changSelectStat()
 {
@@ -84,6 +119,32 @@ void optionWin::changSelectStat()
 	{selectStat = true;}
 	else
 	{selectStat = false;}
+}
+
+void optionWin::optionString()
+{
+	sFONT f =  getFont();
+	if(getWinName() != NULL && getWinHigh() >= f.Height && getWinWidth()-getWinHigh() >= f.Width)
+	{
+		uint16_t temp;  //打印
+		uint8_t i = 0;
+		uint16_t line = getAbsoluteY()+(getWinHigh()-f.Height)/2;
+		uint16_t column = getAbsoluteX() + getWinHigh()+1;
+		GUIChar ctemp(column,line,&f,getTextColor(),((controlWin*)getParent())->getBackColor(),getInvalidList());
+		ctemp.setIsFull(false);
+		while(getWinName()[i] != '\0' )
+		{
+			temp = (uint16_t) getWinName()[i];
+			ctemp.setCharXY(column,line);
+			ctemp.displayChar(temp);
+			column += f.Width;
+			if(column > getAbsoluteX()+getWinWidth())
+			{
+				break;
+			}
+			i++;
+		}
+	}	
 }
 
 //只重绘选项图标
@@ -94,38 +155,53 @@ void optionWin::paintOption()
 		uint16_t r = 	getWinHigh();
 		uint16_t x =  getWinHigh()/2+getAbsoluteX();
 		uint16_t y =  getWinHigh()/2+getAbsoluteY();
-		
-		LCD_SetTextColor(GREY2);
-		LCD_DrawFullCircle(x,y,r/2);
-		LCD_SetTextColor(BLACK);
-		LCD_DrawFullCircle(x,y,r/2-r/8);
-		LCD_SetTextColor(WHITE);
-		LCD_DrawFullCircle(x,y,r/2-r/4);
+		GUICircle cir(x,y,r/2,GREY2,getInvalidList());
+		cir.draw();
+		cir.setX(x);
+		cir.setY(y);
+		cir.setR(r/2-r/8);
+		cir.setColor(BLACK);
+		cir.draw();
+		cir.setX(x);
+		cir.setY(y);
+		cir.setR(r/2-r/4);
+		cir.setColor(WHITE);
+		cir.draw();
 		if(selectStat == true)
 		{//选中
-			LCD_SetColors(BLACK,BLACK);
-			LCD_DrawFullCircle(x,y,r/2-r/3);
+			cir.setX(x);
+			cir.setY(y);
+			cir.setR(r/2-r/3);
+			cir.setColor(BLACK);
+			cir.draw();
 		}
-		//LCD_SetColors(getTextColor(),((controlWin*)(this->getParent()))->getBackColor());
 	}
 	else
 	{
 		uint16_t x =  getAbsoluteX();
 		uint16_t y =  getAbsoluteY();	
 		uint16_t w = getWinHigh();
-		LCD_SetTextColor(BLACK);
-		LCD_DrawFullRect(x,y,w,w);
+		GUIRectangle a(x,y,w,w,BLACK,getInvalidList());
+		a.setIsFull(true);
+		a.draw();
 		x += getWinHigh()/10;
 		y += getWinHigh()/10;
 		w -= getWinHigh()/5;
-		LCD_SetTextColor(WHITE);
-		LCD_DrawFullRect(x,y,w,w);
+		a.setX(x);
+		a.setY(y);
+		a.setW(w);
+		a.setH(w);
+		a.setColor(WHITE);
+		a.draw();
 		if(selectStat == true)
-		{//选中
-			LCD_SetColors(BLACK,BLACK);
-			LCD_DrawUniLine(x,y+w/2,x+w/2,y+w);
-			LCD_DrawUniLine(x+w/2,y+w,x+w,y);
+		{//选中//需要线段--待定
+			GUILine gline(x,y+w/2,x+w/2,y+w,BLACK,getInvalidList());
+			gline.draw();
+			gline.setX1(x+w/2);
+			gline.setY1(y+w);
+			gline.setX2(x+w);
+			gline.setY2(y);
+			gline.draw();
 		}
 	}
-	
 }

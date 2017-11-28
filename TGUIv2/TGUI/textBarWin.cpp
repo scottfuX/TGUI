@@ -89,8 +89,22 @@ void textBarWin::setTextBuf(char* s,uint16_t n)
 
 void textBarWin::paintWin()
 {
-	LCD_SetColors(getBackColor(),getBackColor());
-	LCD_DrawFullRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh());
+	GUIRectangle a(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh(),getBackColor(),getInvalidList());
+	a.setIsFull(true);
+	a.draw();
+	int i;
+	charX = getAbsoluteX();
+	charY = getAbsoluteY();
+	for(i=0;i < bufIndicator ; i++)
+	{displayChar(textBuf[i]);}
+}
+
+
+void textBarWin::paintInvalid(GUIArea * tarea)
+{
+	GUIRectangle a(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh(),getBackColor(),getInvalidList());
+	a.setIsFull(true);
+	a.drawInArea(tarea);
 	int i;
 	charX = getAbsoluteX();
 	charY = getAbsoluteY();
@@ -118,9 +132,8 @@ void textBarWin::destroyWin()
 void textBarWin::displayChar(char c)
 {
 	sFONT f =getFont();
-	LCD_SetFont(&f);
-	LCD_SetColors(getTextColor(),getBackColor());
-	LCD_DisplayChar(charY,charX,c);//(line,column,ascii)
+	GUIChar guichar(charX,charY,&f, getTextColor(),getBackColor(),getInvalidList());
+	guichar.displayChar(c);
 	charX += getFont().Width;
 	if(charX >= getAbsoluteX()+getWinWidth())
 	{
@@ -129,7 +142,7 @@ void textBarWin::displayChar(char c)
 		if(charY > getAbsoluteY()+getWinHigh())
 		{
 			charX = getAbsoluteX();
-			charY =  getAbsoluteY();//溢出就从头打
+			charY = getAbsoluteY();//溢出就从头打
 		}
 	}
 }

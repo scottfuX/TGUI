@@ -1,5 +1,6 @@
 .\objects\buttonwin.o: ..\TGUI\buttonWin.cpp
 .\objects\buttonwin.o: ..\TGUI\winClass.h
+.\objects\buttonwin.o: ..\TGUI\GUIList.h
 .\objects\buttonwin.o: ..\TGUI\interface_conf/tgui_conf.h
 .\objects\buttonwin.o: ..\User\includes_all.h
 .\objects\buttonwin.o: ..\Libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h
@@ -58,3 +59,6 @@
 .\objects\buttonwin.o: ..\User\FONT/fonts.h
 .\objects\buttonwin.o: ..\User\SDRAM/SDRAMConfig.h
 .\objects\buttonwin.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\buttonwin.o: ..\TGUI\draw_class/drawingClass.h
+.\objects\buttonwin.o: ..\TGUI\interface_conf/tgui_conf.h
+.\objects\buttonwin.o: ..\TGUI\interface_conf/tgui_conf.h

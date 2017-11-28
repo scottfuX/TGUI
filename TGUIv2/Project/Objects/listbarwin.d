@@ -1,5 +1,6 @@
 .\objects\listbarwin.o: ..\TGUI\listBarWin.cpp
 .\objects\listbarwin.o: ..\TGUI\winClass.h
+.\objects\listbarwin.o: ..\TGUI\GUIList.h
 .\objects\listbarwin.o: ..\TGUI\interface_conf/tgui_conf.h
 .\objects\listbarwin.o: ..\User\includes_all.h
 .\objects\listbarwin.o: ..\Libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h
@@ -58,3 +59,6 @@
 .\objects\listbarwin.o: ..\User\FONT/fonts.h
 .\objects\listbarwin.o: ..\User\SDRAM/SDRAMConfig.h
 .\objects\listbarwin.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\listbarwin.o: ..\TGUI\draw_class/drawingClass.h
+.\objects\listbarwin.o: ..\TGUI\interface_conf/tgui_conf.h
+.\objects\listbarwin.o: ..\TGUI\interface_conf/tgui_conf.h

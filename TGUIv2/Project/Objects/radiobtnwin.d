@@ -1,5 +1,6 @@
 .\objects\radiobtnwin.o: ..\TGUI\radioBtnWin.cpp
 .\objects\radiobtnwin.o: ..\TGUI\winClass.h
+.\objects\radiobtnwin.o: ..\TGUI\GUIList.h
 .\objects\radiobtnwin.o: ..\TGUI\interface_conf/tgui_conf.h
 .\objects\radiobtnwin.o: ..\User\includes_all.h
 .\objects\radiobtnwin.o: ..\Libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h
@@ -58,3 +59,6 @@
 .\objects\radiobtnwin.o: ..\User\FONT/fonts.h
 .\objects\radiobtnwin.o: ..\User\SDRAM/SDRAMConfig.h
 .\objects\radiobtnwin.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\radiobtnwin.o: ..\TGUI\draw_class/drawingClass.h
+.\objects\radiobtnwin.o: ..\TGUI\interface_conf/tgui_conf.h
+.\objects\radiobtnwin.o: ..\TGUI\interface_conf/tgui_conf.h

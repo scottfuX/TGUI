@@ -1,6 +1,8 @@
-﻿#ifndef _WINCLASS_H_
+#ifndef _WINCLASS_H_
 #define _WINCLASS_H_ 
 
+#include "GUIList.h"
+#include "draw_class/drawingClass.h"
 #ifdef __cplusplus
 extern "C"  {
 #endif
@@ -62,9 +64,8 @@ typedef enum {
 }MsgType;
 
 class rootWin;
-class mainWin;
 class controlWin;
-
+class mainWin;
 
 typedef struct{
 	rootWin* destWin;//目标窗口
@@ -128,11 +129,6 @@ class rootWin
 		void movtoBack();
 		retStatus sendMSGtoBack(message* msg,xQueueHandle que);
 		retStatus sendMSGtoFront(message* msg,xQueueHandle que);
-		
-		void markCovered();
-		void markDelete();
-		void setCoverHead(winListNode* wln){coverHead = wln;}
-		winListNode* getCoverHead(){return coverHead;}
 		bool getIsMutable(){return isMutable;}
 		void setIsMutable(bool m){isMutable = m;}
 		
@@ -144,6 +140,8 @@ class rootWin
 		virtual void registerWin() ;//激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
 		virtual void unregisterWin() ;//注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
 		virtual	void destroyWin();//窗口销毁 --（销毁所有子窗口和本身） 把自己和子类都从树中删除
+		void addCoverArea();
+		void delCoverArea();
 		
 	private:
 		uint16_t absoluteX;//绝对路径
@@ -161,17 +159,13 @@ class rootWin
 		bool winSelectedStat;//窗口是否被选中 //用于显示当前点击点是否在win上
 	  bool WinProcSign;//窗口过程标志 表示是否需要
 		bool isAddTree;//是否加入树
-	
 		bool isMutable;//窗口是否可变 ---可变就去找覆盖的窗口
-		winListNode* coverHead;//覆盖的窗口 链表映像
-	
 		void preTraversePaint(rootWin* rw);//先序重绘所有窗口 包括子窗口 和兄弟窗口
 		void destroyCAndB();
 		void addWintoTree();//创建窗口 -- 即加入树中
 		void remWinfromTree();//从树中移除
+		GUIArea* thisArea;
 		
-		void travMark(rootWin* rw,uint16_t x,uint16_t y);//遍历标记被覆盖
-		void travDelMark(rootWin* rw,uint16_t x,uint16_t y);//遍历删除标记
 };
 
 //组合框类
@@ -189,63 +183,6 @@ public:
 private:
 	rootWin** rwList;
 	uint16_t 	rwNum;
-};
-
-//主窗口--默认没有 //容器安排布局的
-class mainWin:public rootWin ,public comboBoxWin
-{ 
-	public:
-	mainWin(
-			uint16_t winXpos,
-			uint16_t winYpos,
-			uint16_t winWidth,
-			uint16_t winHigh,
-			char* name,
-			rootWin* parent,
-			xQueueHandle queue,
-				uint8_t wsStyle
-	);
-	virtual ~mainWin();
-			
-	uint16_t getWinStyle(){return wsStyle;}	
-	void setWinStyle(uint8_t wsStyle){this->wsStyle =  wsStyle;}	
-	
-	void styleInit();
-	virtual void paintWin();//绘画 就自己 不同的窗口实现不同
-	virtual void registerWin();//激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
-	virtual void unregisterWin();//注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
-	virtual	void destroyWin();	
-	
-	rootWin* getBackWin();//返回其中的背景窗口
-
-	private:
-		uint8_t wsStyle;
-		rootWin* backWin;
-};
-
-//对话框 ------------
-class dialogWin:public mainWin 
-{
-public:
-	dialogWin(
-		uint16_t winXpos,
-		uint16_t winYpos,
-		uint16_t winWidth,
-		uint16_t winHigh,
-		char* name,
-		rootWin* parent,
-		xQueueHandle queue,
-		uint8_t wsStyle
-	);
-	virtual ~dialogWin();
-		
-	virtual void registerWin();
-	void closeDialog();	
-	void dialogInit();		
-
-private:
-	void saveToBuf();
-	void readFromBuf();
 };
 
 //控件
@@ -272,15 +209,88 @@ class controlWin:public rootWin
 	sFONT getFont(){return this->font;}
 	
 	virtual void paintWin()=0 ;//绘画 就自己 不同的窗口实现不同
+	virtual void paintInvalid(GUIArea * tarea) = 0;
 	virtual void registerWin(){} ;//激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
 	virtual void unregisterWin(){} ;//注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
 	virtual	void destroyWin(){};
+		
+	virtual void addInvalidArea(GUIArea * tarea);
+	virtual void delInvalidArea(GUIArea * tarea);	
+	GUIList<GUIArea>* getInvalidList(){return invalidList;}
+	void setInvalidList(GUIList<GUIArea>* invalidList){this->invalidList = invalidList;}
 	
+			
 	private:
 		uint32_t textColor;
 		uint32_t backColor;
 		sFONT 	 font;
+		GUIList<GUIArea>* invalidList;
 };
+
+//主窗口--默认没有 //容器安排布局的
+class mainWin:public controlWin ,public comboBoxWin
+{ 
+	public:
+	mainWin(
+			uint16_t winXpos,
+			uint16_t winYpos,
+			uint16_t winWidth,
+			uint16_t winHigh,
+			char* name,
+			rootWin* parent,
+			xQueueHandle queue,
+			uint8_t wsStyle
+	);
+	virtual ~mainWin();
+			
+	uint16_t getWinStyle(){return wsStyle;}	
+	void setWinStyle(uint8_t wsStyle){this->wsStyle =  wsStyle;}	
+	
+	void styleInit();
+	virtual void paintWin();//绘画 就自己 不同的窗口实现不同
+	virtual void registerWin();//激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
+	virtual void unregisterWin();//注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
+	virtual	void destroyWin();	
+//++++test+++
+	virtual void addInvalidArea(GUIArea * tarea);	
+	virtual void delInvalidArea(GUIArea * tarea)
+	{
+		controlWin::delInvalidArea(tarea);
+		paintInvalid(tarea);
+	}
+	virtual void paintInvalid(GUIArea * tarea);
+	
+	rootWin* getBackWin();//返回其中的背景窗口
+
+	private:
+		uint8_t wsStyle;
+		rootWin* backWin;
+};
+
+//对话框 ------------
+class dialogWin:public mainWin 
+{
+public:
+	dialogWin(
+		uint16_t winXpos,
+		uint16_t winYpos,
+		uint16_t winWidth,
+		uint16_t winHigh,
+		char* name,
+		rootWin* parent,
+		xQueueHandle queue,
+		uint8_t wsStyle
+	);
+	virtual ~dialogWin();
+	virtual void registerWin();
+	void closeDialog();	
+	void dialogInit();		
+
+private:
+	void saveToBuf();
+	void readFromBuf();
+};
+
 
 //按钮
 class buttonWin:public controlWin
@@ -301,8 +311,14 @@ class buttonWin:public controlWin
 	virtual void registerWin();//激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
 	virtual void unregisterWin();//注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
 	virtual	void destroyWin();
-	
-	
+			
+	virtual void delInvalidArea(GUIArea * tarea)
+	{
+		controlWin::delInvalidArea(tarea);
+		paintInvalid(tarea);
+	}
+	virtual void paintInvalid(GUIArea * tarea);
+
 	void defocusButton();	 //按钮失焦
 	void pressButton(); 	 //按钮按下
 	void releaseButton();	 //按钮释放
@@ -327,6 +343,12 @@ class staticFrameWin:public controlWin
 	virtual void registerWin();//激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
 	virtual void unregisterWin();//注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
 	virtual	void destroyWin();
+	virtual void delInvalidArea(GUIArea * tarea)
+	{
+		controlWin::delInvalidArea(tarea);
+		paintInvalid(tarea);
+	}
+	virtual void paintInvalid(GUIArea * tarea);
 	
 	private:
 
@@ -354,6 +376,12 @@ public:
 		virtual void registerWin();	  	//激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
 		virtual void unregisterWin();	//注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
 		virtual	void destroyWin();
+		virtual void delInvalidArea(GUIArea * tarea)
+		{
+			controlWin::delInvalidArea(tarea);
+			paintInvalid(tarea);
+		}
+		virtual void paintInvalid(GUIArea * tarea);	
 			
 		void defocusOption()	; //选项失焦
 		void clickOption();	 	//改变选项
@@ -364,7 +392,7 @@ private:
 	bool selectStat;
 	void paintOption();//只重绘选项图标
 	void changSelectStat();
-
+	void optionString();
 	bool RadioorCheck;
 };
 
@@ -388,6 +416,12 @@ public:
 	virtual void unregisterWin();	//注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
 	virtual	void destroyWin();
 	
+	virtual void delInvalidArea(GUIArea * tarea)
+	{
+		controlWin::delInvalidArea(tarea);
+		paintInvalid(tarea);
+	}
+	virtual void paintInvalid(GUIArea * tarea);
 	
 	bool getHorizorVert(){return HorizorVert;}
 	void generateValue(); //根据现在的位置求 百分比
@@ -401,7 +435,7 @@ private:
 	uint32_t sliderStat; //前16位为x，后16位为y
 	bool HorizorVert; //true 为水平 false为垂直
 	uint16_t sliderWidth; //滑块宽度
-	void paintSlider(uint16_t xpos,uint16_t ypos);
+	void paintSlider(uint16_t xpos,uint16_t ypos,uint32_t color);
 	
 };
 
@@ -426,6 +460,13 @@ public:
 	virtual void unregisterWin();	//注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
 	virtual	void destroyWin();
 	
+	virtual void delInvalidArea(GUIArea * tarea)
+	{
+		controlWin::delInvalidArea(tarea);
+		paintInvalid(tarea);
+	}
+	virtual void paintInvalid(GUIArea * tarea);	
+		
 	void paintBarWin();	 //只画进度条
 	void setProgressValue(uint8_t pv);//传入 百分比*100 的值
 	
@@ -452,6 +493,12 @@ public:
 	virtual void registerWin();	  	//激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
 	virtual void unregisterWin();	//注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
 	virtual	void destroyWin();
+	virtual void delInvalidArea(GUIArea * tarea)
+	{
+		controlWin::delInvalidArea(tarea);
+		paintInvalid(tarea);
+	}
+	virtual void paintInvalid(GUIArea * tarea);
 	
 	void writeChar(char c);
 	void writeString(char* s,uint16_t n);
@@ -487,10 +534,16 @@ public:
 		xQueueHandle queue
 	);
 	virtual ~pictureBoxWin();
-	virtual void paintWin();	 	//绘画 就自己 不同的窗口实现不同
-	virtual void registerWin();	  	//激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
+	virtual void paintWin();	 		//绘画 就自己 不同的窗口实现不同
+	virtual void registerWin();	  //激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
 	virtual void unregisterWin();	//注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
 	virtual	void destroyWin();
+	virtual void delInvalidArea(GUIArea * tarea)
+	{
+		controlWin::delInvalidArea(tarea);
+		paintInvalid(tarea);
+	}
+	virtual void paintInvalid(GUIArea * tarea){};	
 		
 	void setBMPAddress(uint32_t addr){BmpAddress = addr;}
 private:
@@ -518,17 +571,22 @@ class listBarWin:public controlWin, comboBoxWin
 		virtual void registerWin();	  	//激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
 		virtual void unregisterWin();	//注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
 		virtual	void destroyWin();
-		
+		virtual void addInvalidArea(GUIArea * tarea);
+		virtual void delInvalidArea(GUIArea * tarea)
+		{
+			controlWin::delInvalidArea(tarea);
+			paintInvalid(tarea);
+		}
+		virtual void paintInvalid(GUIArea * tarea);
+			
 		void defocusListBar();	 	//按钮失焦
-		void pressListBar(); 	 	//按钮按下
+		void pressListBar(); 	 		//按钮按下
 		void releaseListBar();	 	//按钮释放
 		void changeOpenList();
 		bool isOpen(){return openStat;}
 		void changeOpenState();
-		void itemInit(char**  itemList, uint8_t num);//--------------------------???????
+		void itemInit(char**  itemList, uint8_t num);
 		
-		uint8_t*  getCoverBuffer(){return coverBuffer;}
-		uint32_t  getCoverBufLen(){return coverBufLen;}
 		char** 	  getItemList(){return itemList;}
 		uint16_t  getItemHigh(){return this->itemHigh;}
 	private:
@@ -537,12 +595,7 @@ class listBarWin:public controlWin, comboBoxWin
 		char** itemList;//存储每一项字符数据的指针的数组
 		uint32_t winColor;
 		bool openStat;
-		//还未填写
-		uint8_t* coverBuffer;//被覆盖的数据的 存储区
-		uint32_t coverBufLen;
-	
-		void saveToBuf();
-		void readFromBuf();
+		void stringChar();
 
 };
 
@@ -564,9 +617,15 @@ class radioBtnWin:public controlWin, comboBoxWin
 		virtual void registerWin();	  	//激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
 		virtual void unregisterWin();	//注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
 		virtual	void destroyWin();
-		
+		virtual void addInvalidArea(GUIArea * tarea);
+		virtual void delInvalidArea(GUIArea * tarea)
+		{
+			controlWin::delInvalidArea(tarea);
+			paintInvalid(tarea);
+		}
+		virtual void paintInvalid(GUIArea * tarea);
+			
 		void 	radioBtnInit(char**,uint8_t num,bool hv);
-
 		void 	optionSelect(optionWin* opw);
 			
 	private:
@@ -593,6 +652,13 @@ public:
 	virtual void registerWin();	  	//激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
 	virtual void unregisterWin();	//注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
 	virtual	void destroyWin();
+	virtual void addInvalidArea(GUIArea * tarea);
+	virtual void delInvalidArea(GUIArea * tarea)
+	{
+		controlWin::delInvalidArea(tarea);
+		paintInvalid(tarea);
+	}
+	virtual void paintInvalid(GUIArea * tarea);
 		
 	void trackTextInit();
 	void sliderSliding(uint16_t xpos,uint16_t ypos);
@@ -621,6 +687,13 @@ public:
 	virtual void registerWin();	  	//激活控件--注册 中间会调用createWin（） 其他根据不同的窗口变化
 	virtual void unregisterWin();	//注销控件  会调用destroy（）窗口 其他会根据不同窗口变化
 	virtual	void destroyWin(); 
+	virtual void addInvalidArea(GUIArea * tarea);
+	virtual void delInvalidArea(GUIArea * tarea)
+	{
+		controlWin::delInvalidArea(tarea);
+		paintInvalid(tarea);
+	}
+	virtual void paintInvalid(GUIArea * tarea);
 		
 	void keyBoardInit();
 	void intConverChar(uint32_t data1,uint32_t data2,char *c);//数值转换为字符
@@ -630,117 +703,9 @@ public:
 private:
 	bool shiftStat;
 	bool capsLockStat;
+	char** keybChar;
 	rootWin* destWorkWin; 
-	
-	
-	void saveToBuf();
-	void readFromBuf();
 };
 
-//布局窗口类 -- 方便控件布局
-class layoutWin
-{
-public:
-	layoutWin(
-		rootWin* backWin,	//要被布局的对象
-		uint16_t X,			//所要布局的范围
-		uint16_t Y,
-		uint16_t Width,
-		uint16_t High
-	);
-	virtual ~layoutWin();
-
-	rootWin* getBackWin(){return backWin;}
-	uint16_t getLayoutX(){return layoutX;}
-	uint16_t getLayoutY(){return layoutY;}
-	uint16_t getLayoutWidth(){return layoutWidth;}
-	uint16_t getLayoutHigh(){return layoutHigh;}
-	
-	uint16_t getHorizGap(){return horizGap;}
-	uint16_t getVertGap(){return vertGap;}
-	void setHorizGap(uint16_t horizGap){this->horizGap = horizGap;}
-	void setVertGap(uint16_t vertGap){this->vertGap = vertGap;}
-	virtual void addWin(rootWin* rw) = 0;
-private:
-	rootWin* backWin;//要被布局的对象
-	uint16_t layoutX;//所要布局的范围
-	uint16_t layoutY;
-	uint16_t layoutWidth;
-	uint16_t layoutHigh;
-
-	uint16_t horizGap; //horizontal间隙
-	uint16_t vertGap; //vertical间隙
-};
-
-//流式布局
-class flowLayoutWin:public layoutWin
-{
-public:
-	flowLayoutWin(
-		rootWin* backWin,	//要被布局的对象
-		uint16_t X,			//所要布局的范围
-		uint16_t Y,
-		uint16_t Width,
-		uint16_t High,
-		uint16_t Hgap,
-		uint16_t Vgap
-	);
-	virtual ~flowLayoutWin();
-
-	virtual void addWin(rootWin* rw);
-private:
-	uint16_t residualW;//剩余宽度
-	uint16_t residualH;//剩余高度
-	uint16_t maxH; //一行中最长的高
-
-};
-
-//边界布局
-class borderLayoutWin:public layoutWin
-{
-public:
-	borderLayoutWin(
-		rootWin* backWin,	//要被布局的对象
-		uint16_t X,			//所要布局的范围
-		uint16_t Y,
-		uint16_t Width,
-		uint16_t High
-	);
-	virtual ~borderLayoutWin();
-	virtual void addWin(rootWin* rw);
-	void addWin(rootWin* rw,uint16_t seat);
-	void setBorderSize(uint16_t northH,uint16_t southH,uint16_t westW,uint16_t eastW);
-private:	
-	uint16_t northH;
-	uint16_t southH;
-	uint16_t westW;
-	uint16_t eastW;
-	uint8_t layoutStat;//布局状态 那几个已经布局了
-
-};
-
-//网格布局
-class gridLayoutWin:public layoutWin
-{
-public:
-	gridLayoutWin(
-		rootWin* backWin,	//要被布局的对象
-		uint16_t X,			//所要布局的范围相对位移
-		uint16_t Y,
-		uint16_t Width,
-		uint16_t High,
-		uint8_t  row,
-		uint8_t  column
-	);
-	virtual ~gridLayoutWin();
-	virtual void addWin(rootWin* rw);
-	void generateGridWH(uint16_t horizGap,uint16_t vertGap);
-private:
-	uint8_t row; //行
-	uint8_t column; //列
-	uint8_t currSeat;
-	uint16_t gridW;
-	uint16_t gridH;
-};
 
 #endif //!_WINCLASS_H_

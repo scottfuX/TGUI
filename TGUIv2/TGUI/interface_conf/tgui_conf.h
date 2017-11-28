@@ -72,7 +72,6 @@ extern uint8_t LCD_BUFADDR[];
 #define HAVE_DMA2D 1
 
 void GUIDma2d(uint16_t x ,uint16_t y,uint16_t w,uint16_t h,uint32_t textColor,uint32_t backColor);
-void GUISetColors(uint32_t textColor,uint32_t backColor);//提供一个设置颜色的驱动
 void GUIPutPixel(uint16_t xpos,uint16_t ypos);//提供一个绘画一个点的驱动
 
 void GUISetPoint(uint16_t x,uint16_t y);

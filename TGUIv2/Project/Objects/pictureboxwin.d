@@ -1,5 +1,6 @@
 .\objects\pictureboxwin.o: ..\TGUI\pictureBoxWin.cpp
 .\objects\pictureboxwin.o: ..\TGUI\winClass.h
+.\objects\pictureboxwin.o: ..\TGUI\GUIList.h
 .\objects\pictureboxwin.o: ..\TGUI\interface_conf/tgui_conf.h
 .\objects\pictureboxwin.o: ..\User\includes_all.h
 .\objects\pictureboxwin.o: ..\Libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h
@@ -58,3 +59,6 @@
 .\objects\pictureboxwin.o: ..\User\FONT/fonts.h
 .\objects\pictureboxwin.o: ..\User\SDRAM/SDRAMConfig.h
 .\objects\pictureboxwin.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\pictureboxwin.o: ..\TGUI\draw_class/drawingClass.h
+.\objects\pictureboxwin.o: ..\TGUI\interface_conf/tgui_conf.h
+.\objects\pictureboxwin.o: ..\TGUI\interface_conf/tgui_conf.h

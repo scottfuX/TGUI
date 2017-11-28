@@ -1,5 +1,7 @@
-.\objects\gridlayoutwin.o: ..\TGUI\gridLayoutWin.cpp
+.\objects\gridlayoutwin.o: ..\TGUI\layout_class\gridLayoutWin.cpp
+.\objects\gridlayoutwin.o: ..\TGUI\layout_class/layoutClass.h
 .\objects\gridlayoutwin.o: ..\TGUI\winClass.h
+.\objects\gridlayoutwin.o: ..\TGUI\GUIList.h
 .\objects\gridlayoutwin.o: ..\TGUI\interface_conf/tgui_conf.h
 .\objects\gridlayoutwin.o: ..\User\includes_all.h
 .\objects\gridlayoutwin.o: ..\Libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h
@@ -58,3 +60,7 @@
 .\objects\gridlayoutwin.o: ..\User\FONT/fonts.h
 .\objects\gridlayoutwin.o: ..\User\SDRAM/SDRAMConfig.h
 .\objects\gridlayoutwin.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\gridlayoutwin.o: ..\TGUI\draw_class/drawingClass.h
+.\objects\gridlayoutwin.o: ..\TGUI\interface_conf/tgui_conf.h
+.\objects\gridlayoutwin.o: ..\TGUI\interface_conf/tgui_conf.h
+.\objects\gridlayoutwin.o: ..\TGUI\interface_conf/tgui_conf.h

@@ -1,5 +1,6 @@
 .\objects\optionwin.o: ..\TGUI\optionWin.cpp
 .\objects\optionwin.o: ..\TGUI\winClass.h
+.\objects\optionwin.o: ..\TGUI\GUIList.h
 .\objects\optionwin.o: ..\TGUI\interface_conf/tgui_conf.h
 .\objects\optionwin.o: ..\User\includes_all.h
 .\objects\optionwin.o: ..\Libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h
@@ -58,3 +59,6 @@
 .\objects\optionwin.o: ..\User\FONT/fonts.h
 .\objects\optionwin.o: ..\User\SDRAM/SDRAMConfig.h
 .\objects\optionwin.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\optionwin.o: ..\TGUI\draw_class/drawingClass.h
+.\objects\optionwin.o: ..\TGUI\interface_conf/tgui_conf.h
+.\objects\optionwin.o: ..\TGUI\interface_conf/tgui_conf.h

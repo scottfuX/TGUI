@@ -1,5 +1,7 @@
-.\objects\layoutwin.o: ..\TGUI\layoutWin.cpp
+.\objects\layoutwin.o: ..\TGUI\layout_class\layoutWin.cpp
+.\objects\layoutwin.o: ..\TGUI\layout_class/layoutClass.h
 .\objects\layoutwin.o: ..\TGUI\winClass.h
+.\objects\layoutwin.o: ..\TGUI\GUIList.h
 .\objects\layoutwin.o: ..\TGUI\interface_conf/tgui_conf.h
 .\objects\layoutwin.o: ..\User\includes_all.h
 .\objects\layoutwin.o: ..\Libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h
@@ -58,3 +60,7 @@
 .\objects\layoutwin.o: ..\User\FONT/fonts.h
 .\objects\layoutwin.o: ..\User\SDRAM/SDRAMConfig.h
 .\objects\layoutwin.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\layoutwin.o: ..\TGUI\draw_class/drawingClass.h
+.\objects\layoutwin.o: ..\TGUI\interface_conf/tgui_conf.h
+.\objects\layoutwin.o: ..\TGUI\interface_conf/tgui_conf.h
+.\objects\layoutwin.o: ..\TGUI\interface_conf/tgui_conf.h

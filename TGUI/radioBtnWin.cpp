@@ -70,9 +70,30 @@ void radioBtnWin::optionSelect(optionWin* opw)
 	}
 }
 
+void radioBtnWin::addInvalidArea(GUIArea * tarea)
+{
+	controlWin::addInvalidArea(tarea);
+	//更新子覆盖链表
+	if(getInvalidList()->getNum() == 1)
+	{
+		for(int i=0;i < getRwNum();i++)
+		{
+			((controlWin*)getRwList()[i])->setInvalidList(getInvalidList());
+		}
+	}
+}
+
+void radioBtnWin::paintInvalid(GUIArea * tarea)
+{
+	for(int i=0;i< getRwNum();i++)
+	{	
+		((controlWin*)getRwList()[i])->paintInvalid(tarea);
+	}
+}
+
 void radioBtnWin::paintWin()
 {
-	
+
 }
 
 void radioBtnWin::registerWin()
@@ -83,7 +104,6 @@ void radioBtnWin::registerWin()
 void radioBtnWin::unregisterWin()
 {
 		rootWin::unregisterWin();
-	
 }
 
 void radioBtnWin::destroyWin()

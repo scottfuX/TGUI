@@ -74,9 +74,11 @@
 .\objects\main.o: ..\User\Test/LCDPalette.h
 .\objects\main.o: ..\TGUI\createWin.h
 .\objects\main.o: ..\TGUI\winClass.h
-.\objects\main.o: ..\TGUI\interface_conf/tgui_conf.h
-.\objects\main.o: ..\TGUI\drawingClass.h
 .\objects\main.o: ..\TGUI\GUIList.h
 .\objects\main.o: ..\TGUI\interface_conf/tgui_conf.h
+.\objects\main.o: ..\TGUI\draw_class/drawingClass.h
+.\objects\main.o: ..\TGUI\interface_conf/tgui_conf.h
+.\objects\main.o: ..\TGUI\interface_conf/tgui_conf.h
+.\objects\main.o: ..\TGUI\layout_class/layoutClass.h
 .\objects\main.o: ..\TGUI\interface_conf/tgui_conf.h
 .\objects\main.o: ..\TGUI\interface_conf/tgui_conf.h

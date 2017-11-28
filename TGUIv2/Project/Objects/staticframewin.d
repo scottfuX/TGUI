@@ -1,5 +1,6 @@
 .\objects\staticframewin.o: ..\TGUI\staticFrameWin.cpp
 .\objects\staticframewin.o: ..\TGUI\winClass.h
+.\objects\staticframewin.o: ..\TGUI\GUIList.h
 .\objects\staticframewin.o: ..\TGUI\interface_conf/tgui_conf.h
 .\objects\staticframewin.o: ..\User\includes_all.h
 .\objects\staticframewin.o: ..\Libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h
@@ -58,3 +59,6 @@
 .\objects\staticframewin.o: ..\User\FONT/fonts.h
 .\objects\staticframewin.o: ..\User\SDRAM/SDRAMConfig.h
 .\objects\staticframewin.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\staticframewin.o: ..\TGUI\draw_class/drawingClass.h
+.\objects\staticframewin.o: ..\TGUI\interface_conf/tgui_conf.h
+.\objects\staticframewin.o: ..\TGUI\interface_conf/tgui_conf.h

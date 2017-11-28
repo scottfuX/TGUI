@@ -23,10 +23,10 @@ rootWin::rootWin(
 	this->WinProcSign = false;//默认没有窗口过程
 	winSelectedStat = false;//默认未被选中
 	isAddTree = false;//未加入树
-	//根据相对位置 确定 绝对路径
+
 	isMutable = false;
-	coverHead = NULL;
-	
+	thisArea = NULL;
+	//根据相对位置 确定 绝对路径
 	rootWin* rw  = this;
 	this->absoluteX = winXpos;
 	this->absoluteY = winYpos;
@@ -122,19 +122,6 @@ void rootWin::paintAll()
 {
 	paintWin();
 	preTraversePaint(this->child);
-	if(getCoverHead() != NULL)
-	{
-		printf("come in %d\n",winHigh);
-		winListNode* temp = getCoverHead();
-		while(temp != NULL)
-		{
-			printf("paint next\n");
-			temp->win->paintAll();
-			if(temp!=NULL)
-				temp = temp->next;
-			printf("paint end...\n");
-		}
-	}
 }
 
 
@@ -143,10 +130,6 @@ void rootWin::registerWin()
 {
 	if(!isAddTree)// no added tree
 	{
-		if(isMutable)
-		{
-			markCovered();
-		}
 		addWintoTree();//added
 		isAddTree = true;
 	}
@@ -157,10 +140,6 @@ void rootWin::unregisterWin()
 {
 	if(isAddTree)// added tree
 	{
-		if(isMutable)
-		{
-			markDelete();
-		}
 		remWinfromTree(); //remove
 		isAddTree = false; 
 	}
@@ -255,85 +234,65 @@ retStatus rootWin::sendMSGtoFront(message* msg,xQueueHandle que)
 	return GUI_OK;
 }
 
-
-void rootWin::markCovered()
+void rootWin::addCoverArea()
 {
-	uint16_t x,y;
-	int i,j;
-	rootWin* rw;
-	for(j=0;j<4;j++)	//采样
+	//遍历
+	//添加无效区
+	if(!thisArea)
 	{
-		if(j == 0)
+		rootWin* rw = this->getParent()->getChild();
+		thisArea = new GUIArea(getAbsoluteX(),getAbsoluteY(),
+			getAbsoluteX()+getWinWidth()+1,getAbsoluteY()+getWinHigh()+1);
+		GUIArea area(getParent()->getAbsoluteX(),getParent()->getAbsoluteY(),
+			getParent()->getAbsoluteX()+getParent()->getWinWidth(),getParent()->getAbsoluteY()+getParent()->getWinHigh());
+		((controlWin*)getParent())->addInvalidArea(thisArea);
+		GUIRectangle temp(0,0,10,10,RED,((controlWin*)this)->getInvalidList());
+		while(rw != NULL)
 		{
-			y = getAbsoluteY();//上边框
-			for(i=0;i<winWidth/SAMPLING_POINT;i++)
+			area.setX1(rw->getAbsoluteX());
+			area.setY1(rw->getAbsoluteY());
+			area.setX2(rw->getAbsoluteX() + rw->getWinWidth());
+			area.setY2(rw->getAbsoluteY() + rw->getWinHigh());
+			GUIArea*  inarea = temp.rectIntersect(thisArea,&area);
+			if(inarea != NULL && rw != this)
 			{
-				x = getAbsoluteX()+i*SAMPLING_POINT;
-				travMark(rw,x,y); //遍历标记 -- 只标记兄弟
+				//怎么调用子类的add
+				((controlWin*)rw)->addInvalidArea(thisArea);
 			}
-		}else if(j == 1){
-			y = getAbsoluteY()+getWinHigh();//下边框
-			for(i=0;i<winWidth/SAMPLING_POINT;i++)
-			{
-				x = getAbsoluteX()+i*SAMPLING_POINT;
-				travMark(rw,x,y);	//遍历标记 -- 只标记兄弟
-			}
-		}else if(j == 2){
-			x =  getAbsoluteX();//左边框
-			for(i=0;i<winHigh/SAMPLING_POINT;i++)
-			{
-				y = getAbsoluteY()+i*SAMPLING_POINT;
-				travMark(rw,x,y);	//遍历标记 -- 只标记兄弟
-			}
-		}else{
-			x =  getAbsoluteX()+getWinWidth();//右边框
-			for(i=0;i<winHigh/SAMPLING_POINT;i++)
-			{
-				y = getAbsoluteY()+i*SAMPLING_POINT;
-				travMark(rw,x,y);	//遍历标记 -- 只标记兄弟
-			}
+			delete inarea;
+			rw = rw->getBrother();
 		}
 	}
 }
 
-void rootWin::markDelete()
+
+void rootWin::delCoverArea()
 {
-	uint16_t x,y;
-	int i,j;
-	rootWin* rw;
-	for(j=0;j<4;j++)//采样
+	//遍历
+	//删除无效区
+	if(thisArea)
 	{
-		if(j == 0)
+		rootWin* rw = this->getParent()->getChild();
+		GUIArea area(rw->getAbsoluteX(),rw->getAbsoluteY(),rw->getAbsoluteX()+rw->getWinWidth(),
+				rw->getAbsoluteY()+rw->getWinHigh());
+		((controlWin*)getParent())->delInvalidArea(thisArea);
+		GUIRectangle temp(0,0,10,10,RED,((controlWin*)this)->getInvalidList());
+		while(rw != NULL)//遍历--添加无效区
 		{
-			y = getAbsoluteY();						//上边框
-			for(i=0;i<winWidth/SAMPLING_POINT;i++)
-			{
-				x = getAbsoluteX()+i*SAMPLING_POINT;
-				travDelMark(rw,x,y);  //遍历 并删除标记
+			area.setX1(rw->getAbsoluteX());
+			area.setY1(rw->getAbsoluteY());
+			area.setX2(rw->getAbsoluteX() + rw->getWinWidth());
+			area.setY2(rw->getAbsoluteY() + rw->getWinHigh());
+			GUIArea*  inarea = temp.rectIntersect(thisArea,&area);
+			if(inarea != NULL && rw != this)
+			{	
+				((controlWin*)rw)->delInvalidArea(thisArea);
 			}
-		}else if(j == 1){
-			y = getAbsoluteY()+getWinHigh();//下边框
-			for(i=0;i<winWidth/SAMPLING_POINT;i++)
-			{
-				x = getAbsoluteX()+i*SAMPLING_POINT;
-				travDelMark(rw,x,y);  //遍历 并删除标记
-			}
-		}else if(j == 2)
-		{
-			x =  getAbsoluteX();						//左边框
-			for(i=0;i<winHigh/SAMPLING_POINT;i++)
-			{
-				y = getAbsoluteY()+i*SAMPLING_POINT;
-				travDelMark(rw,x,y);   //遍历 并删除标记
-			}
-		}else{
-			x =  getAbsoluteX()+getWinWidth();//右边框
-			for(i=0;i<winHigh/SAMPLING_POINT;i++)
-			{
-				y = getAbsoluteY()+i*SAMPLING_POINT;
-				travDelMark(rw,x,y);   //遍历 并删除标记
-			}
+			delete inarea;
+			rw = rw->getBrother();
 		}
+		delete thisArea;
+		thisArea = NULL;
 	}
 }
 
@@ -367,7 +326,7 @@ void rootWin::destroyCAndB()
 	}
 	this->parent = NULL;
 	delete this;
-	printf("\ndestroy\n");
+	printf("\n--destroy--\n");
 }
 
 //加入树中
@@ -416,81 +375,4 @@ void rootWin::remWinfromTree()
 		}
 	}
 }
-
-//遍历 标记--只检查他的兄弟
-void rootWin::travMark(rootWin* rw,uint16_t x,uint16_t y)
-{
-	rw = this->parent->getChild();
-	winListNode* temp ;
-	while(rw != NULL)
-	{
-		if(rw->isInArea(x,y)&&rw != this)
-		{
-			//标识
-			if(rw->getCoverHead()==NULL)
-			{
-				temp = new winListNode();
-				rw->setCoverHead(temp);
-				rw->getCoverHead()->win = this;
-				rw->getCoverHead()->next = NULL;
-				rw = rw->getBrother();
-				continue;
-			}else{
-				winListNode* t = rw->getCoverHead();
-				if(t->win != this)
-				{
-					while(t->next != NULL && t->next->win != this)
-					{
-						t = t->next;
-					}
-					if(t->next == NULL)
-					{
-						temp = new winListNode();
-						t->next = temp;
-						temp->next = NULL;
-						temp->win = this;
-					}
-				}
-			}
-		}
-		rw = rw->getBrother();
-	}
-}
-
-//遍历 并删除标记
-void rootWin::travDelMark(rootWin* rw,uint16_t x,uint16_t y)
-{
-	rw = this->parent->getChild();
-	while(rw != NULL)
-	{
-		if(rw->isInArea(x,y) && rw != this)//说明有标记过
-		{//标识
-			winListNode*temp = rw->getCoverHead();
-			if(temp->win == this)//如果是第一个就是
-			{
-				rw->setCoverHead(temp->next);
-				delete temp;//删除
-				rw->paintAll();
-				rw = rw->getBrother();
-				continue;
-			}
-			if(temp!=NULL)
-			{
-				while(temp->next != NULL && temp->next->win != this )
-				{
-					temp = temp->next;
-				}
-				if(temp->next !=NULL)	//找到了
-				{
-					winListNode * t = temp->next;
-					temp->next = t->next;
-					delete t;
-					rw->paintAll();
-				}
-			}
-		}
-		rw = rw->getBrother();
-	}
-}
-
 

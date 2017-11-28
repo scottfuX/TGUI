@@ -22,10 +22,25 @@ buttonWin::~buttonWin()
 //绘画 就自己 不同的窗口实现不同
 void buttonWin::paintWin()
 {	
-	LCD_SetColors(getBackColor(),getBackColor());
-	LCD_DrawFullRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh());
-	LCD_SetColors(getTextColor(),getTextColor());
-	LCD_DrawRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh());
+	GUIRectangle a(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh(),getBackColor(),getInvalidList());
+	a.setIsFull(true);
+	a.draw();
+	a.setIsFull(false);
+	a.setColor(getTextColor());
+	a.draw();
+	//字就从头打好了
+	displayStrCenter(getFont(),getTextColor(),getBackColor(),getWinName());
+}
+
+void buttonWin::paintInvalid(GUIArea * tarea)
+{printf("button...\n");
+	GUIRectangle a(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh(),getBackColor(),getInvalidList());
+	a.setIsFull(true);
+	a.drawInArea(tarea);
+	a.setIsFull(false);
+	a.setColor(getTextColor());
+	a.drawInArea(tarea);
+	//字就从头打好了
 	displayStrCenter(getFont(),getTextColor(),getBackColor(),getWinName());
 }
 
@@ -33,11 +48,13 @@ void buttonWin::paintWin()
 void buttonWin::defocusButton()
 {
 	//绘画成纯灰色
-	LCD_SetColors(GREY,GREY);
-	LCD_DrawFullRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh());
-	LCD_SetColors(getTextColor(),getTextColor());
-	LCD_DrawRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh());
-	displayStrCenter(getFont(),BLACK,GREY,getWinName());
+		GUIRectangle a(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh(),GREY,getInvalidList());
+		a.setIsFull(true);
+		a.draw();
+		a.setIsFull(false);
+		a.setColor(getTextColor());
+		a.draw();
+		displayStrCenter(getFont(),getTextColor(),getBackColor(),getWinName());
 }
 
 //按钮按下
@@ -45,11 +62,13 @@ void buttonWin::pressButton()
 {
 	if(!isWinSelected())//之前未被选中 改为选中
 	{
-		LCD_SetColors(WHITE,WHITE);
-		LCD_DrawFullRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh());
-		LCD_SetColors(getTextColor(),getTextColor());
-		LCD_DrawRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh());
-		displayStrCenter(getFont(),getTextColor(),WHITE,getWinName());	
+		GUIRectangle a(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh(),WHITE,getInvalidList());
+		a.setIsFull(true);
+		a.draw();
+		a.setIsFull(false);
+		a.setColor(getTextColor());
+		a.draw();
+		displayStrCenter(getFont(),getTextColor(),WHITE,getWinName());
 		changSelectedStat();		
 	}
 }

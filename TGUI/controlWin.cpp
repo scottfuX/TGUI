@@ -20,6 +20,27 @@ controlWin::~controlWin()
 
 }
 
+//add
+void controlWin::addInvalidArea(GUIArea * tarea)
+{
+	if(invalidList == NULL)
+	{
+			invalidList = new GUIList<GUIArea>();
+	}
+	invalidList->addNode(tarea);
+}
+
+//del
+void controlWin::delInvalidArea(GUIArea * tarea)
+{
+	invalidList->resetCurrNode();
+	getInvalidList()->delNode(tarea);
+	if(getInvalidList()->getNum() == 0)
+	{	
+		getInvalidList()->destroyList();
+		setInvalidList(NULL);
+	}
+}
 
 //中心打印
 void controlWin::displayStrCenter(sFONT font,uint32_t textColor,uint32_t backColor,char* str)
@@ -38,12 +59,17 @@ void controlWin::displayStrCenter(sFONT font,uint32_t textColor,uint32_t backCol
 		}
 		uint16_t line = getAbsoluteY() + ((getWinHigh()- font.Height)/2);
 		uint16_t column = getAbsoluteX() + ((getWinWidth()- font.Width*num)/2);
-		LCD_SetFont(&font);
-		LCD_SetColors(textColor,backColor);
+		//创建对象
+	  GUIChar ctemp(column,line,&font,textColor,backColor,getInvalidList());
+		//ctemp.setIsFull(false);//是否透明 倒是再设置
+		ctemp.setIsFull(true);
 		while(i < num )
 		{
 			temp = (uint16_t) str[i];
-			LCD_DisplayChar(line,column,temp);
+			//修改位置
+			ctemp.setCharXY(column,line);
+			//打印
+			ctemp.displayChar(temp);
 			column += font.Width;
 			i++;
 		}
@@ -57,8 +83,7 @@ void controlWin::displayStrNormal(sFONT font,uint32_t textColor,uint32_t backCol
 		uint8_t i = 0;
 		uint16_t line = getAbsoluteY() ;
 		uint16_t column = getAbsoluteX() ;
-		LCD_SetFont(&font);
-		LCD_SetColors(textColor,backColor);
+		GUIChar ctemp(column,line,&font,textColor,backColor,getInvalidList());
 		while(str[i] != '\0' )
 		{
 			temp = (uint16_t) str[i];
@@ -73,11 +98,16 @@ void controlWin::displayStrNormal(sFONT font,uint32_t textColor,uint32_t backCol
 				return ;
 				}
 			}
-			LCD_DisplayChar(line,column,temp);
+			//修改位置
+			ctemp.setCharXY(column,line);
+			//打印
+			ctemp.displayChar(temp);
 			column += font.Width;
 			i++;
 		}
 	}
 }
+
+
 
 

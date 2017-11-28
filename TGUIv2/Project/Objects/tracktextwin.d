@@ -1,5 +1,6 @@
 .\objects\tracktextwin.o: ..\TGUI\trackTextWin.cpp
 .\objects\tracktextwin.o: ..\TGUI\winClass.h
+.\objects\tracktextwin.o: ..\TGUI\GUIList.h
 .\objects\tracktextwin.o: ..\TGUI\interface_conf/tgui_conf.h
 .\objects\tracktextwin.o: ..\User\includes_all.h
 .\objects\tracktextwin.o: ..\Libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h
@@ -58,3 +59,6 @@
 .\objects\tracktextwin.o: ..\User\FONT/fonts.h
 .\objects\tracktextwin.o: ..\User\SDRAM/SDRAMConfig.h
 .\objects\tracktextwin.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\tracktextwin.o: ..\TGUI\draw_class/drawingClass.h
+.\objects\tracktextwin.o: ..\TGUI\interface_conf/tgui_conf.h
+.\objects\tracktextwin.o: ..\TGUI\interface_conf/tgui_conf.h

@@ -30,13 +30,22 @@ trackBarWin::~trackBarWin()
 void trackBarWin::paintWin()
 {
 	//背景
-	LCD_SetColors(GREY1,GREY1);
-	LCD_DrawFullRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh());
-	LCD_SetColors(getTextColor(),getTextColor());
-	paintSlider((uint16_t)(sliderStat>>16),(uint16_t)sliderStat);
+	GUIRectangle a(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh(),GREY1,getInvalidList());
+	a.setIsFull(true);
+	a.draw();
+	paintSlider((uint16_t)(sliderStat>>16),(uint16_t)sliderStat,getTextColor());
 	sliderSliding((uint16_t)(sliderStat>>16),(uint16_t)sliderStat);
 } 	
 
+void trackBarWin::paintInvalid(GUIArea * tarea)
+{
+	//只刷新被覆盖的区域和滑块
+	GUIRectangle a(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh(),GREY1,getInvalidList());
+	a.setIsFull(true);
+	a.drawInArea(tarea);
+	paintSlider((uint16_t)(sliderStat>>16),(uint16_t)sliderStat,getTextColor());
+	sliderSliding((uint16_t)(sliderStat>>16),(uint16_t)sliderStat);
+}
 
 //滑块滑动 只需pos
 void trackBarWin::sliderSliding(uint16_t xpos,uint16_t ypos)
@@ -48,18 +57,17 @@ void trackBarWin::sliderSliding(uint16_t xpos,uint16_t ypos)
 		sliderStat  = (tx << 16);
 		sliderStat += ypos;
 		//背景
-		LCD_SetColors(GREY1,GREY1);
-		LCD_DrawFullRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh());
-		LCD_SetColors(WHITE,WHITE);
-		paintSlider(xpos,ypos);
+		GUIRectangle a(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh(),GREY1,getInvalidList());
+		a.setIsFull(true);
+		a.draw();
+		paintSlider(xpos,ypos,WHITE);
 	}
 }
 
 //释放
 void trackBarWin::releaseSlider()
 {
-	LCD_SetColors(getTextColor(),getTextColor());
-	paintSlider((uint16_t)(sliderStat>>16),((uint16_t)sliderStat));
+	paintSlider((uint16_t)(sliderStat>>16),((uint16_t)sliderStat),getTextColor());
 }
 
 //根据现在的位置求 百分比
@@ -93,9 +101,8 @@ void trackBarWin::destroyWin()
 	rootWin::destroyWin();
 }
 
-void trackBarWin::paintSlider(uint16_t xpos,uint16_t ypos)
+void trackBarWin::paintSlider(uint16_t xpos,uint16_t ypos,uint32_t color)
 {
-	
 		uint16_t x,y,w,h;
 		if(HorizorVert)//水平
 		{
@@ -119,7 +126,9 @@ void trackBarWin::paintSlider(uint16_t xpos,uint16_t ypos)
 			else if(y> (getAbsoluteY()+getWinHigh()-h))
 			{y = getAbsoluteY()+getWinHigh()-h;}
 		}
-		LCD_DrawFullRect(x,y,w,h);
+		GUIRectangle a(x,y,w,h,color,getInvalidList());
+		a.setIsFull(true);
+		a.draw();
 }
 
 

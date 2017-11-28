@@ -20,8 +20,18 @@ staticFrameWin::~staticFrameWin()
 //绘画 就自己 不同的窗口实现不同
 void staticFrameWin::paintWin()
 {
-	LCD_SetColors(getBackColor(),getBackColor());
-	LCD_DrawFullRect(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh());
+	GUIRectangle a(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh(),getBackColor(),getInvalidList());
+	a.setIsFull(true);
+	a.draw();
+	displayStrCenter(getFont(),getTextColor(),getBackColor(),getWinName());
+}
+
+void staticFrameWin::paintInvalid(GUIArea * tarea)
+{ 
+	GUIRectangle a(getAbsoluteX(),getAbsoluteY(),getWinWidth(),getWinHigh(),getBackColor(),getInvalidList());
+	a.setIsFull(true);
+	a.drawInArea(tarea);
+	//字就从头打好了
 	displayStrCenter(getFont(),getTextColor(),getBackColor(),getWinName());
 }
 
@@ -41,6 +51,4 @@ void staticFrameWin::destroyWin()
 {
 	rootWin::destroyWin();
 }
-
- 
 
